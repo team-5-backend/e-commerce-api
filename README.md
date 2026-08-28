@@ -28,7 +28,7 @@ pnpm dev
 bun dev
 ```
 
-Your application will be running at `http://localhost:3000` by default.
+Your application will be running at `http://localhost:4000` by default.
 
 ### Feedback
 
