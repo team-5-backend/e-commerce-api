@@ -1,19 +1,19 @@
-import { User } from '../models/user.model.js';
+import { User } from '../models'
 
 export const userService = {
-    fetchUsers: async () => {
-        return await User.find().sort({ createdAt: -1 });
-    },
+  fetchUsers: async () => {
+    return await User.find().sort({ createdAt: -1 })
+  },
 
-    fetchUserById: async (id) => {
-        return await User.findById(id);
-    },
+  fetchUserById: async (id) => {
+    return await User.findById(id)
+  },
 
-    createUser: async (data) => {
-        return await User.create(data);
-    },
+  createUser: async (data) => {
+    return await User.create(data)
+  },
 
-    deleteUser: async (id) => {
-        return await User.findByIdAndDelete(id);
-    },
-};
+  deleteUser: async (id) => {
+    return await User.findByIdAndDelete(id)
+  },
+}

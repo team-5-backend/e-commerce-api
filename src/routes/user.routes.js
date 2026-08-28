@@ -1,9 +1,10 @@
-import { Router } from 'express';
-import * as userController from '../controllers/user.controller.js';
+import { Router } from 'express'
 
-const router = Router();
+import * as userController from '../controllers'
 
-router.get('/', userController.getAllUsers);
-router.get('/:id', userController.getUserById);
+const router = Router()
 
-export default router;
+router.get('/', userController.getAllUsers)
+router.get('/:id', userController.getUserById)
+
+export default router
