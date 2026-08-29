@@ -4,8 +4,8 @@ import express from 'express'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 
-import { errorHandler, morganMiddleware, notFoundHandler } from './middlewares'
-import router from './routes'
+import { errorHandler, morganMiddleware, notFoundHandler } from './middlewares/index.js'
+import router from './routes/index.js'
 
 const app = express()
 

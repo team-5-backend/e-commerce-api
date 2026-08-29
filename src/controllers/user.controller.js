@@ -1,5 +1,5 @@
-import { Constants } from '../config/constants'
-import { userService } from '../services'
+import { Constants } from  '../config/constants.js'
+import * as userService from '../services/index.js'
 
 export const getAllUsers = async (_req, res, next) => {
   try {

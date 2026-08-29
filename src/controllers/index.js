@@ -1,1 +1,1 @@
-export * as userController from './user.controller.js'
+export * from './user.controller.js'
