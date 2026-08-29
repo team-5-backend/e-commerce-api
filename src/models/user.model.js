@@ -2,17 +2,7 @@ import bcrypt from 'bcrypt'
 import mongoose from 'mongoose'
 import validator from 'validator'
 
-// sub schema address
-const addressSchema = new mongoose.Schema(
-  {
-    street: String,
-    city: String,
-    state: String,
-    country: String,
-    zipCode: String,
-  },
-  { _id: false },
-)
+import addressSchema from '../schemas/address.schema.js'
 
 const userSchema = new mongoose.Schema(
   {
@@ -55,7 +45,7 @@ const userSchema = new mongoose.Schema(
 
     avatar: {
       type: String,
-      default: 'https://www.instagram.com/p/DRPmieLCGo2/',
+      default: 'https://i.pinimg.com/736x/f5/47/d8/f547d800625af9056d62efe8969aeea0.jpg',
     },
 
     role: {
@@ -69,6 +59,7 @@ const userSchema = new mongoose.Schema(
       type: [addressSchema],
       default: [],
     },
+
     wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -113,4 +104,5 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password)
 }
+
 export const User = mongoose.model('User', userSchema)
