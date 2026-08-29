@@ -4,6 +4,9 @@ import app from './app.js'
 import { connectDatabase } from './config/database.js'
 import environment from './config/environment.js'
 import logger from './utils/logger.js'
+const cors = require('cors')
+const corsOptions = require('./config/corsoption.js')
+app.use(cors(corsOptions))
 
 dotenv.config()
 
