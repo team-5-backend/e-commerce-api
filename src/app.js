@@ -4,13 +4,9 @@ import express from 'express'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 
-import { errorHandler, morganMiddleware, notFoundHandler } from './middlewares/index.js'
 import router from './routes/index.js'
 
 const app = express()
-
-// Logging
-app.use(morganMiddleware)
 
 // Security
 app.use(helmet())
@@ -26,9 +22,5 @@ app.use(express.urlencoded({ extended: true }))
 
 // Routes
 app.use('/api/v1', router)
-
-// Error Handling
-app.use(notFoundHandler)
-app.use(errorHandler)
 
 export default app
