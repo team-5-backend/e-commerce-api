@@ -1,3 +1,4 @@
+import { v2 as cloudinary } from 'cloudinary'
 import dotenv from 'dotenv'
 
 import app from './src/app.js'
@@ -6,6 +7,12 @@ import { connectDatabase } from './src/db/db.js'
 import logger from './src/utils/logger.js'
 
 dotenv.config()
+
+cloudinary.config({
+  cloud_name: environment.cloudinaryCloudName,
+  api_key: environment.cloudinaryApiKey,
+  api_secret: environment.cloudinaryApiSecret,
+})
 
 await connectDatabase()
 
