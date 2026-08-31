@@ -2,6 +2,7 @@ import otpGenerator from 'otp-generator';
 import nodemailer from 'nodemailer';
 import { OTP, express } from '../models/otp.model.js';
 import bcrypt from 'bcrypt';
+import sendEmail from '../utils/sendEmail.js';
 
 const app = express();
 
@@ -28,16 +29,22 @@ app.post('/generate-otp', async (req, res) => {
 
         await OTP.create({ email, otp: hashedOtp });
 
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'your-mail@gmail.com',
-                pass: 'your-app-password',
-            },
-        });
+        // const transporter = nodemailer.createTransport({
+        //     service: 'gmail',
+        //     auth: {
+        //         user: 'your-mail@gmail.com',
+        //         pass: 'your-app-password',
+        //     },
+        // });
 
-        await transporter.sendMail({
-            from: 'your-mail@gmail.com',
+        // await transporter.sendMail({
+        //     from: 'your-mail@gmail.com',
+        //     to: email,
+        //     subject: 'OTP Verification',
+        //     text: `Your OTP for verification is: ${otp}`,
+        // });
+
+        await sendEmail({
             to: email,
             subject: 'OTP Verification',
             text: `Your OTP for verification is: ${otp}`,
