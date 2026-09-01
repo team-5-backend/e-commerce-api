@@ -1,24 +1,26 @@
 import { uploadImages } from '../utils/upload.js';
 
-export const uploadFile = async (req, res) => {
+export const uploadFiles = async (req, res) => {
     try {
-        if (!req.file) {
+        if (!req.files || req.files.length === 0) {
             return res.status(400).json({
-                message: 'No file uploaded',
+                message: 'No pictures uploaded',
             });
         }
 
-        const [image] = await uploadImages([req.file.buffer]);
+        const images = await uploadImages(req.files.map((file) => file.buffer));
+
+        // const [image] = await uploadImages(req.file.buffer); // لو عايز ارفع ملف واحد
 
         return res.status(200).json({
-            message: 'File uploaded successfully',
-            image,
+            message: 'Pictures uploaded successfully',
+            images,
         });
     } catch (error) {
         console.error(error);
 
         return res.status(500).json({
-            message: 'Failed to upload file',
+            message: 'Failed to upload pictures',
         });
     }
 };
