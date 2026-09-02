@@ -61,3 +61,17 @@ export const updateProductSchema = Joi.object({
 })
   .min(1)
   .unknown(false)
+
+export const createReviewSchema = Joi.object({
+  rating: Joi.number()
+    .integer()
+    .min(1)
+    .max(5)
+    .required(),
+
+  comment: Joi.string()
+    .trim()
+    .min(3)
+    .max(500)
+    .required(),
+}).unknown(false)
