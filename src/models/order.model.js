@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
-import addressSchema from '../schemas/address.schema'
-import orderItemSchema from '../schemas/orderItem.schema'
+import addressSchema from './schemas/address.schema'
+import orderItemSchema from './schemas/orderItem.schema'
 
 const orderSchema = new mongoose.Schema(
   {
