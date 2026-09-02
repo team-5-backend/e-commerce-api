@@ -5,7 +5,7 @@ import express from 'express'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 
-import { corsOptions } from './config/corsOptions.js'
+import corsOptions from './config/corsOptions.js'
 import errorHandler from './middlewares/errorHandler.js'
 import morganMiddleware from './middlewares/morgan.middleware.js'
 import notFoundHandler from './middlewares/notFoundHandler.js'

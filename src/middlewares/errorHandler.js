@@ -1,9 +1,9 @@
-import { Constants } from '../config/constants.js'
+import { HTTP_STATUS } from '../config/constants.js'
 import environment from '../config/environment.js'
 import logger from '../utils/logger.js'
 
 const errorHandler = (err, req, res, _next) => {
-  const statusCode = err.statusCode || Constants.HTTP_STATUS.INTERNAL_ERROR
+  const statusCode = err.statusCode || HTTP_STATUS.INTERNAL_ERROR
   const message = err.message || 'Internal Server Error'
 
   logger.error({

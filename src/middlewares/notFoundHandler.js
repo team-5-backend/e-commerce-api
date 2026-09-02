@@ -1,7 +1,7 @@
-import { Constants } from '../config/constants.js'
+import { HTTP_STATUS } from '../config/constants.js'
 
 const notFoundHandler = (req, res) => {
-  res.status(Constants.HTTP_STATUS.NOT_FOUND).json({
+  res.status(HTTP_STATUS.NOT_FOUND).json({
     success: false,
     message: `Route not found: ${req.method} ${req.originalUrl}`,
   })

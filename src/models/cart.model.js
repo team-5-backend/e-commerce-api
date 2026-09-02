@@ -1,87 +1,84 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
 const cartItemSchema = new mongoose.Schema(
   {
     product: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
-      required: true
+      ref: 'Product',
+      required: true,
     },
     name: {
       type: String,
-      required: true
+      required: true,
     },
     image: {
-      type: String
+      type: String,
     },
     price: {
       type: Number,
       required: true,
-      min: 0
+      min: 0,
     },
     quantity: {
       type: Number,
       required: true,
       min: 1,
-      default: 1
-    }
+      default: 1,
+    },
   },
-  { _id: false }
-);
+  { _id: false },
+)
 
 const cartSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
-      unique: true
+      unique: true,
     },
     items: {
       type: [cartItemSchema],
-      default: []
+      default: [],
     },
     coupon: {
       code: String,
       discountType: {
         type: String,
-        enum: ["percentage", "fixed"]
+        enum: ['percentage', 'fixed'],
       },
-      discountValue: Number
-    }
+      discountValue: Number,
+    },
   },
   {
     timestamps: true,
     toJSON: { virtuals: true },
-    toObject: { virtuals: true }
-  }
-);
+    toObject: { virtuals: true },
+  },
+)
 
-cartSchema.virtual("subtotal").get(function () {
-  return this.items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-});
+cartSchema.virtual('subtotal').get(function () {
+  return this.items.reduce((total, item) => total + item.price * item.quantity, 0)
+})
 
-cartSchema.virtual("discountAmount").get(function () {
-  if (!this.coupon) return 0;
+cartSchema.virtual('discountAmount').get(function () {
+  if (!this.coupon) return 0
 
-  if (this.coupon.discountType === "percentage") {
-    return (this.subtotal * this.coupon.discountValue) / 100;
+  if (this.coupon.discountType === 'percentage') {
+    return (this.subtotal * this.coupon.discountValue) / 100
   }
 
-  return Math.min(this.coupon.discountValue, this.subtotal);
-});
+  return Math.min(this.coupon.discountValue, this.subtotal)
+})
 
-cartSchema.virtual("total").get(function () {
-  return this.subtotal - this.discountAmount;
-});
+cartSchema.virtual('total').get(function () {
+  return this.subtotal - this.discountAmount
+})
 
-cartSchema.virtual("itemCount").get(function () {
-  return this.items.reduce((total, item) => total + item.quantity, 0);
-});
+cartSchema.virtual('itemCount').get(function () {
+  return this.items.reduce((total, item) => total + item.quantity, 0)
+})
 
-const Cart = mongoose.model("Cart", cartSchema);
+const Cart = mongoose.model('Cart', cartSchema)
 
-export default Cart;
+export default Cart
