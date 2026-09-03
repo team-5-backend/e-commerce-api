@@ -17,25 +17,25 @@ const app = express()
 app.use(morganMiddleware)
 
 // Security
-app.use(helmet())
 app.use(compression())
+app.use(helmet())
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100, standardHeaders: true }))
 
 // CORS
 app.use(cors(corsOptions))
 
+// Cookies Parsing
+app.use(cookieParser())
+
 // Body Parsing
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
 
-// Cookies Parsing
-app.use(cookieParser())
+// Routes
+app.use('/api/v1', router)
 
 // ErrorHandling
 app.use(notFoundHandler)
 app.use(errorHandler)
-
-// Routes
-app.use('/api/v1', router)
 
 export default app

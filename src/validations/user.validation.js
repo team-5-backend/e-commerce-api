@@ -7,7 +7,7 @@ export const createUserSchema = joi.object({
 
   password: joi
     .string()
-    .pattern(new RegExp(/^(?=.*[a-z]){1,}(?=.*[A-Z]){1,}(?=.*\d){1,}(?=.*\W){1,}[\w\W\d].{8,25}$/))
+    .pattern(new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/))
     .messages({
       'string.pattern.base':
         'password must contain uppercase, lowercase, special characters and numbers',
@@ -17,27 +17,26 @@ export const createUserSchema = joi.object({
   phone: joi
     .string()
     .trim()
-    .max(11)
+    .max(14)
     .pattern(new RegExp(/^(002|02|\+2)?01[0-25]\d{8}$/))
     .messages({
       'string.pattern.base': 'invalid phone number, please enter Egyptian number',
-    })
-    .optional(),
+    }),
 
   avatar: joi.string().uri().optional(),
 
-  addresses: joi
-    .array()
-    .items(
-      joi.object({
-        street: joi.string().trim(),
-        city: joi.string().trim(),
-        state: joi.string().trim(),
-        country: joi.string().trim(),
-        zipCode: joi.string().trim(),
-      }),
-    )
-    .optional(),
+  addresses: joi.object({
+    fullName: joi.string().trim().required(),
+    phone: joi
+      .string()
+      .trim()
+      .pattern(/^(002|02|\+2)?01[0-25]\d{8}$/)
+      .required(),
+    country: joi.string().trim().required(),
+    city: joi.string().trim().required(),
+    address: joi.string().trim().required(),
+    postalCode: joi.string().trim().required(),
+  }),
 
   role: joi.string().valid('admin', 'customer').default('customer').optional(),
 })

@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 import slugify from 'slugify'
 
+import { MODEL_CONFIGS } from '../config/constants'
+
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -138,9 +140,7 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
   },
-  {
-    timestamps: true,
-  },
+  MODEL_CONFIGS,
 )
 
 // Generate unique slug before saving
@@ -200,6 +200,4 @@ productSchema.index({ price: 1 })
 productSchema.index({ averageRating: -1 })
 productSchema.index({ createdAt: -1 })
 
-const Product = mongoose.model('Product', productSchema)
-
-export default Product
+export const Product = mongoose.model('Product', productSchema)

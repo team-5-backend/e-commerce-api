@@ -1,10 +1,10 @@
 import Joi from 'joi'
 
-const generateOtpValidate = Joi.object({
+export const generateOtpValidate = Joi.object({
   email: Joi.string().email().required().lowercase().trim(),
 })
 
-const verifyOtpValidate = Joi.object({
+export const verifyOtpValidate = Joi.object({
   email: Joi.string().email().required().lowercase().trim(),
 
   otp: Joi.string()
@@ -12,8 +12,3 @@ const verifyOtpValidate = Joi.object({
     .pattern(/^[0-9]+$/)
     .required(),
 })
-
-module.exports = {
-  generateOtpValidate,
-  verifyOtpValidate,
-}

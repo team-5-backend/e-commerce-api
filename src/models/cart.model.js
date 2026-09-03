@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 
+import { MODEL_CONFIGS } from '../config/constants'
+
 const cartItemSchema = new mongoose.Schema(
   {
     product: {
@@ -50,11 +52,7 @@ const cartSchema = new mongoose.Schema(
       discountValue: Number,
     },
   },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  },
+  MODEL_CONFIGS,
 )
 
 cartSchema.virtual('subtotal').get(function () {

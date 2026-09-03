@@ -11,3 +11,11 @@ export const HTTP_STATUS = Object.freeze({
   TOO_MANY_REQUESTS: 429,
   INTERNAL_ERROR: 500,
 })
+
+export const MODEL_CONFIGS = Object.freeze({
+  timestamps: true,
+  strict: true,
+  strictQuery: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+})

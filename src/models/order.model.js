@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 
+import { MODEL_CONFIGS } from '../config/constants'
+
 import addressSchema from './schemas/address.schema'
 import orderItemSchema from './schemas/orderItem.schema'
 
@@ -87,7 +89,7 @@ const orderSchema = new mongoose.Schema(
       maxlength: 1000,
     },
   },
-  { timestamps: true },
+  MODEL_CONFIGS,
 )
 
-module.exports = mongoose.model('Order', orderSchema)
+export const User = mongoose.model('Order', orderSchema)
