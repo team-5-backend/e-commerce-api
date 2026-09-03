@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema(
       select: false,
       validate: {
         validator: (value) =>
-          /^(?=.*[a-z]){1,}(?=.*[A-Z]){1,}(?=.*\d){1,}(?=.*\W){1,}[\w\W\d].{8,25}$/.test(value),
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/.test(value),
         message: 'Invalid Weak Password ',
       },
     },
@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: String,
       validate: {
-        validator: (value) => /^(002|02|\+2)?01[0-25]\d{8}$/.test(value),
+        validator: (value) =>  /^(002|02|\+2)?01[0-25]\d{8}$/.test(value),
         message: 'Invalid Egyptian phone number',
       },
     },
@@ -105,4 +105,4 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password)
 }
 
-export const User = mongoose.model('User', userSchema)
+export const User = mongoose.model.User || mongoose.model("User" , userSchema )
