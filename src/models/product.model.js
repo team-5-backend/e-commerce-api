@@ -15,6 +15,7 @@ const productSchema = new mongoose.Schema(
     slug: {
       type: String,
       unique: true,
+      trim: true,
       lowercase: true,
     },
 
@@ -39,46 +40,68 @@ const productSchema = new mongoose.Schema(
 
     discountPrice: {
       type: Number,
-      default: 0,
       min: 0,
+      default: 0,
+
+      validate: {
+        validator: function (val) {
+          return !this.price || val < this.price
+        },
+
+        message: 'Discount price must be lower than original price',
+      },
     },
 
     stock: {
       type: Number,
       required: true,
+      min: [0, 'Stock cannot be negative'],
     },
 
     sku: {
-      //Stock Keeping Unit
       type: String,
+      trim: true,
       unique: true,
       sparse: true,
-      trim: true,
     },
 
-    images: [
-      {
-        public_id: {
-          type: String,
-          required: true,
-        },
+    images: {
+      type: [
+        {
+          public_id: {
+            type: String,
+            required: true,
+            trim: true,
+          },
 
-        url: {
-          type: String,
-          required: true,
+          url: {
+            type: String,
+            required: true,
+            trim: true,
+          },
+
+          _id: false,
         },
+      ],
+      required: true,
+      validate: {
+        validator: function (images) {
+          return Array.isArray(images) && images.length >= 1
+        },
+        message: 'At least one image is required',
       },
-    ],
+    },
 
     category: {
       type: String,
-      required: true,
       lowercase: true,
       trim: true,
+      required: true,
     },
 
     subcategory: {
       type: String,
+      lowercase: true,
       trim: true,
     },
 
@@ -87,10 +110,13 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
 
-    tags: {
-      type: [String],
-      default: [],
-    },
+    tags: [
+      {
+        type: String,
+        lowercase: true,
+        trim: true,
+      },
+    ],
 
     reviews: [
       {
@@ -109,6 +135,7 @@ const productSchema = new mongoose.Schema(
 
         comment: {
           type: String,
+          trim: true,
           required: true,
         },
       },
@@ -117,11 +144,14 @@ const productSchema = new mongoose.Schema(
     averageRating: {
       type: Number,
       default: 0,
+      min: 0,
+      max: 5,
     },
 
     numReviews: {
       type: Number,
       default: 0,
+      min: 0,
     },
 
     featured: {
@@ -143,60 +173,32 @@ const productSchema = new mongoose.Schema(
   MODEL_CONFIGS,
 )
 
-// Generate unique slug before saving
-productSchema.pre('save', async function (next) {
-  if (!this.isModified('name')) {
-    return next()
-  }
-
-  const baseSlug = slugify(this.name, {
-    lower: true,
-    strict: true,
-  })
-
-  let slug = baseSlug
-  let counter = 1
-
-  while (
-    await mongoose.models.Product.exists({
-      slug,
-      _id: { $ne: this._id },
+productSchema.pre('save', function (next) {
+  if (this.isModified('name')) {
+    const baseSlug = slugify(this.name, {
+      lower: true,
+      strict: true,
+      trim: true,
     })
-  ) {
-    slug = `${baseSlug}-${counter}`
-    counter++
+    this.slug = `${baseSlug}-${Date.now().toString().slice(-6)}`
   }
-
-  this.slug = slug
-
   next()
 })
 
-// Calculate average rating
 productSchema.methods.calcAverageRating = function () {
-  this.numReviews = this.reviews.length
-
-  if (this.numReviews === 0) {
+  if (!this.reviews || this.reviews.length === 0) {
     this.averageRating = 0
-    return
+    this.numReviews = 0
+  } else {
+    const total = this.reviews.reduce((acc, cur) => acc + cur.rating, 0)
+    this.numReviews = this.reviews.length
+    this.averageRating = Number((total / this.numReviews).toFixed(2))
   }
-
-  const totalRating = this.reviews.reduce((sum, review) => sum + review.rating, 0)
-
-  this.averageRating = Number((totalRating / this.numReviews).toFixed(2))
 }
 
-// Text index for search
-productSchema.index({
-  name: 'text',
-  description: 'text',
-  brand: 'text',
-})
-
-// Indexes for filtering and sorting
-productSchema.index({ category: 1 })
+productSchema.index({ name: 'text', description: 'text', brand: 'text' })
+productSchema.index({ category: 1, price: 1 })
 productSchema.index({ brand: 1 })
-productSchema.index({ price: 1 })
 productSchema.index({ averageRating: -1 })
 productSchema.index({ createdAt: -1 })
 

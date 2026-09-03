@@ -1,16 +1,12 @@
 import joi from 'joi'
 
 export const createOrderSchema = joi.object({
-  user: joi.string().hex().length(24).required().messages({
-    'string.length': 'user must be a valid ObjectId',
-  }),
-
   items: joi
     .array()
     .items(
       joi.object({
-        name: joi.string().required(),
-        image: joi.string().uri().optional(),
+        name: joi.string().required().trim(),
+        image: joi.string().trim().required(),
         price: joi.number().min(0).required(),
         quantity: joi.number().integer().min(1).required(),
       }),
@@ -36,38 +32,7 @@ export const createOrderSchema = joi.object({
     })
     .required(),
 
-  paymentMethod: joi
-    .string()
-    .valid('cash', 'stripe', 'paypal', 'paymob')
-    .default('cash')
-    .optional(),
+  paymentMethod: joi.string().valid('cash', 'stripe', 'paypal', 'paymob').default('cash'),
 
-  paymentStatus: joi.string().valid('pending', 'paid', 'failed', 'refunded').optional(),
-
-  transactionId: joi.string().optional(),
-
-  subtotal: joi.number().min(0).required(),
-
-  shippingFee: joi.number().min(0).optional(),
-
-  tax: joi.number().min(0).optional(),
-
-  discount: joi.number().min(0).optional(),
-
-  totalPrice: joi.number().min(0).required(),
-
-  status: joi
-    .string()
-    .valid('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned')
-    .optional(),
-
-  paidAt: joi.date().optional(),
-
-  deliveredAt: joi.date().optional(),
-
-  cancelledAt: joi.date().optional(),
-
-  customerNote: joi.string().max(1000).optional(),
-
-  adminNote: joi.string().max(1000).optional(),
+  customerNote: joi.string().trim().max(1000),
 })

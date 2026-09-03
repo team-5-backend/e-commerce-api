@@ -1,9 +1,8 @@
 import mongoose from 'mongoose'
 
 import { MODEL_CONFIGS } from '../config/constants'
-
-import addressSchema from './schemas/address.schema'
-import orderItemSchema from './schemas/orderItem.schema'
+import addressSchema from '../schemas/address.schema'
+import orderItemSchema from '../schemas/orderItem.schema'
 
 const orderSchema = new mongoose.Schema(
   {
@@ -11,6 +10,7 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      index: true,
     },
 
     items: {
@@ -46,14 +46,17 @@ const orderSchema = new mongoose.Schema(
 
     shippingFee: {
       type: Number,
+      default: 0,
     },
 
     tax: {
       type: Number,
+      default: 0,
     },
 
     discount: {
       type: Number,
+      default: 0,
     },
 
     totalPrice: {
@@ -92,4 +95,4 @@ const orderSchema = new mongoose.Schema(
   MODEL_CONFIGS,
 )
 
-export const User = mongoose.model('Order', orderSchema)
+export const Order = mongoose.model('Order', orderSchema)
