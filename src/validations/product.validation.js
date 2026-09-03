@@ -1,7 +1,5 @@
 import Joi from 'joi'
 
-const objectId = Joi.string().hex().length(24)
-
 export const createProductSchema = Joi.object({
   name: Joi.string().max(200).trim().required(),
 
@@ -32,7 +30,8 @@ export const createProductSchema = Joi.object({
 
   tags: Joi.alternatives().try(
     Joi.array().items(Joi.string().trim().lowercase()),
-    Joi.string()
+    joi
+      .string()
       .trim()
       .lowercase()
       .custom((val) => [val]),

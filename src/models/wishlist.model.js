@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-import { MODEL_CONFIGS } from '../config/constants'
+import { MODEL_CONFIGS } from './../config/constants'
 
 const wishlistSchema = new mongoose.Schema(
   {
@@ -8,7 +8,10 @@ const wishlistSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      index: true,
+      unique: true,
     },
+    
     products: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -18,5 +21,10 @@ const wishlistSchema = new mongoose.Schema(
   },
   MODEL_CONFIGS,
 )
+
+wishlistSchema.pre(/^find/, function (next) {
+  this.populate('products')
+  next()
+})
 
 export const Wishlist = mongoose.model('Wishlist', wishlistSchema)

@@ -1,12 +1,11 @@
-import joi from 'joi'
+import Joi from 'joi'
 
-export const createUserSchema = joi.object({
-  username: joi.string().required(),
+export const createUserSchema = Joi.object({
+  username: Joi.string().required(),
 
-  email: joi.string().email().required(),
+  email: Joi.string().email().required(),
 
-  password: joi
-    .string()
+  password: Joi.string()
     .pattern(new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/))
     .messages({
       'string.pattern.base':
@@ -14,29 +13,30 @@ export const createUserSchema = joi.object({
     })
     .required(),
 
-  phone: joi
-    .string()
+  phone: Joi.string()
     .trim()
+    // .max(11)
     .max(14)
     .pattern(new RegExp(/^(002|02|\+2)?01[0-25]\d{8}$/))
     .messages({
       'string.pattern.base': 'invalid phone number, please enter Egyptian number',
     }),
 
-  avatar: joi.string().uri().optional(),
+  avatar: Joi.string().uri().optional(),
 
-  addresses: joi.object({
-    fullName: joi.string().trim().required(),
-    phone: joi
-      .string()
-      .trim()
-      .pattern(/^(002|02|\+2)?01[0-25]\d{8}$/)
-      .required(),
-    country: joi.string().trim().required(),
-    city: joi.string().trim().required(),
-    address: joi.string().trim().required(),
-    postalCode: joi.string().trim().required(),
-  }),
+  addresses: Joi.array().items(
+    Joi.object({
+      fullName: Joi.string().trim().required(),
+      phone: Joi.string()
+        .trim()
+        .pattern(/^(002|02|\+2)?01[0-25]\d{8}$/)
+        .required(),
+      country: Joi.string().trim().required(),
+      city: Joi.string().trim().required(),
+      address: Joi.string().trim().required(),
+      postalCode: Joi.string().trim().required(),
+    }),
+  ),
 
-  role: joi.string().valid('admin', 'customer').default('customer').optional(),
+  role: Joi.string().valid('admin', 'customer').default('customer'),
 })
