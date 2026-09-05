@@ -1,43 +1,42 @@
-import joi from 'joi'
+import Joi from 'joi'
 
-export const createUserSchema = joi.object({
-  username: joi.string().required(),
+export const createUserSchema = Joi.object({
+  username: Joi.string().required(),
 
-  email: joi.string().email().required(),
+  email: Joi.string().email().required(),
 
-  password: joi
-    .string()
-    .pattern(new RegExp(/^(?=.*[a-z]){1,}(?=.*[A-Z]){1,}(?=.*\d){1,}(?=.*\W){1,}[\w\W\d].{8,25}$/))
+  password: Joi.string()
+    .pattern(new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/))
     .messages({
       'string.pattern.base':
         'password must contain uppercase, lowercase, special characters and numbers',
     })
     .required(),
 
-  phone: joi
-    .string()
+  phone: Joi.string()
     .trim()
-    .max(11)
+    // .max(11)
+    .max(14)
     .pattern(new RegExp(/^(002|02|\+2)?01[0-25]\d{8}$/))
     .messages({
       'string.pattern.base': 'invalid phone number, please enter Egyptian number',
-    })
-    .optional(),
+    }),
 
-  avatar: joi.string().uri().optional(),
+  avatar: Joi.string().uri().optional(),
 
-  addresses: joi
-    .array()
-    .items(
-      joi.object({
-        street: joi.string().trim(),
-        city: joi.string().trim(),
-        state: joi.string().trim(),
-        country: joi.string().trim(),
-        zipCode: joi.string().trim(),
-      }),
-    )
-    .optional(),
+  addresses: Joi.array().items(
+    Joi.object({
+      fullName: Joi.string().trim().required(),
+      phone: Joi.string()
+        .trim()
+        .pattern(/^(002|02|\+2)?01[0-25]\d{8}$/)
+        .required(),
+      country: Joi.string().trim().required(),
+      city: Joi.string().trim().required(),
+      address: Joi.string().trim().required(),
+      postalCode: Joi.string().trim().required(),
+    }),
+  ),
 
-  role: joi.string().valid('admin', 'customer').default('customer').optional(),
+  role: Joi.string().valid('admin', 'customer').default('customer'),
 })

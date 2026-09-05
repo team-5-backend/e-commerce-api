@@ -6,9 +6,16 @@ const environment = {
   host: process.env.HOST || 'localhost',
   logLevel: process.env.LOG_LEVEL || 'info',
   mongoUri: process.env.MONGODB_URI,
-  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
-  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
-  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
+  cloudinary: {
+    cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+    cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
+  },
+  brevo: {
+    brevoApiKey: process.env.BREVO_API_KEY,
+    fromName: process.env.BREVO_FROM_NAME,
+    fromEmail: process.env.BREVO_FROM_EMAIL,
+  },
   allowedOrigins: process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
 }
 

@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt'
 import mongoose from 'mongoose'
 import validator from 'validator'
 
+import { MODEL_CONFIGS } from '../config/constants.js'
+
 import addressSchema from './schemas/address.schema.js'
 
 const userSchema = new mongoose.Schema(
@@ -30,7 +32,7 @@ const userSchema = new mongoose.Schema(
       select: false,
       validate: {
         validator: (value) =>
-          /^(?=.*[a-z]){1,}(?=.*[A-Z]){1,}(?=.*\d){1,}(?=.*\W){1,}[\w\W\d].{8,25}$/.test(value),
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/.test(value),
         message: 'Invalid Weak Password ',
       },
     },
@@ -80,13 +82,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  {
-    timestamps: true,
-    strict: true,
-    strictQuery: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  },
+  MODEL_CONFIGS,
 )
 
 userSchema.pre('save', async function (next) {

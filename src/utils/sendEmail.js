@@ -1,52 +1,44 @@
 import axios from 'axios'
-import { config } from 'dotenv'
 
-config({ path: '../../.env' })
+import environment from '../config/environment.js'
+import logger from '../utils/logger.js'
 
-const sendEmail = async ({ to, subject, html, text }) => {
+const brevoClient = axios.create({
+  baseURL: 'https://api.brevo.com/v3/mtp',
+  headers: {
+    accept: 'application/json',
+    'api-key': environment.brevo.brevoApiKey,
+    'content-type': 'application/json',
+  },
+  timeout: 5000,
+})
+
+export const sendEmail = async ({ to, subject, html }) => {
+  if (!to || !subject || !html) {
+    throw new Error('Email "to", "subject", and "html" content are required.')
+  }
+
   try {
-    const response = await axios.post(
-      'https://api.brevo.com/v3/smtp/email',
-
-      {
-        sender: {
-          name: process.env.EMAIL_FROM_NAME,
-          email: process.env.EMAIL_FROM,
-        },
-
-        to: [
-          {
-            email: to,
-          },
-        ],
-
-        subject: subject,
-
-        htmlContent: html,
-
-        ...(text && {
-          textContent: text,
-        }),
+    const { data } = await brevoClient.post('/email', {
+      sender: {
+        name: environment.brevo.fromName,
+        email: environment.brevo.fromEmail,
       },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    })
 
-      {
-        headers: {
-          accept: 'application/json',
-          'api-key': process.env.BREVO_API_KEY,
-          'content-type': 'application/json',
-        },
-      },
-    )
+    logger.info({
+      message: 'Email sent successfully via Brevo',
+      to,
+      messageId: data.messageId,
+    })
 
-    console.log('Email sent successfully:', response.data)
-
-    return response.data
+    return data
   } catch (error) {
-    const errorMessage = error.response ? error.response.data : error.message
-
-    console.error('Brevo API Error:', errorMessage)
-
-    throw error
+    logger.error({ message: 'Brevo error:', error })
+    throw new Error('Failed to send email')
   }
 }
 
