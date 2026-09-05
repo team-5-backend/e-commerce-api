@@ -30,8 +30,7 @@ export const createProductSchema = Joi.object({
 
   tags: Joi.alternatives().try(
     Joi.array().items(Joi.string().trim().lowercase()),
-    joi
-      .string()
+    Joi.string()
       .trim()
       .lowercase()
       .custom((val) => [val]),

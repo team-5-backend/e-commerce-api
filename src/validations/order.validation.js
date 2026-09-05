@@ -1,5 +1,7 @@
 import Joi from 'joi'
 
+import address from './schemas/address.schema'
+
 export const createOrderSchema = Joi.object({
   items: Joi.array()
     .items(
@@ -13,20 +15,7 @@ export const createOrderSchema = Joi.object({
     .min(1)
     .required(),
 
-  shippingAddress: Joi.object({
-    fullName: Joi.string().trim().required(),
-    phone: Joi.string()
-      .trim()
-      .pattern(/^(002|02|\+2)?01[0-25]\d{8}$/)
-      .required()
-      .messages({
-        'string.pattern.base': 'invalid phone number, please enter Egyptian number',
-      }),
-    country: Joi.string().trim().required(),
-    city: Joi.string().trim().required(),
-    address: Joi.string().trim().required(),
-    postalCode: Joi.string().trim().required(),
-  }).required(),
+  shippingAddress: address.required(),
 
   paymentMethod: Joi.string().valid('cash', 'stripe', 'paypal', 'paymob').default('cash'),
 

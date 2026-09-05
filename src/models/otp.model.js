@@ -4,7 +4,7 @@ import validator from 'validator'
 
 import { MODEL_CONFIGS } from './../config/constants'
 
-const OTPschema = new mongoose.Schema(
+const otpSchema = new mongoose.Schema(
   {
     email: {
       type: String,
@@ -27,6 +27,8 @@ const OTPschema = new mongoose.Schema(
     expiresAt: {
       type: Date,
       required: true,
+      // set a default expiration period of 10min
+      default: () => new Date(Date.now() + 10 * 60 * 1000),
     },
 
     userData: {
@@ -36,19 +38,22 @@ const OTPschema = new mongoose.Schema(
 
     attempts: {
       type: Number,
-      default: 0,
+      default: 5,
     },
   },
   MODEL_CONFIGS,
 )
 
-OTPschema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 
-OTPschema.pre('save', async function () {
+otpSchema.pre('save', async function () {
   if (!this.isModified('otp')) return
 
-  const salt = await bcrypt.genSalt(10)
-  this.otp = await bcrypt.hash(this.otp, salt)
+  this.otp = await bcrypt.hash(this.otp, 10)
 })
 
-export const OTP = mongoose.model('OTP', OTPschema)
+userSchema.methods.compareOtp = async function (candidateOtp) {
+  return await bcrypt.compare(candidateOtp, this.otp)
+}
+
+export const Otp = mongoose.model('OTP', otpSchema)

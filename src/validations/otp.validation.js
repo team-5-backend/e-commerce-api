@@ -1,18 +1,18 @@
 import Joi from 'joi'
 
-export const generateOtpValidate = Joi.object({
-  email: Joi.string().email().required().lowercase().trim().messages({
-    'string.email': 'Invalid email format',
-    'any.required': 'Email is required',
-  }),
+import password from './schemas/password.schema'
+import { createUserSchema } from './user.validation'
+
+export const createOtpSchema = Joi.object({
+  email: Joi.string().email().required(),
+  otp: Joi.string().required(),
+  attempts: Joi.number().default(5),
+  userData: createUserSchema.default(null),
+  newPassword: password.default(null),
 })
 
-export const verifyOtpValidate = Joi.object({
-  email: Joi.string().email().required().lowercase().trim().messages({
-    'string.email': 'Invalid email format',
-    'any.required': 'Email is required',
-  }),
-
+export const verifyOtpSchema = Joi.object({
+  email: Joi.string().email().required(),
   otp: Joi.string()
     .length(6)
     .pattern(/^[0-9]+$/)
