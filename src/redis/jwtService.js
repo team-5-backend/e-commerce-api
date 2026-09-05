@@ -7,6 +7,22 @@ import { generateTokensSchema, refreshTokensSchema } from '../validations/jwt.va
 
 import redisClient from './redisClient.js'
 
+export const cleanUpDeadSessions = async (userId) => {
+  const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
+  if (!tokens.length) return
+
+  const tokenKeys = tokens.map((t) => `rt:${t}`)
+  const activeTokens = await redisClient.mGet(tokenKeys)
+
+  const multi = redisClient.multi()
+  tokens.forEach((token, index) => {
+    if (!activeTokens[index]) {
+      multi.sRem(`user:${userId}:sessions`, token)
+    }
+  })
+  await multi.exec()
+}
+
 export const generateTokens = async (userId, userRole, ip, userAgent) => {
   const { error } = generateTokensSchema.validate({
     userId,
@@ -33,6 +49,8 @@ export const generateTokens = async (userId, userRole, ip, userAgent) => {
   multi.expire(`user:${userId}:sessions`, ttlInSeconds)
   await multi.exec()
 
+  await cleanUpDeadSessions(userId)
+
   return { accessToken, refreshToken }
 }
 
@@ -52,7 +70,7 @@ export const refreshTokens = async (incomingRefreshToken, currentIp, currentUser
   const parsedData = JSON.parse(dataString)
   const { userId, userRole, ip: storedIp, userAgent: storedUserAgent } = parsedData
 
-  if (storedIp !== currentIp || storedUserAgent !== currentUserAgent) {
+  if (storedIp !== currentIp && storedUserAgent !== currentUserAgent) {
     await revokeRefreshToken(incomingRefreshToken, userId)
     throw new AppError(
       'Suspicious activity detected. Please log in again.',
@@ -71,7 +89,7 @@ export const refreshTokens = async (incomingRefreshToken, currentIp, currentUser
     throw new AppError('Invalid refresh token signature', HTTP_STATUS.UNAUTHORIZED)
   }
 
-  const newTokens = await generateTokens(userId, userRole, storedIp, storedUserAgent)
+  const newTokens = await generateTokens(userId, userRole, currentIp, currentUserAgent)
   parsedData.newTokens = newTokens
 
   const multi = redisClient.multi()
