@@ -39,7 +39,10 @@ export const uploadImages = async (fileBuffers, folderName = 'my_app_uploads') =
 
   try {
     const results = await Promise.all(uploadPromises)
-    logger.info({ message: 'Images uploaded successfully to Cloudinary', count: results.length })
+    logger.info({
+      message: 'Images uploaded successfully to Cloudinary',
+      count: results.length,
+    })
     return results
   } catch (error) {
     logger.error({ message: 'Cloudinary upload error:', error })

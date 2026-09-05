@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import slugify from 'slugify'
 
-import { MODEL_CONFIGS } from '../config/constants'
+import { MODEL_OPTIONS } from '../config/constants'
 
 const productSchema = new mongoose.Schema(
   {
@@ -170,7 +170,7 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
   },
-  MODEL_CONFIGS,
+  MODEL_OPTIONS,
 )
 
 productSchema.pre('save', function (next) {

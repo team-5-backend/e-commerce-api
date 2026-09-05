@@ -12,10 +12,15 @@ export const HTTP_STATUS = Object.freeze({
   INTERNAL_ERROR: 500,
 })
 
-export const MODEL_CONFIGS = Object.freeze({
+export const MODEL_OPTIONS = Object.freeze({
   timestamps: true,
   strict: true,
   strictQuery: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
+})
+
+export const COOKIE_OPTIONS = Object.freeze({
+  httpOnly: true,
+  secure: environment.isProduction,
 })

@@ -19,10 +19,10 @@ const environment = {
   },
   redisUrl: process.env.REDIS_URL,
   auth: {
-    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
-    accessTokenExpire: process.env.ACCESS_TOKEN_EXPIRE,
-    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
-    refreshTokenExpire: process.env.REFRESH_TOKEN_EXPIRE,
+    jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
+    jwtAccessExp: process.env.JWT_ACCESS_EXP,
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+    jwtRefreshExpDays: process.env.JWT_REFRESH_EXP_DAYS,
   },
 }
 

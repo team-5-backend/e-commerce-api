@@ -1,3 +1,5 @@
+import { AppError } from '../utils/appError.js'
+
 import { HTTP_STATUS } from './constants.js'
 import environment from './environment.js'
 

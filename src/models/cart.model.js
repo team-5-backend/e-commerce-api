@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 import orderItemSchema from '../schemas/orderItem.schema'
 
-import { MODEL_CONFIGS } from './../config/constants'
+import { MODEL_OPTIONS } from './../config/constants'
 
 const cartItemSchema = orderItemSchema.clone()
 
@@ -52,7 +52,7 @@ const cartSchema = new mongoose.Schema(
       },
     },
   },
-  MODEL_CONFIGS,
+  MODEL_OPTIONS,
 )
 
 cartSchema.virtual('subtotal').get(function () {

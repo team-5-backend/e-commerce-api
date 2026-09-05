@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 import mongoose from 'mongoose'
 import validator from 'validator'
 
-import { MODEL_CONFIGS } from '../config/constants.js'
+import { MODEL_OPTIONS } from '../config/constants.js'
 
 import addressSchema from './schemas/address.schema.js'
 
@@ -82,7 +82,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  MODEL_CONFIGS,
+  MODEL_OPTIONS,
 )
 
 userSchema.pre('save', async function (next) {

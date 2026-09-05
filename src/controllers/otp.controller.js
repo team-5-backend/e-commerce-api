@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt'
-import nodemailer from 'nodemailer'
 import otpGenerator from 'otp-generator'
 
 import { express, OTP } from '../models/otp.model.js'

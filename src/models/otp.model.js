@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 import mongoose from 'mongoose'
 import validator from 'validator'
 
-import { MODEL_CONFIGS } from './../config/constants'
+import { MODEL_OPTIONS } from './../config/constants'
 
 const otpSchema = new mongoose.Schema(
   {
@@ -41,7 +41,7 @@ const otpSchema = new mongoose.Schema(
       default: 5,
     },
   },
-  MODEL_CONFIGS,
+  MODEL_OPTIONS,
 )
 
 otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
