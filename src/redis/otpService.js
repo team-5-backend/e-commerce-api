@@ -10,6 +10,10 @@ import redisClient from './redisClient.js'
 
 const hashOtp = (otp) => crypto.createHash('sha256').update(otp).digest('hex')
 
+export const generateSecureOtp = () => {
+  return crypto.randomInt(100000, 1000000).toString()
+}
+
 // takes { email, otp, userData }
 export const saveOtp = async (schemaPayload) => {
   const { value, error } = createOtpSchema.validate(schemaPayload)

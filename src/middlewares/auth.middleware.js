@@ -8,31 +8,29 @@ import AppError from '../utils/appError.js'
 export const authenticate = async (req, res, next) => {
   const { accessToken, refreshToken } = req.cookies || {}
 
-  if (!refreshToken && !accessToken) {
+  if (!refreshToken && !accessToken)
     return next(new AppError('Not authenticated. Please log in.', HTTP_STATUS.UNAUTHORIZED))
-  }
 
   try {
     req.user = jwt.verify(accessToken, environment.jwtAccessSecret)
     return next()
   } catch (error) {
-    if (!refreshToken) {
+    if (!refreshToken)
       return next(
         new AppError('Not authenticated. Please log in.', HTTP_STATUS.UNAUTHORIZED, {
           cause: error,
         }),
       )
-    }
 
     try {
       const currentIp = req.ip
       const currentUserAgent = req.headers['user-agent']
 
-      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await refreshTokens(
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await refreshTokens({
         refreshToken,
         currentIp,
         currentUserAgent,
-      )
+      })
 
       res.cookie('accessToken', newAccessToken, COOKIE_OPTIONS)
       res.cookie('refreshToken', newRefreshToken, COOKIE_OPTIONS)
@@ -53,11 +51,11 @@ export const authenticate = async (req, res, next) => {
 // Role-based Authorization (Use AFTER authenticate)
 export const authorize = (...allowedRoles) => {
   return (req, _res, next) => {
-    if (!allowedRoles.includes(req.user.role)) {
+    if (!allowedRoles.includes(req.user.role))
       return next(
         new AppError('You do not have permission to perform this action.', HTTP_STATUS.FORBIDDEN),
       )
-    }
+
     next()
   }
 }

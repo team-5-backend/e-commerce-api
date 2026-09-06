@@ -14,9 +14,7 @@ cloudinary.config({
 })
 
 export const uploadImages = async (fileBuffers, folderName = 'my_app_uploads') => {
-  if (!fileBuffers || !Array.isArray(fileBuffers) || fileBuffers.length === 0) {
-    return null
-  }
+  if (!fileBuffers || !Array.isArray(fileBuffers) || fileBuffers.length === 0) return null
 
   const uploadPromises = fileBuffers.map((buffer) => {
     return new Promise((resolve, reject) => {
@@ -52,9 +50,7 @@ export const uploadImages = async (fileBuffers, folderName = 'my_app_uploads') =
 }
 
 export const deleteImages = async (publicIds) => {
-  if (!publicIds || !Array.isArray(publicIds) || publicIds.length === 0) {
-    return null
-  }
+  if (!publicIds || !Array.isArray(publicIds) || publicIds.length === 0) return null
 
   try {
     const result = await cloudinary.api.delete_resources(publicIds)

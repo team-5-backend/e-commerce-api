@@ -6,9 +6,8 @@ const logger = pino({
   level: environment.logLevel,
   serializers: {
     error: (error) => {
-      if (!environment.isProduction && error instanceof Error) {
-        return error.message
-      }
+      if (!environment.isProduction && error instanceof Error) return error.message
+
       return pino.stdSerializers.err(error)
     },
   },

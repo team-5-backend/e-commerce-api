@@ -16,9 +16,7 @@ export const cleanUpDeadSessions = async (userId) => {
 
   const multi = redisClient.multi()
   tokens.forEach((token, index) => {
-    if (!activeTokens[index]) {
-      multi.sRem(`user:${userId}:sessions`, token)
-    }
+    if (!activeTokens[index]) multi.sRem(`user:${userId}:sessions`, token)
   })
   await multi.exec()
 }
@@ -62,9 +60,7 @@ export const refreshTokens = async (schemaPayload) => {
   const { refreshToken, currentIp, currentUserAgent } = value
 
   const dataString = await redisClient.get(`rt:${refreshToken}`)
-  if (!dataString) {
-    throw new AppError('Invalid or expired refresh token', HTTP_STATUS.UNAUTHORIZED)
-  }
+  if (!dataString) throw new AppError('Invalid or expired refresh token', HTTP_STATUS.UNAUTHORIZED)
 
   const parsedData = JSON.parse(dataString)
   const { userId, userRole, ip: storedIp, userAgent: storedUserAgent } = parsedData
@@ -121,4 +117,14 @@ export const revokeUserSessions = async (userId) => {
   tokens.forEach((token) => multi.del(`rt:${token}`))
   multi.del(`user:${userId}:sessions`)
   await multi.exec()
+}
+
+export const getAllSessions = async (userId) => {
+  const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
+  if (!tokens.length) return []
+
+  const tokenKeys = tokens.map((t) => `rt:${t}`)
+  const sessionDataStrings = await redisClient.mGet(tokenKeys)
+
+  return sessionDataStrings.filter((data) => data !== null).map((data) => JSON.parse(data))
 }

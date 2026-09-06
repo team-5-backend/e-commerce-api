@@ -1,5 +1,7 @@
 import express from 'express'
 
+import authRouter from './auth.routes'
+
 const router = express.Router()
 
 router.get('/health', (_req, res) =>
@@ -8,5 +10,7 @@ router.get('/health', (_req, res) =>
     timestamp: new Date().toISOString(),
   }),
 )
+
+router.use('/auth', authRouter)
 
 export default router
