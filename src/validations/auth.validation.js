@@ -1,6 +1,5 @@
 import Joi from 'joi'
 
-import password from './schemas/password.schema'
 import { createUserSchema } from './user.validation'
 
 export const generateTokensSchema = Joi.object({

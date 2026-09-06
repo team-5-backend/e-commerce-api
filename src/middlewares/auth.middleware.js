@@ -17,7 +17,11 @@ export const authenticate = async (req, res, next) => {
     return next()
   } catch (error) {
     if (!refreshToken) {
-      return next(new AppError('Not authenticated. Please log in.', HTTP_STATUS.UNAUTHORIZED))
+      return next(
+        new AppError('Not authenticated. Please log in.', HTTP_STATUS.UNAUTHORIZED, {
+          cause: error,
+        }),
+      )
     }
 
     try {
@@ -37,7 +41,11 @@ export const authenticate = async (req, res, next) => {
 
       return next()
     } catch (error) {
-      return next(new AppError('Invalid token. Please log in.', HTTP_STATUS.UNAUTHORIZED))
+      return next(
+        new AppError('Invalid token. Please log in.', HTTP_STATUS.UNAUTHORIZED, {
+          cause: error,
+        }),
+      )
     }
   }
 }

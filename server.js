@@ -1,10 +1,8 @@
 import dotenv from 'dotenv'
 
 import app from './src/app.js'
-import { HTTP_STATUS } from './src/config/constants.js'
 import environment from './src/config/environment.js'
 import { connectDatabase, disconnectDatabase } from './src/db/db.js'
-import { AppError } from './src/utils/appError.js'
 import logger from './src/utils/logger.js'
 
 dotenv.config()
