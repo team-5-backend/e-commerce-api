@@ -1,6 +1,10 @@
 import { v2 as cloudinary } from 'cloudinary'
 
+import { HTTP_STATUS } from '../config/constants.js'
 import environment from '../config/environment.js'
+import logger from '../utils/logger.js'
+
+import { AppError } from './appError.js'
 
 cloudinary.config({
   cloud_name: environment.cloudinary.cloudinaryCloudName,
@@ -39,7 +43,7 @@ export const uploadImages = async (fileBuffers, folderName = 'my_app_uploads') =
     return results
   } catch (error) {
     logger.error({ message: 'Cloudinary upload error:', error })
-    throw new Error('Failed to upload images to Cloudinary')
+    throw new AppError('Failed to upload images to Cloudinary', HTTP_STATUS.INTERNAL_ERROR)
   }
 }
 
@@ -54,6 +58,6 @@ export const deleteImages = async (publicIds) => {
     return result
   } catch (error) {
     logger.error({ message: 'Cloudinary delete error:', error })
-    throw new Error('Failed to delete images from Cloudinary')
+    throw new AppError('Failed to delete images from Cloudinary', HTTP_STATUS.INTERNAL_ERROR)
   }
 }
