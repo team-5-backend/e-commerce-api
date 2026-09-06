@@ -1,6 +1,6 @@
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
-import redisClient from "../config/redis.js";
+import redisClient from "../redis/redisClient.js";
 
 const revenueMatch = {
   paymentStatus: "paid",
