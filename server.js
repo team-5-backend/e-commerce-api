@@ -4,10 +4,14 @@ import app from './src/app.js'
 import environment from './src/config/environment.js'
 import { connectDatabase, disconnectDatabase } from './src/db/db.js'
 import logger from './src/utils/logger.js'
+import admin from './src/routes/admin.routes.js'
+
 
 dotenv.config()
 
 await connectDatabase()
+
+app.use('/admin', admin) 
 
 const server = app.listen(environment.port, () => {
   logger.info(`🚀 Server running at http://${environment.host}:${environment.port}`)
