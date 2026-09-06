@@ -45,8 +45,9 @@ export const uploadImages = async (fileBuffers, folderName = 'my_app_uploads') =
     })
     return results
   } catch (error) {
-    logger.error({ message: 'Cloudinary upload error:', error })
-    throw new AppError('Failed to upload images to Cloudinary', HTTP_STATUS.INTERNAL_ERROR)
+    throw new AppError('Failed to upload images to Cloudinary', HTTP_STATUS.INTERNAL_ERROR, {
+      cause: error,
+    })
   }
 }
 
@@ -60,7 +61,8 @@ export const deleteImages = async (publicIds) => {
     logger.info({ message: 'Images deleted from Cloudinary', publicIds })
     return result
   } catch (error) {
-    logger.error({ message: 'Cloudinary delete error:', error })
-    throw new AppError('Failed to delete images from Cloudinary', HTTP_STATUS.INTERNAL_ERROR)
+    throw new AppError('Failed to delete images from Cloudinary', HTTP_STATUS.INTERNAL_ERROR, {
+      cause: error,
+    })
   }
 }
