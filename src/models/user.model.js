@@ -32,8 +32,8 @@ const userSchema = new mongoose.Schema(
       select: false,
       validate: {
         validator: (value) =>
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/.test(value),
-        message: 'Invalid Weak Password ',
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,26}$/.test(value),
+        message: 'Invalid Weak Password',
       },
     },
 
@@ -85,12 +85,10 @@ const userSchema = new mongoose.Schema(
   MODEL_OPTIONS,
 )
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next()
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return
 
   this.password = await bcrypt.hash(this.password, 10)
-
-  next()
 })
 
 userSchema.methods.comparePassword = async function (candidatePassword) {

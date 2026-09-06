@@ -1,9 +1,7 @@
 import crypto from 'crypto'
 
-import bcrypt from 'bcrypt'
-
 import { HTTP_STATUS } from '../config/constants.js'
-import AppError from '../utils/appError.js'
+import { AppError } from '../utils/appError.js'
 import { createOtpSchema, verifyOtpSchema } from '../validations/auth.validation.js'
 
 import redisClient from './redisClient.js'
@@ -22,10 +20,6 @@ export const saveOtp = async (schemaPayload) => {
       cause: error,
     })
   const { email, otp, userData } = value
-
-  if (userData?.password) {
-    userData.password = await bcrypt.hash(userData.password, 10)
-  }
 
   const data = JSON.stringify({
     otp: hashOtp(otp),

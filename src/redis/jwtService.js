@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 
 import { HTTP_STATUS } from '../config/constants.js'
 import environment from '../config/environment.js'
-import AppError from '../utils/appError.js'
+import { AppError } from '../utils/appError.js'
 import { generateTokensSchema, refreshTokensSchema } from '../validations/auth.validation.js'
 
 import redisClient from './redisClient.js'
@@ -30,15 +30,20 @@ export const generateTokens = async (schemaPayload) => {
     })
   const { userId, userRole, ip, userAgent } = value
 
-  const accessToken = jwt.sign({ _id: userId, role: userRole }, environment.jwtAccessSecret, {
-    expiresIn: environment.jwtAccessExp,
+  const accessToken = jwt.sign({ _id: userId, role: userRole }, environment.auth.jwtAccessSecret, {
+    expiresIn: environment.auth.jwtAccessExp,
   })
 
-  const refreshToken = jwt.sign({ _id: userId, role: userRole }, environment.jwtRefreshSecret, {
-    expiresIn: `${environment.jwtRefreshExpDays}d`,
-  })
+  const refreshToken = jwt.sign(
+    { _id: userId, role: userRole },
+    environment.auth.jwtRefreshSecret,
+    {
+      expiresIn: environment.auth.jwtRefreshExpDays,
+    },
+  )
 
-  const ttlInSeconds = environment.jwtRefreshExpDays * 24 * 60 * 60
+  const ttlInSeconds =
+    Number(String(environment.auth.jwtRefreshExpDays).replace('d', '')) * 24 * 60 * 60
   const sessionData = JSON.stringify({ userId, userRole, ip, userAgent })
 
   const multi = redisClient.multi()
@@ -78,7 +83,7 @@ export const refreshTokens = async (schemaPayload) => {
   }
 
   try {
-    jwt.verify(refreshToken, environment.jwtRefreshSecret)
+    jwt.verify(refreshToken, environment.auth.jwtRefreshSecret)
   } catch (error) {
     await revokeRefreshToken(refreshToken, userId)
     throw new AppError('Invalid refresh token signature', HTTP_STATUS.UNAUTHORIZED, {

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-import { MODEL_OPTIONS } from './../config/constants'
+import { MODEL_OPTIONS } from '../config/constants.js'
 
 const wishlistSchema = new mongoose.Schema(
   {

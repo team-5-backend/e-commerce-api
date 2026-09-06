@@ -1,9 +1,10 @@
 import Joi from 'joi'
 
-import { createUserSchema } from './user.validation'
+import objectId from './schemas/id.schema.js'
+import { createUserSchema } from './user.validation.js'
 
 export const generateTokensSchema = Joi.object({
-  userId: Joi.string().required().messages({
+  userId: objectId.required().messages({
     'any.required': 'User ID is required',
   }),
   userRole: Joi.string().required(),

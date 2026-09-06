@@ -1,8 +1,9 @@
 import mongoose from 'mongoose'
 
-import { MODEL_OPTIONS } from '../config/constants'
-import addressSchema from '../schemas/address.schema'
-import orderItemSchema from '../schemas/orderItem.schema'
+import { MODEL_OPTIONS } from '../config/constants.js'
+
+import addressSchema from './schemas/address.schema.js'
+import orderItemSchema from './schemas/orderItem.schema.js'
 
 const orderSchema = new mongoose.Schema(
   {

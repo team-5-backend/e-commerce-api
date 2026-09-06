@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import slugify from 'slugify'
 
-import { MODEL_OPTIONS } from '../config/constants'
+import { MODEL_OPTIONS } from '../config/constants.js'
 
 const productSchema = new mongoose.Schema(
   {

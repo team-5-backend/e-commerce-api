@@ -1,7 +1,7 @@
 import rateLimit from 'express-rate-limit'
 
 import { COOKIE_OPTIONS, HTTP_STATUS } from '../config/constants.js'
-import User from '../models/index.js'
+import { User } from '../models/index.js'
 import {
   generateTokens,
   getAllSessions,
@@ -10,7 +10,7 @@ import {
 } from '../redis/jwtService.js'
 import { generateSecureOtp, saveOtp, verifyOtp } from '../redis/otpService.js'
 import { AppError } from '../utils/appError.js'
-import asyncHandler from '../utils/asyncHandler.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
 import { genericMessageHtml, otpHtml, passwordOtpHtml } from '../utils/htmlTemplates.js'
 import sendEmail from '../utils/sendEmail.js'
 
@@ -96,7 +96,7 @@ export const verifyRegisterOtp = asyncHandler(async (req, res) => {
     otp,
   })
 
-  const user = await User.create(userData)
+  const user = await User.create({ ...userData, isVerified: true })
 
   const { accessToken, refreshToken } = await generateTokens({
     userId: user._id,

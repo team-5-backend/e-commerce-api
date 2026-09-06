@@ -1,9 +1,15 @@
 import Joi from 'joi'
+import mongoose from 'mongoose'
 
-const objectId = Joi.string().hex().length(24).messages({
-  'string.hex': 'Invalid Product ID format',
-  'string.length': 'Product ID must be 24 characters',
-  'any.required': 'Product ID is required',
-})
+const objectId = Joi.any()
+  .custom((value, helpers) => {
+    if (mongoose.Types.ObjectId.isValid(value)) {
+      return value.toString()
+    }
+    return helpers.error('any.invalid')
+  })
+  .messages({
+    'any.invalid': 'Invalid ID format',
+  })
 
 export default objectId

@@ -1,12 +1,9 @@
 import mongoose from 'mongoose'
 
-import orderItemSchema from '../schemas/orderItem.schema'
+import { MODEL_OPTIONS } from './../config/constants.js'
+import orderItemSchema from './schemas/orderItem.schema.js'
 
-import { MODEL_OPTIONS } from './../config/constants'
-
-const cartItemSchema = orderItemSchema.clone()
-
-cartItemSchema.forEachPath((_, schemaType) => {
+const cartItemSchema = orderItemSchema.eachPath((path, schemaType) => {
   schemaType.required(false)
 })
 
