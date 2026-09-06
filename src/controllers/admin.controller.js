@@ -1,13 +1,27 @@
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
+import redisClient from "../config/redis.js";
 
 const revenueMatch = {
   paymentStatus: "paid",
   status: { $nin: ["cancelled", "returned"] },
 };
 
+const CACHE_KEY = "admin:dashboard:analytics";
+const CACHE_TTL_SECONDS = 5 * 60; // 5 دقايق
+
 export const getAdminDashboardAnalytics = async (req, res, next) => {
   try {
+    // 1. نجرب نقرا من الكاش الأول قبل أي حاجة
+    const cached = await redisClient.get(CACHE_KEY);
+    if (cached) {
+      return res.status(200).json({
+        status: "success",
+        cached: true,
+        data: JSON.parse(cached),
+      });
+    }
+
     const now = new Date();
     const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -64,7 +78,7 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
               },
             ],
 
-            // 2. Orders Count Grouped by Status (هنا لازم نحسب كل الحالات من غير فلترة عشان نعرف عدد الـ cancelled كمان)
+            // 2. Orders Count Grouped by Status
             ordersByStatus: [
               {
                 $group: {
@@ -75,9 +89,6 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
             ],
 
             // 3. Top 5 Best-Selling Products
-            // ملحوظة: orderItemSchema مفيهوش reference لـ Product (مفيش حقل product)،
-            // فبنجمع بالاسم المخزّن وقت الشراء بدل الـ ID. لو نفس اسم المنتج
-            // اتغيّر لاحقًا في جدول Products، الاسم هنا هيفضل زي وقت الشراء بالظبط.
             topProducts: [
               { $match: revenueMatch },
               { $unwind: "$items" },
@@ -104,40 +115,6 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
               },
             ],
 
-            // 3. Top 5 Best-Selling Products
-            // topProducts: [
-            //   { $match: revenueMatch },
-            //   { $unwind: '$items' },
-            //   {
-            //     $group: {
-            //       _id: '$items.product',
-            //       unitsSold: { $sum: '$items.quantity' },
-            //       revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } }
-            //     }
-            //   },
-            //   { $sort: { unitsSold: -1 } },
-            //   { $limit: 5 },
-            //   {
-            //     $lookup: {
-            //       from: 'products',
-            //       localField: '_id',
-            //       foreignField: '_id',
-            //       as: 'productDetails'
-            //     }
-            //   },
-            //   // preserveNullAndEmptyArrays عشان لو المنتج اتمسح من الداتابيز
-            //   // الأوردر ميتشالش من النتيجة نهائي، وبنرجعله اسم افتراضي
-            //   { $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true } },
-            //   {
-            //     $project: {
-            //       _id: 1,
-            //       name: { $ifNull: ['$productDetails.name', 'Product Deleted'] },
-            //       unitsSold: 1,
-            //       revenue: 1
-            //     }
-            //   }
-            // ],
-
             // 4. Daily Revenue & Orders for the Last 7 Days
             last7DaysStats: [
               {
@@ -155,7 +132,7 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
               { $sort: { _id: 1 } },
             ],
 
-            // 5. The 5 Most Recent Orders — مع lookup لبيانات العميل بدل ما نرجع الـ ObjectId خام
+            // 5. The 5 Most Recent Orders
             recentOrders: [
               { $sort: { createdAt: -1 } },
               { $limit: 5 },
@@ -208,21 +185,28 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
       growthPercentage = 100;
     }
 
-    res.status(200).json({
-      status: "success",
-      data: {
-        revenue: {
-          total: stats.totalRevenue,
-          currentMonth: currentMonth,
-          lastMonth: lastMonth,
-          growthPercentage: Number(growthPercentage.toFixed(2)),
-        },
-        ordersByStatus: analyticsResult[0].ordersByStatus,
-        topProducts: analyticsResult[0].topProducts,
-        last7Days: analyticsResult[0].last7DaysStats,
-        recentOrders: analyticsResult[0].recentOrders,
-        totalCustomers,
+    const responseData = {
+      revenue: {
+        total: stats.totalRevenue,
+        currentMonth: currentMonth,
+        lastMonth: lastMonth,
+        growthPercentage: Number(growthPercentage.toFixed(2)),
       },
+      ordersByStatus: analyticsResult[0].ordersByStatus,
+      topProducts: analyticsResult[0].topProducts,
+      last7Days: analyticsResult[0].last7DaysStats,
+      recentOrders: analyticsResult[0].recentOrders,
+      totalCustomers,
+    };
+
+    await redisClient.set(CACHE_KEY, JSON.stringify(responseData), {
+      EX: CACHE_TTL_SECONDS,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      cached: false,
+      data: responseData
     });
   } catch (error) {
     next(error);
