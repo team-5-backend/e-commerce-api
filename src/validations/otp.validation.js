@@ -15,8 +15,12 @@ export const createOtpSchema = Joi.object({
       'any.required': 'OTP is required',
     }),
   attempts: Joi.number().default(5),
-  userData: createUserSchema.optional().allow(null),
-  newPassword: password.optional().allow(null),
+  type: Joi.string().valid('registerUser', 'resetPassword'),
+  payload: Joi.when('type', {
+    is: 'registerUser',
+    then: createUserSchema.required(),
+    otherwise: password.required(),
+  }),
 })
 
 export const verifyOtpSchema = Joi.object({
