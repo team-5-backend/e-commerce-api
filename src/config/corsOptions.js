@@ -11,7 +11,7 @@ const corsOptions = Object.freeze({
     if (allowedOrigins.includes(origin) || !origin) {
       return callback(null, true)
     } else {
-      return callback(new Error('Not allowed by CORS'))
+      return callback(new AppError('Not allowed by CORS', HTTP_STATUS.FORBIDDEN))
     }
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],

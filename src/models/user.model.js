@@ -1,6 +1,10 @@
 import bcrypt from "bcrypt";
+<<<<<<< HEAD
 import mongoose from "mongoose";
 import validator from "validator";
+=======
+import mongoose from "mongoose"; 
+>>>>>>> 103d922c4ad66653f94b23f9ac8da6c37020618b
 
 import { MODEL_CONFIGS } from "../config/constants.js";
 
@@ -101,7 +105,12 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
+<<<<<<< HEAD
   return await bcrypt.compare(candidatePassword, this.password);
 };
+=======
+  return await bcrypt.compare(candidatePassword, this.password)
+}
+>>>>>>> 103d922c4ad66653f94b23f9ac8da6c37020618b
 
 export const User = mongoose.model("User", userSchema);

@@ -11,7 +11,7 @@ const wishlistSchema = new mongoose.Schema(
       index: true,
       unique: true,
     },
-    
+
     products: [
       {
         type: mongoose.Schema.Types.ObjectId,

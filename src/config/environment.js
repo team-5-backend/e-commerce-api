@@ -5,6 +5,7 @@ const environment = {
   port: Number(process.env.PORT || 3000),
   host: process.env.HOST || 'localhost',
   logLevel: process.env.LOG_LEVEL || 'info',
+  allowedOrigins: process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
   mongoUri: process.env.MONGODB_URI,
   cloudinary: {
     cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,7 +17,13 @@ const environment = {
     fromName: process.env.BREVO_FROM_NAME,
     fromEmail: process.env.BREVO_FROM_EMAIL,
   },
-  allowedOrigins: process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
+  redisUrl: process.env.REDIS_URL,
+  auth: {
+    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
+    accessTokenExpire: process.env.ACCESS_TOKEN_EXPIRE,
+    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
+    refreshTokenExpire: process.env.REFRESH_TOKEN_EXPIRE,
+  },
 }
 
 environment.isProduction = environment.nodeEnv === 'production'

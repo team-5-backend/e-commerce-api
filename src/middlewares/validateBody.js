@@ -1,3 +1,5 @@
+import { AppError } from '../utils/appError'
+
 const validateBody = (schema) => {
   return (req, _res, next) => {
     const { error, value } = schema.validate(req.body, {
@@ -8,9 +10,7 @@ const validateBody = (schema) => {
     if (error) {
       const errorMessages = error.details.map((err) => err.message)
 
-      const validationError = new Error(errorMessages.join(', '))
-      validationError.statusCode = HTTP_STATUS.BAD_REQUEST
-
+      const validationError = new AppError(errorMessages.join(', '), HTTP_STATUS.BAD_REQUEST)
       return next(validationError)
     }
 
