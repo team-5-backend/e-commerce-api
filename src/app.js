@@ -10,6 +10,7 @@ import errorHandler from './middlewares/errorHandler.js'
 import morganMiddleware from './middlewares/morgan.middleware.js'
 import notFoundHandler from './middlewares/notFoundHandler.js'
 import router from './routes/index.js'
+import admin from './routes/admin.routes.js'
 
 const app = express()
 
@@ -33,6 +34,7 @@ app.use(express.urlencoded({ extended: true }))
 
 // Routes
 app.use('/api/v1', router)
+app.use('/api/v1/admin', admin) 
 
 // ErrorHandling
 app.use(notFoundHandler)

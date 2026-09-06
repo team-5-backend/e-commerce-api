@@ -1,10 +1,9 @@
-import bcrypt from 'bcrypt'
-import mongoose from 'mongoose'
-import validator from 'validator'
+import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 
-import { MODEL_CONFIGS } from '../config/constants.js'
+import { MODEL_CONFIGS } from "../config/constants.js";
 
-import addressSchema from './schemas/address.schema.js'
+import addressSchema from "./schemas/address.schema.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,7 +21,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       validate: {
         validator: (value) => validator.isEmail(value),
-        message: 'Invalid email',
+        message: "Invalid email",
       },
     },
 
@@ -32,8 +31,10 @@ const userSchema = new mongoose.Schema(
       select: false,
       validate: {
         validator: (value) =>
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/.test(value),
-        message: 'Invalid Weak Password ',
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/.test(
+            value,
+          ),
+        message: "Invalid Weak Password ",
       },
     },
 
@@ -41,20 +42,21 @@ const userSchema = new mongoose.Schema(
       type: String,
       validate: {
         validator: (value) => /^(002|02|\+2)?01[0-25]\d{8}$/.test(value),
-        message: 'Invalid Egyptian phone number',
+        message: "Invalid Egyptian phone number",
       },
     },
 
     avatar: {
       type: String,
-      default: 'https://i.pinimg.com/736x/f5/47/d8/f547d800625af9056d62efe8969aeea0.jpg',
+      default:
+        "https://i.pinimg.com/736x/f5/47/d8/f547d800625af9056d62efe8969aeea0.jpg",
     },
 
     role: {
       type: String,
       trim: true,
-      enum: ['admin', 'customer'],
-      default: 'customer',
+      enum: ["admin", "customer"],
+      default: "customer",
     },
 
     addresses: {
@@ -65,7 +67,7 @@ const userSchema = new mongoose.Schema(
     wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
+        ref: "Product",
       },
     ],
 
@@ -83,22 +85,22 @@ const userSchema = new mongoose.Schema(
     },
   },
   MODEL_CONFIGS,
-)
+);
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next()
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
   }
 
-  const salt = await bcrypt.genSalt(10)
+  const salt = await bcrypt.genSalt(10);
 
-  this.password = await bcrypt.hash(this.password, salt)
+  this.password = await bcrypt.hash(this.password, salt);
 
-  next()
-})
+  next();
+});
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password)
-}
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
-export const User = mongoose.model('User', userSchema)
+export const User = mongoose.model("User", userSchema);
