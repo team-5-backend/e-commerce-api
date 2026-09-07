@@ -13,7 +13,6 @@ import {
   verifyRegisterOtp,
 } from '../controllers/auth.controller.js'
 import { authenticate } from '../middlewares/auth.middleware.js'
-import { cache } from '../middlewares/cache.middleware.js'
 
 const router = express.Router()
 
