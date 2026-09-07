@@ -8,7 +8,7 @@ const router = express.Router()
 
 router.get(
   '/dashboard/analytics',
-  authenticate(),
+  authenticate,
   authorize('admin'),
   cache(),
   getAdminDashboardAnalytics,
