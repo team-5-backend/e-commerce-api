@@ -1,16 +1,20 @@
 import express from 'express'
 
-import userRoutes from './user.routes.js'
+import { HTTP_STATUS } from '../config/constants.js'
+
+import authRoutes from './auth.routes.js'
+import usersRoutes from './user.routes.js'
 
 const router = express.Router()
 
 router.get('/health', (_req, res) =>
-  res.status(200).json({
+  res.status(HTTP_STATUS.OK).send({
     status: 'OK',
     timestamp: new Date().toISOString(),
   }),
 )
 
-router.use('/users', userRoutes)
+router.use('/auth', authRoutes)
+router.use('/auth', usersRoutes)
 
 export default router

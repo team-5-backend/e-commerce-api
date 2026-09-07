@@ -95,84 +95,84 @@
 //     }
 // });
 
-import otpGenerator from 'otp-generator';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt'
+import otpGenerator from 'otp-generator'
 
-import { OTP } from '../models/otp.model.js';
-import sendEmail from '../utils/sendEmail.js';
+import { OTP } from '../models/otp.model.js'
+import sendEmail from '../utils/sendEmail.js'
 
 export const generateOTP = async (req, res) => {
-    const { email } = req.body;
+  const { email } = req.body
 
-    try {
-        // Generate 6-digit OTP
-        const otp = otpGenerator.generate(6, {
-            digits: true,
-            alphabets: false,
-            upperCase: false,
-            specialChars: false,
-        });
+  try {
+    // Generate 6-digit OTP
+    const otp = otpGenerator.generate(6, {
+      digits: true,
+      alphabets: false,
+      upperCase: false,
+      specialChars: false,
+    })
 
-        await OTP.deleteMany({ email });
+    await OTP.deleteMany({ email })
 
-        const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
 
-        await OTP.create({
-            email,
-            otp,
-            expiresAt,
-        });
+    await OTP.create({
+      email,
+      otp,
+      expiresAt,
+    })
 
-        await sendEmail({
-            to: email,
-            subject: 'OTP Verification',
-            text: `Your OTP for verification is: ${otp}`,
-        });
+    await sendEmail({
+      to: email,
+      subject: 'OTP Verification',
+      text: `Your OTP for verification is: ${otp}`,
+    })
 
-        return res.status(200).json({
-            message: 'OTP sent successfully',
-        });
-    } catch (error) {
-        console.error('GENERATE OTP ERROR:', error);
+    return res.status(200).json({
+      message: 'OTP sent successfully',
+    })
+  } catch (error) {
+    console.error('GENERATE OTP ERROR:', error)
 
-        return res.status(500).json({
-            message: 'Error sending OTP',
-        });
-    }
-};
+    return res.status(500).json({
+      message: 'Error sending OTP',
+    })
+  }
+}
 
 export const verifyOTP = async (req, res) => {
-    const { email, otp } = req.body;
+  const { email, otp } = req.body
 
-    try {
-        const otpRecord = await OTP.findOne({ email });
+  try {
+    const otpRecord = await OTP.findOne({ email })
 
-        if (!otpRecord) {
-            return res.status(400).json({
-                message: 'OTP expired or not found',
-            });
-        }
-
-        const isValid = await bcrypt.compare(otp, otpRecord.otp);
-
-        if (!isValid) {
-            return res.status(400).json({
-                message: 'Invalid OTP',
-            });
-        }
-
-        await OTP.deleteOne({
-            _id: otpRecord._id,
-        });
-
-        return res.status(200).json({
-            message: 'OTP verified successfully',
-        });
-    } catch (error) {
-        console.error('VERIFY OTP ERROR:', error);
-
-        return res.status(500).json({
-            message: 'Error verifying OTP',
-        });
+    if (!otpRecord) {
+      return res.status(400).json({
+        message: 'OTP expired or not found',
+      })
     }
-};
+
+    const isValid = await bcrypt.compare(otp, otpRecord.otp)
+
+    if (!isValid) {
+      return res.status(400).json({
+        message: 'Invalid OTP',
+      })
+    }
+
+    await OTP.deleteOne({
+      _id: otpRecord._id,
+    })
+
+    return res.status(200).json({
+      message: 'OTP verified successfully',
+    })
+  } catch (error) {
+    console.error('VERIFY OTP ERROR:', error)
+
+    return res.status(500).json({
+      message: 'Error verifying OTP',
+    })
+  }
+}

@@ -1,36 +1,29 @@
-// import { Router } from 'express'
-
-// import * as userController from '../controllers'
-
-// const router = Router()
-
-// router.get('/', userController.getAllUsers)
-// router.get('/:id', userController.getUserById)
-
-// export default router
-
-import express from 'express';
-import auth from '../middlewares/auth.js';
-import admin from '../middlewares/admin.js';
+import express from 'express'
 
 import {
-    createUser,
-    getUsers,
-    getUserById,
-    updateUser,
-    deleteUser,
-} from '../controllers/user.controller.js';
+  createUser,
+  deleteUser,
+  getUserById,
+  getUsers,
+  updateUser,
+} from '../controllers/user.controller.js'
+import { authenticate, authorize } from '../middlewares/auth.middleware.js'
 
-const router = express.Router();
+const router = express.Router()
 
-router.post('/add', auth, admin, createUser);
+// Applies the authenticate middleware to all routes below this line
+router.use(authenticate)
 
-router.get('/all', auth, admin, getUsers);
+router.patch('/:id', updateUser)
 
-router.get('/:id', auth, admin, getUserById);
+// Applies the authorize('admin') middleware to all routes below this line
+router.use(authorize('admin'))
 
-router.patch('/:id', auth, updateUser);
+router.get('/all', getUsers)
+router.get('/:id', getUserById)
 
-router.delete('/:id', auth, admin, deleteUser);
+router.post('/add', createUser)
 
-export default router;
+router.delete('/:id', deleteUser)
+
+export default router
