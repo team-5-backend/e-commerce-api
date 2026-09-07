@@ -29,3 +29,11 @@ export const COOKIE_OPTIONS = Object.freeze({
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: '/',
 })
+
+export const STATIC_COUPONS = Object.freeze({
+  SAVE10: { discountType: 'percentage', discountValue: 10 },
+  SAVE20: { discountType: 'percentage', discountValue: 20 },
+  SAVE50: { discountType: 'percentage', discountValue: 50 },
+  SAVE80: { discountType: 'percentage', discountValue: 80 },
+  OFF50: { discountType: 'fixed', discountValue: 50 },
+})
