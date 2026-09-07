@@ -14,7 +14,7 @@ router.get('/health', (_req, res) =>
   }),
 )
 
-router.use('/admin', adminRoutes)
 router.use('/auth', authRouter)
+router.use('/admin', adminRoutes)
 
 export default router
