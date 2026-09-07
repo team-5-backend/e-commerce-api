@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit'
 
 import { COOKIE_OPTIONS, HTTP_STATUS } from '../config/constants.js'
 import { User } from '../models/index.js'
@@ -12,7 +12,7 @@ import { generateSecureOtp, saveOtp, verifyOtp } from '../redis/otpService.js'
 import { AppError } from '../utils/appError.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { genericMessageHtml, otpHtml, passwordOtpHtml } from '../utils/htmlTemplates.js'
-import sendEmail from '../utils/sendEmail.js'
+import { sendEmail } from '../utils/send.js'
 
 ////////////////////////////////////////////////////////////////////////
 

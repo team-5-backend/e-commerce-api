@@ -1,10 +1,10 @@
 import Joi from 'joi'
 
-import objectId from './schemas/id.schema.js'
+import objectIdSchema from './schemas/id.schema.js'
 import { createUserSchema } from './user.validation.js'
 
 export const generateTokensSchema = Joi.object({
-  userId: objectId.required().messages({
+  userId: objectIdSchema.required().messages({
     'any.required': 'User ID is required',
   }),
   userRole: Joi.string().required(),
@@ -44,20 +44,4 @@ export const verifyOtpSchema = Joi.object({
       'string.pattern.base': 'OTP must contain numbers only',
       'any.required': 'OTP is required',
     }),
-})
-
-export const emailSchema = Joi.object({
-  to: Joi.string().email().required().messages({
-    'string.empty': '"to" cannot be empty',
-    'string.email': '"to" must be a valid email address',
-    'any.required': '"to" is required',
-  }),
-  subject: Joi.string().trim().required().messages({
-    'string.empty': '"subject" cannot be empty',
-    'any.required': '"subject" is required',
-  }),
-  html: Joi.string().trim().required().messages({
-    'string.empty': '"html" cannot be empty',
-    'any.required': '"html" is required',
-  }),
 })

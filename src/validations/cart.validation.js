@@ -1,9 +1,9 @@
 import Joi from 'joi'
 
-import objectId from './schemas/id.schema'
+import objectIdSchema from './schemas/id.schema.js'
 
 export const addCartItemSchema = Joi.object({
-  productId: objectId.required(),
+  productId: objectIdSchema.required(),
   quantity: Joi.number().integer().min(1).default(1),
 })
 

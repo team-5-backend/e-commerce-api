@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import mongoose from 'mongoose'
 
-const objectId = Joi.any()
+const objectIdSchema = Joi.any()
   .custom((value, helpers) => {
     if (mongoose.Types.ObjectId.isValid(value)) {
       return value.toString()
@@ -12,4 +12,4 @@ const objectId = Joi.any()
     'any.invalid': 'Invalid ID format',
   })
 
-export default objectId
+export default objectIdSchema

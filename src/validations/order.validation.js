@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-import address from './schemas/address.schema'
+import addressSchema from './schemas/address.schema.js'
 
 export const createOrderSchema = Joi.object({
   items: Joi.array()
@@ -15,7 +15,7 @@ export const createOrderSchema = Joi.object({
     .min(1)
     .required(),
 
-  shippingAddress: address.required(),
+  shippingAddress: addressSchema.required(),
 
   paymentMethod: Joi.string().valid('cash', 'stripe', 'paypal', 'paymob').default('cash'),
 

@@ -23,24 +23,26 @@ export const cleanUpDeadSessions = async (userId) => {
 
 // takes { userId, userRole, ip, userAgent }
 export const generateTokens = async (schemaPayload) => {
-  const { value, error } = generateTokensSchema.validate(schemaPayload)
-  if (error)
-    throw new AppError(`Schema validation failed: ${error.message}`, HTTP_STATUS.BAD_REQUEST, {
-      cause: error,
-    })
+  const { value, error: schemaError } = generateTokensSchema.validate(schemaPayload)
+  if (schemaError)
+    throw new AppError(
+      `Schema validation failed: ${schemaError.message}`,
+      HTTP_STATUS.BAD_REQUEST,
+      {
+        cause: schemaError,
+      },
+    )
   const { userId, userRole, ip, userAgent } = value
 
-  const accessToken = jwt.sign({ _id: userId, role: userRole }, environment.auth.jwtAccessSecret, {
+  const tokenPayload = { _id: userId, role: userRole }
+
+  const accessToken = jwt.sign(tokenPayload, environment.auth.jwtAccessSecret, {
     expiresIn: environment.auth.jwtAccessExp,
   })
 
-  const refreshToken = jwt.sign(
-    { _id: userId, role: userRole },
-    environment.auth.jwtRefreshSecret,
-    {
-      expiresIn: environment.auth.jwtRefreshExpDays,
-    },
-  )
+  const refreshToken = jwt.sign(tokenPayload, environment.auth.jwtRefreshSecret, {
+    expiresIn: environment.auth.jwtRefreshExpDays,
+  })
 
   const ttlInSeconds =
     Number(String(environment.auth.jwtRefreshExpDays).replace('d', '')) * 24 * 60 * 60
@@ -59,9 +61,15 @@ export const generateTokens = async (schemaPayload) => {
 
 // takes { refreshToken, currentIp, currentUserAgent }
 export const refreshTokens = async (schemaPayload) => {
-  const { value, error } = refreshTokensSchema.validate(schemaPayload)
-  if (error)
-    throw new AppError(`Schema validation failed: ${error.message}`, HTTP_STATUS.BAD_REQUESTc)
+  const { value, error: schemaError } = refreshTokensSchema.validate(schemaPayload)
+  if (schemaError)
+    throw new AppError(
+      `Schema validation failed: ${schemaError.message}`,
+      HTTP_STATUS.BAD_REQUEST,
+      {
+        cause: schemaError,
+      },
+    )
   const { refreshToken, currentIp, currentUserAgent } = value
 
   const dataString = await redisClient.get(`rt:${refreshToken}`)
