@@ -5,7 +5,7 @@ import logger from '../utils/logger.js'
 
 const redisClient = createClient({ url: environment.redisUrl })
 
-redisClient.on('error', (error) => logger.error({ message: 'Redis Error:', error }))
+redisClient.on('error', (error) => logger.error({ message: 'Redis error', error }))
 
 redisClient.on('connect', () => {
   logger.info('Connected to Redis successfully')

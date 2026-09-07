@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import app from './src/app.js'
 import environment from './src/config/environment.js'
 import { connectDatabase, disconnectDatabase } from './src/db/db.js'
+import redisClient from './src/redis/redisClient.js'
 import logger from './src/utils/logger.js'
 
 dotenv.config()
@@ -36,10 +37,11 @@ const shutdown = (signal) => {
     try {
       clearTimeout(forceShutdown)
       await disconnectDatabase()
-      logger.info('Server and database connections closed successfully.')
+      await redisClient.quit()
+      logger.info('Server, Redis and database connections closed successfully.')
       process.exit(0)
     } catch (error) {
-      logger.error({ message: 'Error during shutdown:', error })
+      logger.error({ message: 'Error during shutdown', error })
       process.exit(1)
     }
   })
