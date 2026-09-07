@@ -1,52 +1,55 @@
 import axios from 'axios'
-import { config } from 'dotenv'
 
-config({ path: '../../.env' })
+import { HTTP_STATUS } from '../config/constants.js'
+import environment from '../config/environment.js'
+import logger from '../utils/logger.js'
+import { emailSchema } from '../validations/auth.validation.js'
 
-const sendEmail = async ({ to, subject, html, text }) => {
-  try {
-    const response = await axios.post(
-      'https://api.brevo.com/v3/smtp/email',
+import { AppError } from './appError.js'
 
+const brevoClient = axios.create({
+  baseURL: 'https://api.brevo.com/v3/smtp',
+  headers: {
+    accept: 'application/json',
+    'api-key': environment.brevo.brevoApiKey,
+    'content-type': 'application/json',
+  },
+  timeout: 5000,
+})
+
+export const sendEmail = async (payload) => {
+  const { value, error } = emailSchema.validate(payload)
+  if (error) {
+    throw new AppError(
+      `Schema validation failed: ${error.details[0].message}`,
+      HTTP_STATUS.BAD_REQUEST,
       {
-        sender: {
-          name: process.env.EMAIL_FROM_NAME,
-          email: process.env.EMAIL_FROM,
-        },
-
-        to: [
-          {
-            email: to,
-          },
-        ],
-
-        subject: subject,
-
-        htmlContent: html,
-
-        ...(text && {
-          textContent: text,
-        }),
-      },
-
-      {
-        headers: {
-          accept: 'application/json',
-          'api-key': process.env.BREVO_API_KEY,
-          'content-type': 'application/json',
-        },
+        cause: error,
       },
     )
+  }
+  const { to, subject, html } = value
 
-    console.log('Email sent successfully:', response.data)
+  try {
+    const { data } = await brevoClient.post('/email', {
+      sender: {
+        name: environment.brevo.fromName,
+        email: environment.brevo.fromEmail,
+      },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    })
 
-    return response.data
+    logger.info({
+      message: 'Email sent successfully via Brevo',
+      to,
+      messageId: data.messageId,
+    })
+
+    return data
   } catch (error) {
-    const errorMessage = error.response ? error.response.data : error.message
-
-    console.error('Brevo API Error:', errorMessage)
-
-    throw error
+    throw new AppError('Failed to send email', HTTP_STATUS.INTERNAL_ERROR, { cause: error })
   }
 }
 

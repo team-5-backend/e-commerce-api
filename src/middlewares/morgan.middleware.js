@@ -1,15 +1,18 @@
 import morgan from 'morgan'
 
+import environment from '../config/environment.js'
 import logger from '../utils/logger.js'
 
-// Stream morgan logs through Pino
 const stream = {
   write: (message) => logger.info(message.trim()),
 }
 
-// Skip logging in production if needed
-const skip = () => process.env.NODE_ENV === 'test'
+const skip = () => environment.nodeEnv === 'test'
 
-const morganMiddleware = morgan('dev', { stream, skip })
+const format = environment.isProduction
+  ? ':remote-addr - :method :url :status :res[content-length] - :response-time ms'
+  : 'dev'
+
+const morganMiddleware = morgan(format, { stream, skip })
 
 export default morganMiddleware

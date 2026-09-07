@@ -1,10 +1,17 @@
-import joi from 'joi'
+import Joi from 'joi'
 
-export const addToWishlistSchema = joi.object({
-  user: joi.string().hex().length(24).required().messages({
-    'string.length': 'user must be a valid ObjectId',
+import objectId from './schemas/id.schema'
+
+export const addToWishlistSchema = Joi.object({
+  products: Joi.array().items(objectId).min(1).required().messages({
+    'array.base': 'Products must be an array of IDs',
+    'array.min': 'Products array must contain at least 1 product',
+    'any.required': 'Products array is required',
   }),
-  products: joi.array().items(joi.string().hex().length(24)).required().messages({
-    'array.includes': 'Each product must be a valid ObjectId',
+})
+
+export const wishlistActionSchema = Joi.object({
+  productId: objectId.required().messages({
+    'any.required': 'Product ID is required',
   }),
 })

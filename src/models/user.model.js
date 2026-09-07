@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt'
 import mongoose from 'mongoose'
 import validator from 'validator'
 
+import { MODEL_OPTIONS } from '../config/constants.js'
+
 import addressSchema from './schemas/address.schema.js'
 
 const userSchema = new mongoose.Schema(
@@ -30,15 +32,15 @@ const userSchema = new mongoose.Schema(
       select: false,
       validate: {
         validator: (value) =>
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/.test(value),
-        message: 'Invalid Weak Password ',
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,26}$/.test(value),
+        message: 'Invalid Weak Password',
       },
     },
 
     phone: {
       type: String,
       validate: {
-        validator: (value) =>  /^(002|02|\+2)?01[0-25]\d{8}$/.test(value),
+        validator: (value) => /^(002|02|\+2)?01[0-25]\d{8}$/.test(value),
         message: 'Invalid Egyptian phone number',
       },
     },
@@ -80,29 +82,17 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  {
-    timestamps: true,
-    strict: true,
-    strictQuery: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  },
+  MODEL_OPTIONS,
 )
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next()
-  }
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return
 
-  const salt = await bcrypt.genSalt(10)
-
-  this.password = await bcrypt.hash(this.password, salt)
-
-  next()
+  this.password = await bcrypt.hash(this.password, 10)
 })
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password)
+  return await bcrypt.compare(candidatePassword, this.password)
 }
 
-export const User = mongoose.model.User || mongoose.model("User" , userSchema )
+export const User = mongoose.model('User', userSchema)
