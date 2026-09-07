@@ -8,22 +8,17 @@ import {
   updateUser,
 } from '../controllers/user.controller.js'
 import { authenticate, authorize } from '../middlewares/auth.middleware.js'
+import { cache } from '../middlewares/cache.middleware.js'
 
 const router = express.Router()
 
-// Applies the authenticate middleware to all routes below this line
-router.use(authenticate)
+router.get('/all', authenticate, authorize('admin'), cache(), getUsers)
+router.get('/:id', authenticate, authorize('admin'), cache(), getUserById)
 
-router.patch('/:id', updateUser)
+router.post('/add', authenticate, authorize('admin'), createUser)
 
-// Applies the authorize('admin') middleware to all routes below this line
-router.use(authorize('admin'))
+router.patch('/:id', authenticate, updateUser)
 
-router.get('/all', getUsers)
-router.get('/:id', getUserById)
-
-router.post('/add', createUser)
-
-router.delete('/:id', deleteUser)
+router.delete('/:id', authenticate, authorize('admin'), deleteUser)
 
 export default router

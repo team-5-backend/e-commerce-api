@@ -13,6 +13,7 @@ import {
   verifyRegisterOtp,
 } from '../controllers/auth.controller.js'
 import { authenticate } from '../middlewares/auth.middleware.js'
+import { cache } from '../middlewares/cache.middleware.js'
 
 const router = express.Router()
 
@@ -24,11 +25,8 @@ router.post('/verify-register', authLimiter, verifyRegisterOtp)
 router.post('/forgot-password', otpLimiter, forgotPassword)
 router.post('/verify-forgot-password', authLimiter, verifyForgotPasswordOtp)
 
-// Applies the authenticate middleware to all routes below this line
-router.use(authenticate)
-
-router.post('/logout', logout)
-router.post('/logout-all', logoutAll)
-router.get('/sessions', getSessions)
+router.get('/sessions', authenticate, cache(), getSessions)
+router.post('/logout', authenticate, logout)
+router.post('/logout-all', authenticate, logoutAll)
 
 export default router
