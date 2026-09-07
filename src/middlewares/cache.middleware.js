@@ -1,8 +1,6 @@
 import crypto from 'crypto'
 
-import { HTTP_STATUS } from '../config/constants'
 import redisClient from '../redis/redisClient.js'
-import { AppError } from '../utils/appError'
 import logger from '../utils/logger.js'
 
 // MUST be used after authenticate and authorize if present
