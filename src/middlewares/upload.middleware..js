@@ -1,5 +1,7 @@
 import multer from 'multer'
 
+import { AppError } from '../utils/appError'
+
 const storage = multer.memoryStorage()
 
 const fileFilter = (_req, file, cb) => {

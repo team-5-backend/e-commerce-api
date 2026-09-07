@@ -1,14 +1,10 @@
-import bcrypt from "bcrypt";
-<<<<<<< HEAD
-import mongoose from "mongoose";
-import validator from "validator";
-=======
-import mongoose from "mongoose"; 
->>>>>>> 103d922c4ad66653f94b23f9ac8da6c37020618b
+import bcrypt from 'bcrypt'
+import mongoose from 'mongoose'
+import validator from 'validator'
 
-import { MODEL_CONFIGS } from "../config/constants.js";
+import { MODEL_OPTIONS } from '../config/constants.js'
 
-import addressSchema from "./schemas/address.schema.js";
+import addressSchema from './schemas/address.schema.js'
 
 const userSchema = new mongoose.Schema(
   {
@@ -26,7 +22,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       validate: {
         validator: (value) => validator.isEmail(value),
-        message: "Invalid email",
+        message: 'Invalid email',
       },
     },
 
@@ -36,10 +32,8 @@ const userSchema = new mongoose.Schema(
       select: false,
       validate: {
         validator: (value) =>
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/.test(
-            value,
-          ),
-        message: "Invalid Weak Password ",
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,26}$/.test(value),
+        message: 'Invalid Weak Password',
       },
     },
 
@@ -47,21 +41,20 @@ const userSchema = new mongoose.Schema(
       type: String,
       validate: {
         validator: (value) => /^(002|02|\+2)?01[0-25]\d{8}$/.test(value),
-        message: "Invalid Egyptian phone number",
+        message: 'Invalid Egyptian phone number',
       },
     },
 
     avatar: {
       type: String,
-      default:
-        "https://i.pinimg.com/736x/f5/47/d8/f547d800625af9056d62efe8969aeea0.jpg",
+      default: 'https://i.pinimg.com/736x/f5/47/d8/f547d800625af9056d62efe8969aeea0.jpg',
     },
 
     role: {
       type: String,
       trim: true,
-      enum: ["admin", "customer"],
-      default: "customer",
+      enum: ['admin', 'customer'],
+      default: 'customer',
     },
 
     addresses: {
@@ -72,7 +65,7 @@ const userSchema = new mongoose.Schema(
     wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
+        ref: 'Product',
       },
     ],
 
@@ -89,28 +82,17 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  MODEL_CONFIGS,
-);
+  MODEL_OPTIONS,
+)
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    return next();
-  }
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return
 
-  const salt = await bcrypt.genSalt(10);
-
-  this.password = await bcrypt.hash(this.password, salt);
-
-  next();
-});
+  this.password = await bcrypt.hash(this.password, 10)
+})
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
-<<<<<<< HEAD
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-=======
   return await bcrypt.compare(candidatePassword, this.password)
 }
->>>>>>> 103d922c4ad66653f94b23f9ac8da6c37020618b
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model('User', userSchema)

@@ -1,43 +1,35 @@
-import { Order } from "../models/order.model.js";
-import { User } from "../models/user.model.js";
-import redisClient from "../redis/redisClient.js";
+import { Order } from '../models/order.model.js'
+import { User } from '../models/user.model.js'
+import redisClient from '../redis/redisClient.js'
 
 const revenueMatch = {
-  paymentStatus: "paid",
-  status: { $nin: ["cancelled", "returned"] },
-};
+  paymentStatus: 'paid',
+  status: { $nin: ['cancelled', 'returned'] },
+}
 
-const CACHE_KEY = "admin:dashboard:analytics";
-const CACHE_TTL_SECONDS = 5 * 60; // 5 دقايق
+const CACHE_KEY = 'admin:dashboard:analytics'
+const CACHE_TTL_SECONDS = 5 * 60 // 5 دقايق
 
 export const getAdminDashboardAnalytics = async (req, res, next) => {
   try {
     // 1. نجرب نقرا من الكاش الأول قبل أي حاجة
-    const cached = await redisClient.get(CACHE_KEY);
+    const cached = await redisClient.get(CACHE_KEY)
     if (cached) {
       return res.status(200).json({
-        status: "success",
+        status: 'success',
         cached: true,
         data: JSON.parse(cached),
-      });
+      })
     }
 
-    const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfLastMonth = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      0,
-      23,
-      59,
-      59,
-      999,
-    );
+    const now = new Date()
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
 
     // مش بنعمل mutate على now نفسها
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
     // تشغيل الـ Aggregation الرئيسي للـ Orders وتعداد الـ Users بالتوازي
     const [analyticsResult, totalCustomers] = await Promise.all([
@@ -50,14 +42,10 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
               {
                 $group: {
                   _id: null,
-                  totalRevenue: { $sum: "$totalPrice" },
+                  totalRevenue: { $sum: '$totalPrice' },
                   currentMonthRevenue: {
                     $sum: {
-                      $cond: [
-                        { $gte: ["$createdAt", startOfCurrentMonth] },
-                        "$totalPrice",
-                        0,
-                      ],
+                      $cond: [{ $gte: ['$createdAt', startOfCurrentMonth] }, '$totalPrice', 0],
                     },
                   },
                   lastMonthRevenue: {
@@ -65,11 +53,11 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
                       $cond: [
                         {
                           $and: [
-                            { $gte: ["$createdAt", startOfLastMonth] },
-                            { $lte: ["$createdAt", endOfLastMonth] },
+                            { $gte: ['$createdAt', startOfLastMonth] },
+                            { $lte: ['$createdAt', endOfLastMonth] },
                           ],
                         },
-                        "$totalPrice",
+                        '$totalPrice',
                         0,
                       ],
                     },
@@ -82,7 +70,7 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
             ordersByStatus: [
               {
                 $group: {
-                  _id: "$status",
+                  _id: '$status',
                   count: { $sum: 1 },
                 },
               },
@@ -91,15 +79,15 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
             // 3. Top 5 Best-Selling Products
             topProducts: [
               { $match: revenueMatch },
-              { $unwind: "$items" },
+              { $unwind: '$items' },
               {
                 $group: {
-                  _id: "$items.name",
-                  unitsSold: { $sum: "$items.quantity" },
+                  _id: '$items.name',
+                  unitsSold: { $sum: '$items.quantity' },
                   revenue: {
-                    $sum: { $multiply: ["$items.price", "$items.quantity"] },
+                    $sum: { $multiply: ['$items.price', '$items.quantity'] },
                   },
-                  image: { $first: "$items.image" },
+                  image: { $first: '$items.image' },
                 },
               },
               { $sort: { unitsSold: -1 } },
@@ -107,7 +95,7 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
               {
                 $project: {
                   _id: 0,
-                  name: "$_id",
+                  name: '$_id',
                   unitsSold: 1,
                   revenue: 1,
                   image: 1,
@@ -123,9 +111,9 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
               {
                 $group: {
                   _id: {
-                    $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+                    $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
                   },
-                  dailyRevenue: { $sum: "$totalPrice" },
+                  dailyRevenue: { $sum: '$totalPrice' },
                   dailyOrders: { $sum: 1 },
                 },
               },
@@ -138,15 +126,15 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
               { $limit: 5 },
               {
                 $lookup: {
-                  from: "users",
-                  localField: "user",
-                  foreignField: "_id",
-                  as: "userDetails",
+                  from: 'users',
+                  localField: 'user',
+                  foreignField: '_id',
+                  as: 'userDetails',
                 },
               },
               {
                 $unwind: {
-                  path: "$userDetails",
+                  path: '$userDetails',
                   preserveNullAndEmptyArrays: true,
                 },
               },
@@ -157,9 +145,9 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
                   status: 1,
                   createdAt: 1,
                   user: {
-                    _id: "$userDetails._id",
-                    name: "$userDetails.name",
-                    email: "$userDetails.email",
+                    _id: '$userDetails._id',
+                    name: '$userDetails.name',
+                    email: '$userDetails.email',
                   },
                 },
               },
@@ -167,22 +155,22 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
           },
         },
       ]),
-      User.countDocuments({ role: "customer" }), // 6. Total Registered Customers
-    ]);
+      User.countDocuments({ role: 'customer' }), // 6. Total Registered Customers
+    ])
 
     const stats = analyticsResult[0].revenueStats[0] || {
       totalRevenue: 0,
       currentMonthRevenue: 0,
       lastMonthRevenue: 0,
-    };
-    const lastMonth = stats.lastMonthRevenue || 0;
-    const currentMonth = stats.currentMonthRevenue || 0;
+    }
+    const lastMonth = stats.lastMonthRevenue || 0
+    const currentMonth = stats.currentMonthRevenue || 0
 
-    let growthPercentage = 0;
+    let growthPercentage = 0
     if (lastMonth > 0) {
-      growthPercentage = ((currentMonth - lastMonth) / lastMonth) * 100;
+      growthPercentage = ((currentMonth - lastMonth) / lastMonth) * 100
     } else if (currentMonth > 0) {
-      growthPercentage = 100;
+      growthPercentage = 100
     }
 
     const responseData = {
@@ -197,18 +185,18 @@ export const getAdminDashboardAnalytics = async (req, res, next) => {
       last7Days: analyticsResult[0].last7DaysStats,
       recentOrders: analyticsResult[0].recentOrders,
       totalCustomers,
-    };
+    }
 
     await redisClient.set(CACHE_KEY, JSON.stringify(responseData), {
       EX: CACHE_TTL_SECONDS,
-    });
+    })
 
     res.status(200).json({
       status: 'success',
       cached: false,
-      data: responseData
-    });
+      data: responseData,
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
+}

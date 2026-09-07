@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 
-import { MODEL_CONFIGS } from '../config/constants.js'
+import { MODEL_OPTIONS } from '../config/constants.js'
+
 import addressSchema from './schemas/address.schema.js'
 import orderItemSchema from './schemas/orderItem.schema.js'
 
@@ -92,7 +93,7 @@ const orderSchema = new mongoose.Schema(
       maxlength: 1000,
     },
   },
-  MODEL_CONFIGS,
+  MODEL_OPTIONS,
 )
 
 export const Order = mongoose.model('Order', orderSchema)

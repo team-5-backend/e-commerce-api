@@ -11,12 +11,14 @@ export const createProductSchema = Joi.object({
 
   discountPrice: Joi.number()
     .min(0)
+    .default(0)
     .when('price', {
       is: Joi.exist(),
-      then: Joi.number().less(Joi.ref('price')),
-    })
-    .default(0)
-    .messages({ 'number.less': 'Discount price must be lower than original price' }),
+      // eslint-disable-next-line unicorn/no-thenable
+      then: Joi.number().max(Joi.ref('price')).messages({
+        'number.max': 'Discount price must be lower than or equal to original price',
+      }),
+    }),
 
   stock: Joi.number().required().min(0),
 

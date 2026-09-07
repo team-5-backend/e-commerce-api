@@ -1,3 +1,5 @@
+import { AppError } from '../utils/appError.js'
+
 import { HTTP_STATUS } from './constants.js'
 import environment from './environment.js'
 
@@ -15,7 +17,7 @@ const corsOptions = Object.freeze({
     }
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'user-agent'],
   credentials: true,
   optionsSuccessStatus: HTTP_STATUS.OK,
   maxAge: 60 * 60 * 24,

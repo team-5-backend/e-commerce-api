@@ -3,6 +3,7 @@ import axios from 'axios'
 import { HTTP_STATUS } from '../config/constants.js'
 import environment from '../config/environment.js'
 import logger from '../utils/logger.js'
+import { emailSchema } from '../validations/auth.validation.js'
 
 import { AppError } from './appError.js'
 
@@ -16,13 +17,18 @@ const brevoClient = axios.create({
   timeout: 5000,
 })
 
-export const sendEmail = async ({ to, subject, html }) => {
-  if (!to || !subject || !html) {
+export const sendEmail = async (payload) => {
+  const { value, error } = emailSchema.validate(payload)
+  if (error) {
     throw new AppError(
-      'Email "to", "subject", and "html" content are required.',
+      `Schema validation failed: ${error.details[0].message}`,
       HTTP_STATUS.BAD_REQUEST,
+      {
+        cause: error,
+      },
     )
   }
+  const { to, subject, html } = value
 
   try {
     const { data } = await brevoClient.post('/email', {
@@ -43,8 +49,7 @@ export const sendEmail = async ({ to, subject, html }) => {
 
     return data
   } catch (error) {
-    logger.error({ message: 'Brevo error:', error })
-    throw new AppError('Failed to send email', HTTP_STATUS.INTERNAL_ERROR)
+    throw new AppError('Failed to send email', HTTP_STATUS.INTERNAL_ERROR, { cause: error })
   }
 }
 

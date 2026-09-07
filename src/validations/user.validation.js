@@ -1,7 +1,7 @@
 import Joi from 'joi'
 
-import password from './schemas/password.schema'
-import phone from './schemas/phone.schema'
+import password from './schemas/password.schema.js'
+import phone from './schemas/phone.schema.js'
 
 export const createUserSchema = Joi.object({
   username: Joi.string().required(),
