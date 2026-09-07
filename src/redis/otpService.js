@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 
-import { HTTP_STATUS } from '../config/constants.js'
+import { HTTP_STATUS, OTP_TTL } from '../config/constants.js'
 import { AppError } from '../utils/appError.js'
 import { createOtpSchema, verifyOtpSchema } from '../validations/auth.validation.js'
 
@@ -27,7 +27,6 @@ export const saveOtp = async (schemaPayload) => {
     userData,
   })
 
-  const OTP_TTL = 10 * 60 // 10m
   await redisClient.setEx(`otp:${email}`, OTP_TTL, data)
 }
 
