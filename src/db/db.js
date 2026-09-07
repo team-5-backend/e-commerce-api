@@ -7,6 +7,10 @@ mongoose.connection.on('error', (error) => {
   logger.error({ message: 'MongoDB connection error', error })
 })
 
+mongoose.connection.on('connected', () => {
+  logger.info(`MongoDB connected successfully: ${mongoose.connection.host}`)
+})
+
 mongoose.connection.on('disconnected', () => {
   logger.warn('MongoDB connection lost. Mongoose will attempt to auto-reconnect...')
 })
@@ -17,8 +21,7 @@ export const connectDatabase = async () => {
   }
 
   try {
-    const conn = await mongoose.connect(environment.mongoUri)
-    logger.info(`MongoDB connected successfully: ${conn.connection.host}`)
+    await mongoose.connect(environment.mongoUri)
   } catch (error) {
     logger.error({ message: 'MongoDB connection failed', error })
     process.exit(1)
