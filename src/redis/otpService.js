@@ -27,7 +27,8 @@ export const saveOtp = async (schemaPayload) => {
     userData,
   })
 
-  await redisClient.setEx(`otp:${email}`, 10 * 60 /* 10m */, data)
+  const OTP_TTL = 10 * 60 // 10m
+  await redisClient.setEx(`otp:${email}`, OTP_TTL, data)
 }
 
 // takes { email, otp }
