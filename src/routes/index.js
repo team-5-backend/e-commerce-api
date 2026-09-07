@@ -16,3 +16,13 @@ router.get('/health', (_req, res) =>
 router.use('/auth', authRoutes)
 
 export default router
+import { Router } from "express";
+import cartRouter from "./cart.routes.js";
+import wishlistRouter from "./wishlist.routes.js";
+
+const router = Router();
+
+router.use("/carts", cartRouter);
+router.use("/wishlists", wishlistRouter);
+
+export default router;
