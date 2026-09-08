@@ -47,14 +47,14 @@ export const login = asyncHandler(async (req, res) => {
   res.cookie('accessToken', accessToken, COOKIE_OPTIONS)
   res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
 
-  res.status(HTTP_STATUS.OK).send(new ApiResponse('Logged in successfully.'))
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Logged in successfully.'))
 })
 
 ////////////////////////////////////////////////////////////////////////
 
 export const register = asyncHandler(async (req, res) => {
   const { username, phone, email, password } = req.body
-  const successResponse = new ApiResponse(
+  const successResponse = ApiResponse(
     'If an account exists, a verification code has been sent to the email address provided.',
   )
 
@@ -113,7 +113,7 @@ export const verifyRegisterOtp = asyncHandler(async (req, res) => {
   res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
 
   res.status(HTTP_STATUS.CREATED).send(
-    new ApiResponse('Account created successfully.', {
+    ApiResponse('Account created successfully.', {
       _id: user._id,
       username: user.username,
       email: user.email,
@@ -125,7 +125,7 @@ export const verifyRegisterOtp = asyncHandler(async (req, res) => {
 
 export const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body
-  const successResponse = new ApiResponse(
+  const successResponse = ApiResponse(
     'If an account exists, a password reset code has been sent to the email address provided.',
   )
 
@@ -182,7 +182,7 @@ export const verifyForgotPasswordOtp = asyncHandler(async (req, res) => {
   res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
 
   res.status(HTTP_STATUS.OK).send(
-    new ApiResponse('Password reset successfully.', {
+    ApiResponse('Password reset successfully.', {
       _id: user._id,
       username: user.username,
       email: user.email,
@@ -201,7 +201,7 @@ export const logout = asyncHandler(async (req, res) => {
   res.clearCookie('accessToken', COOKIE_OPTIONS)
   res.clearCookie('refreshToken', COOKIE_OPTIONS)
 
-  res.status(HTTP_STATUS.OK).send(new ApiResponse('Logged out successfully.'))
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Logged out successfully.'))
 })
 
 ////////////////////////////////////////////////////////////////////////
@@ -214,7 +214,7 @@ export const logoutAll = asyncHandler(async (req, res) => {
   res.clearCookie('accessToken', COOKIE_OPTIONS)
   res.clearCookie('refreshToken', COOKIE_OPTIONS)
 
-  res.status(HTTP_STATUS.OK).send(new ApiResponse('Logged out from all devices successfully.'))
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Logged out from all devices successfully.'))
 })
 
 ////////////////////////////////////////////////////////////////////////
@@ -226,7 +226,7 @@ export const getSessions = asyncHandler(async (req, res) => {
 
   res
     .status(HTTP_STATUS.OK)
-    .send(new ApiResponse('Active sessions retrieved successfully.', sessions))
+    .send(ApiResponse('Active sessions retrieved successfully.', sessions))
 })
 
 ////////////////////////////////////////////////////////////////////////
@@ -237,7 +237,7 @@ export const deleteSession = asyncHandler(async (req, res) => {
 
   await revokeSpecificSession(userId, sessionId)
 
-  res.status(HTTP_STATUS.OK).send(new ApiResponse('Session revoked successfully.'))
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Session revoked successfully.'))
 })
 
 ////////////////////////////////////////////////////////////////////////

@@ -4,7 +4,7 @@ import { HTTP_STATUS } from '../config/constants.js'
 import environment from '../config/environment.js'
 import { User } from '../models/user.model.js'
 import { AppError } from '../utils/appError.js'
-import { generateTokensSchema, refreshTokensSchema } from '../validations/auth.validation.js'
+import { generateTokenSchema, refreshTokenSchema } from '../validations/auth.validation.js'
 
 import redisClient from './redisClient.js'
 
@@ -24,7 +24,7 @@ export const cleanUpDeadSessions = async (userId) => {
 
 // takes { userId, userRole, ip, userAgent }
 export const generateTokens = async (schemaPayload, existingSessionId = null) => {
-  const { value, error: schemaError } = generateTokensSchema.validate(schemaPayload)
+  const { value, error: schemaError } = generateTokenSchema.validate(schemaPayload)
   if (schemaError)
     throw new AppError(
       `Schema validation failed: ${schemaError.message}`,
@@ -63,7 +63,7 @@ export const generateTokens = async (schemaPayload, existingSessionId = null) =>
 
 // takes { refreshToken, currentIp, currentUserAgent }
 export const refreshTokens = async (schemaPayload) => {
-  const { value, error: schemaError } = refreshTokensSchema.validate(schemaPayload)
+  const { value, error: schemaError } = refreshTokenSchema.validate(schemaPayload)
   if (schemaError)
     throw new AppError(
       `Schema validation failed: ${schemaError.message}`,
@@ -144,12 +144,18 @@ export const revokeSpecificSession = async (userId, sessionId) => {
   const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
   if (!tokens.length) return
 
+  let targetToken = null
+
   for (const token of tokens) {
     const decoded = jwt.decode(token)
     if (decoded && decoded.sessionId === sessionId) {
-      await revokeRefreshToken(userId, token)
+      targetToken = token
       break
     }
+  }
+
+  if (targetToken) {
+    await revokeRefreshToken(userId, targetToken)
   }
 }
 

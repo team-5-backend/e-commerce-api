@@ -1,9 +1,68 @@
 import Joi from 'joi'
 
+import emailFieldSchema from './schemas/email.schema.js'
 import objectIdSchema from './schemas/id.schema.js'
+import otpFieldSchema from './schemas/otp.schema.js'
 import { createUserSchema } from './user.validation.js'
 
-export const generateTokensSchema = Joi.object({
+////////////////////////////////////////////////////////////////////////
+
+export const loginSchema = Joi.object({
+  email: emailFieldSchema,
+  password: Joi.string().required().messages({
+    'any.required': 'Password is required.',
+  }),
+})
+
+////////////////////////////////////////////////////////////////////////
+
+export const verifyOtpSchema = Joi.object({
+  email: emailFieldSchema,
+  otp: otpFieldSchema,
+})
+
+////////////////////////////////////////////////////////////////////////
+
+export const createOtpSchema = verifyOtpSchema.keys({
+  attempts: Joi.number().default(5),
+  userData: createUserSchema.allow(null),
+})
+
+////////////////////////////////////////////////////////////////////////
+
+export const registerSchema = createUserSchema
+
+////////////////////////////////////////////////////////////////////////
+
+export const verifyRegisterOtpSchema = verifyOtpSchema
+
+////////////////////////////////////////////////////////////////////////
+
+export const forgotPasswordSchema = Joi.object({
+  email: emailFieldSchema,
+})
+
+////////////////////////////////////////////////////////////////////////
+
+export const verifyForgotPasswordOtpSchema = verifyOtpSchema.keys({
+  newPassword: Joi.string().min(8).required().messages({
+    'string.min': 'New password must be at least 8 characters long.',
+    'any.required': 'New password is required.',
+  }),
+})
+
+////////////////////////////////////////////////////////////////////////
+
+export const deleteSessionParamsSchema = Joi.object({
+  sessionId: Joi.string().guid({ version: 'uuidv4' }).required().messages({
+    'string.guid': 'Session ID must be a valid UUID.',
+    'any.required': 'Session ID is required.',
+  }),
+})
+
+////////////////////////////////////////////////////////////////////////
+
+export const generateTokenSchema = Joi.object({
   userId: objectIdSchema.required().messages({
     'any.required': 'User ID is required',
   }),
@@ -12,36 +71,10 @@ export const generateTokensSchema = Joi.object({
   userAgent: Joi.string().allow(null, '').optional(),
 })
 
-export const refreshTokensSchema = Joi.object({
+////////////////////////////////////////////////////////////////////////
+
+export const refreshTokenSchema = Joi.object({
   incomingRefreshToken: Joi.string().required(),
   currentIp: Joi.string().allow(null, '').optional(),
   currentUserAgent: Joi.string().allow(null, '').optional(),
-})
-
-export const createOtpSchema = Joi.object({
-  email: Joi.string().email().required(),
-  otp: Joi.string()
-    .length(6)
-    .pattern(/^[0-9]+$/)
-    .required()
-    .messages({
-      'string.length': 'OTP must be exactly 6 digits',
-      'string.pattern.base': 'OTP must contain numbers only',
-      'any.required': 'OTP is required',
-    }),
-  attempts: Joi.number().default(5),
-  userData: createUserSchema.allow(null),
-})
-
-export const verifyOtpSchema = Joi.object({
-  email: Joi.string().email().required(),
-  otp: Joi.string()
-    .length(6)
-    .pattern(/^[0-9]+$/)
-    .required()
-    .messages({
-      'string.length': 'OTP must be exactly 6 digits',
-      'string.pattern.base': 'OTP must contain numbers only',
-      'any.required': 'OTP is required',
-    }),
 })
