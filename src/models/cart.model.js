@@ -1,12 +1,10 @@
 import mongoose from 'mongoose'
 
-import orderItemSchema from '../schemas/orderItem.schema'
+import { MODEL_OPTIONS } from '../config/constants.js'
 
-import { MODEL_CONFIGS } from './../config/constants'
+import orderItemSchema from './schemas/orderItem.schema.js'
 
-const cartItemSchema = orderItemSchema.clone()
-
-cartItemSchema.forEachPath((_, schemaType) => {
+const cartItemSchema = orderItemSchema.eachPath((path, schemaType) => {
   schemaType.required(false)
 })
 
@@ -52,7 +50,7 @@ const cartSchema = new mongoose.Schema(
       },
     },
   },
-  MODEL_CONFIGS,
+  MODEL_OPTIONS,
 )
 
 cartSchema.virtual('subtotal').get(function () {

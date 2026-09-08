@@ -1,3 +1,5 @@
+import environment from './environment.js'
+
 export const HTTP_STATUS = Object.freeze({
   OK: 200,
   CREATED: 201,
@@ -12,10 +14,20 @@ export const HTTP_STATUS = Object.freeze({
   INTERNAL_ERROR: 500,
 })
 
-export const MODEL_CONFIGS = Object.freeze({
+export const MODEL_OPTIONS = Object.freeze({
   timestamps: true,
   strict: true,
   strictQuery: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 })
+
+export const COOKIE_OPTIONS = Object.freeze({
+  httpOnly: true,
+  secure: environment.isProduction,
+  sameSite: 'strict',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  path: '/',
+})
+
+export const OTP_TTL = 10 * 60 // 10m

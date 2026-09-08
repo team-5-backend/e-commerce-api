@@ -1,4 +1,6 @@
-import 'dotenv/config'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const environment = {
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -14,15 +16,15 @@ const environment = {
   },
   brevo: {
     brevoApiKey: process.env.BREVO_API_KEY,
-    fromName: process.env.BREVO_FROM_NAME,
-    fromEmail: process.env.BREVO_FROM_EMAIL,
+    senderName: process.env.BREVO_SENDER_NAME,
+    senderEmail: process.env.BREVO_SENDER_EMAIL,
   },
   redisUrl: process.env.REDIS_URL,
   auth: {
-    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
-    accessTokenExpire: process.env.ACCESS_TOKEN_EXPIRE,
-    refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
-    refreshTokenExpire: process.env.REFRESH_TOKEN_EXPIRE,
+    jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
+    jwtAccessExp: process.env.JWT_ACCESS_EXP || '15m',
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+    jwtRefreshExpDays: process.env.JWT_REFRESH_EXP_DAYS || '7d',
   },
 }
 

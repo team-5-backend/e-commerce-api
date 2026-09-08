@@ -1,11 +1,19 @@
 import Joi from 'joi'
+import { isValidPhoneNumber } from 'libphonenumber-js/min'
 
-const phone = Joi.string()
-  .trim()
-  .max(14)
-  .pattern(new RegExp(/^(002|02|\+2)?01[0-25]\d{8}$/))
+const phoneValidator = (value, helpers) => {
+  if (!isValidPhoneNumber(value)) {
+    return helpers.error('any.invalid')
+  }
+  return value
+}
+
+const phoneSchema = Joi.string()
+  .required()
+  .custom(phoneValidator, 'International Phone Validation')
   .messages({
-    'string.pattern.base': 'invalid phone number, please enter Egyptian number',
+    'any.invalid':
+      'The "phone" field must be a valid international phone number including country code.',
   })
 
-export default phone
+export default phoneSchema

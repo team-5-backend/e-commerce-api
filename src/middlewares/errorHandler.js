@@ -14,7 +14,7 @@ const errorHandler = (err, req, res, _next) => {
     stack: err.stack,
   })
 
-  res.status(statusCode).json({
+  res.status(statusCode).send({
     success: false,
     message,
     ...(environment.isDevelopment && { stack: err.stack }),
