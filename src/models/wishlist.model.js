@@ -1,26 +1,30 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
+
+import { MODEL_OPTIONS } from '../config/constants.js'
 
 const wishlistSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
+      index: true,
       unique: true,
-      index: true
     },
-    products: {
-      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
-      default: []
-    }
+
+    products: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+      },
+    ],
   },
-  { timestamps: true }
-);
+  MODEL_OPTIONS,
+)
 
-wishlistSchema.pre(/^find/, function () {
-  this.populate("products");
-});
+wishlistSchema.pre(/^find/, function (next) {
+  this.populate('products')
+  next()
+})
 
-const Wishlist = mongoose.model("Wishlist", wishlistSchema);
-
-export default Wishlist;
+export const Wishlist = mongoose.model('Wishlist', wishlistSchema)

@@ -24,8 +24,10 @@ router.post('/verify-register', authLimiter, verifyRegisterOtp)
 router.post('/forgot-password', otpLimiter, forgotPassword)
 router.post('/verify-forgot-password', authLimiter, verifyForgotPasswordOtp)
 
-router.get('/sessions', authenticate, getSessions)
 router.post('/logout', authenticate, logout)
 router.post('/logout-all', authenticate, logoutAll)
+
+router.get('/sessions', authenticate, getSessions)
+router.delete('/sessions/:sessionId', authenticate, deleteSession)
 
 export default router
