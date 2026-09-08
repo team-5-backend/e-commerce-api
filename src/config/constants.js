@@ -30,4 +30,12 @@ export const COOKIE_OPTIONS = Object.freeze({
   path: '/',
 })
 
+export const STATIC_COUPONS = Object.freeze({
+  SAVE10: { discountType: 'percentage', discountValue: 10 },
+  SAVE20: { discountType: 'percentage', discountValue: 20 },
+  SAVE50: { discountType: 'percentage', discountValue: 50 },
+  SAVE80: { discountType: 'percentage', discountValue: 80 },
+  OFF50: { discountType: 'fixed', discountValue: 50 },
+})
+
 export const OTP_TTL = 10 * 60 // 10m
