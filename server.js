@@ -1,12 +1,8 @@
-import dotenv from 'dotenv'
-
 import app from './src/app.js'
 import environment from './src/config/environment.js'
 import { connectDatabase, disconnectDatabase } from './src/db/db.js'
 import { connectRedis, disconnectRedis } from './src/redis/redisClient.js'
 import logger from './src/utils/logger.js'
-
-dotenv.config()
 
 await connectDatabase()
 await connectRedis()

@@ -14,11 +14,15 @@ export const generateSecureOtp = () => {
 
 // takes { email, otp, userData }
 export const saveOtp = async (schemaPayload) => {
-  const { value, error } = createOtpSchema.validate(schemaPayload)
-  if (error)
-    throw new AppError(`Schema validation failed: ${error.message}`, HTTP_STATUS.BAD_REQUEST, {
-      cause: error,
-    })
+  const { value, error: schemaError } = createOtpSchema.validate(schemaPayload)
+  if (schemaError)
+    throw new AppError(
+      `Schema validation failed: ${schemaError.message}`,
+      HTTP_STATUS.BAD_REQUEST,
+      {
+        cause: schemaError,
+      },
+    )
   const { email, otp, userData } = value
 
   const data = JSON.stringify({
@@ -32,11 +36,15 @@ export const saveOtp = async (schemaPayload) => {
 
 // takes { email, otp }
 export const verifyOtp = async (schemaPayload) => {
-  const { value, error } = verifyOtpSchema.validate(schemaPayload)
-  if (error)
-    throw new AppError(`Schema validation failed: ${error.message}`, HTTP_STATUS.BAD_REQUEST, {
-      cause: error,
-    })
+  const { value, error: schemaError } = verifyOtpSchema.validate(schemaPayload)
+  if (schemaError)
+    throw new AppError(
+      `Schema validation failed: ${schemaError.message}`,
+      HTTP_STATUS.BAD_REQUEST,
+      {
+        cause: schemaError,
+      },
+    )
   const { email, otp } = value
 
   const key = `otp:${email}`

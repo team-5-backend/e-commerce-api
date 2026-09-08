@@ -1,17 +1,11 @@
 import mongoose from 'mongoose'
 
+import phoneSchema from './phone.schema.js'
+
 const addressSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true, trim: true },
-    phone: {
-      type: String,
-      required: true,
-      validate: {
-        validator: (value) => /^(002|02|\+2)?01[0-25]\d{8}$/.test(value),
-        message: 'invalid phone number, please enter Egyptian number',
-      },
-      trim: true,
-    },
+    phone: { type: phoneSchema, required: true },
     country: { type: String, required: true, trim: true },
     city: { type: String, required: true, trim: true },
     address: { type: String, required: true, trim: true },
