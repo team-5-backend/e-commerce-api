@@ -37,3 +37,5 @@ export const STATIC_COUPONS = Object.freeze({
   SAVE80: { discountType: 'percentage', discountValue: 80 },
   OFF50: { discountType: 'fixed', discountValue: 50 },
 })
+
+export const OTP_TTL = 10 * 60 // 10m

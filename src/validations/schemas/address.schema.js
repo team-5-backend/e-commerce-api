@@ -1,14 +1,14 @@
 import Joi from 'joi'
 
-import phone from './phone.schema'
+import phoneSchema from './phone.schema'
 
-const address = Joi.object({
+const addressSchema = Joi.object({
   fullName: Joi.string().trim().required(),
-  phone: phone.required(),
+  phone: phoneSchema.required(),
   country: Joi.string().trim().required(),
   city: Joi.string().trim().required(),
   address: Joi.string().trim().required(),
   postalCode: Joi.string().trim().required(),
 })
 
-export default address
+export default addressSchema

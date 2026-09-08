@@ -1,13 +1,17 @@
-import axios from 'axios'
+import https from 'https'
+
+import { create } from 'axios'
 
 import { HTTP_STATUS } from '../config/constants.js'
 import environment from '../config/environment.js'
-import logger from '../utils/logger.js'
-import { emailSchema } from '../validations/auth.validation.js'
+import { emailSchema } from '../validations/brevo.schema.js'
 
 import { AppError } from './appError.js'
+import logger from './logger.js'
 
-const brevoClient = axios.create({
+const httpsAgent = new https.Agent({ keepAlive: true })
+
+const brevoClient = create({
   baseURL: 'https://api.brevo.com/v3/smtp',
   headers: {
     accept: 'application/json',
@@ -15,26 +19,26 @@ const brevoClient = axios.create({
     'content-type': 'application/json',
   },
   timeout: 5000,
+  httpsAgent,
 })
 
 export const sendEmail = async (payload) => {
-  const { value, error } = emailSchema.validate(payload)
-  if (error) {
+  const { value, error: schemaError } = emailSchema.validate(payload)
+  if (schemaError)
     throw new AppError(
-      `Schema validation failed: ${error.details[0].message}`,
+      `Schema validation failed: ${schemaError.message}`,
       HTTP_STATUS.BAD_REQUEST,
       {
-        cause: error,
+        cause: schemaError,
       },
     )
-  }
   const { to, subject, html } = value
 
   try {
     const { data } = await brevoClient.post('/email', {
       sender: {
-        name: environment.brevo.fromName,
-        email: environment.brevo.fromEmail,
+        name: environment.brevo.senderName,
+        email: environment.brevo.senderEmail,
       },
       to: [{ email: to }],
       subject,
@@ -43,7 +47,7 @@ export const sendEmail = async (payload) => {
 
     logger.info({
       message: 'Email sent successfully via Brevo',
-      to,
+      recipient: to,
       messageId: data.messageId,
     })
 
@@ -52,5 +56,3 @@ export const sendEmail = async (payload) => {
     throw new AppError('Failed to send email', HTTP_STATUS.INTERNAL_ERROR, { cause: error })
   }
 }
-
-export default sendEmail

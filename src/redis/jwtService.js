@@ -2,8 +2,9 @@ import jwt from 'jsonwebtoken'
 
 import { HTTP_STATUS } from '../config/constants.js'
 import environment from '../config/environment.js'
+import { User } from '../models/user.model.js'
 import { AppError } from '../utils/appError.js'
-import { generateTokensSchema, refreshTokensSchema } from '../validations/auth.validation.js'
+import { generateTokenSchema, refreshTokenSchema } from '../validations/auth.validation.js'
 
 import redisClient from './redisClient.js'
 
@@ -22,29 +23,32 @@ export const cleanUpDeadSessions = async (userId) => {
 }
 
 // takes { userId, userRole, ip, userAgent }
-export const generateTokens = async (schemaPayload) => {
-  const { value, error } = generateTokensSchema.validate(schemaPayload)
-  if (error)
-    throw new AppError(`Schema validation failed: ${error.message}`, HTTP_STATUS.BAD_REQUEST, {
-      cause: error,
-    })
+export const generateTokens = async (schemaPayload, existingSessionId = null) => {
+  const { value, error: schemaError } = generateTokenSchema.validate(schemaPayload)
+  if (schemaError)
+    throw new AppError(
+      `Schema validation failed: ${schemaError.message}`,
+      HTTP_STATUS.BAD_REQUEST,
+      {
+        cause: schemaError,
+      },
+    )
   const { userId, userRole, ip, userAgent } = value
 
-  const accessToken = jwt.sign({ _id: userId, role: userRole }, environment.auth.jwtAccessSecret, {
+  const sessionId = existingSessionId || crypto.randomUUID()
+  const tokenPayload = { _id: userId, role: userRole, sessionId }
+
+  const accessToken = jwt.sign(tokenPayload, environment.auth.jwtAccessSecret, {
     expiresIn: environment.auth.jwtAccessExp,
   })
 
-  const refreshToken = jwt.sign(
-    { _id: userId, role: userRole },
-    environment.auth.jwtRefreshSecret,
-    {
-      expiresIn: environment.auth.jwtRefreshExpDays,
-    },
-  )
+  const refreshToken = jwt.sign(tokenPayload, environment.auth.jwtRefreshSecret, {
+    expiresIn: environment.auth.jwtRefreshExpDays,
+  })
 
   const ttlInSeconds =
     Number(String(environment.auth.jwtRefreshExpDays).replace('d', '')) * 24 * 60 * 60
-  const sessionData = JSON.stringify({ userId, userRole, ip, userAgent })
+  const sessionData = JSON.stringify({ sessionId, userId, userRole, ip, userAgent })
 
   const multi = redisClient.multi()
   multi.setEx(`rt:${refreshToken}`, ttlInSeconds, sessionData)
@@ -59,19 +63,25 @@ export const generateTokens = async (schemaPayload) => {
 
 // takes { refreshToken, currentIp, currentUserAgent }
 export const refreshTokens = async (schemaPayload) => {
-  const { value, error } = refreshTokensSchema.validate(schemaPayload)
-  if (error)
-    throw new AppError(`Schema validation failed: ${error.message}`, HTTP_STATUS.BAD_REQUESTc)
+  const { value, error: schemaError } = refreshTokenSchema.validate(schemaPayload)
+  if (schemaError)
+    throw new AppError(
+      `Schema validation failed: ${schemaError.message}`,
+      HTTP_STATUS.BAD_REQUEST,
+      {
+        cause: schemaError,
+      },
+    )
   const { refreshToken, currentIp, currentUserAgent } = value
 
   const dataString = await redisClient.get(`rt:${refreshToken}`)
   if (!dataString) throw new AppError('Invalid or expired refresh token', HTTP_STATUS.UNAUTHORIZED)
 
   const parsedData = JSON.parse(dataString)
-  const { userId, userRole, ip: storedIp, userAgent: storedUserAgent } = parsedData
+  const { sessionId, userId, ip: storedIp, userAgent: storedUserAgent } = parsedData
 
   if (storedIp !== currentIp && storedUserAgent !== currentUserAgent) {
-    await revokeRefreshToken(refreshToken, userId)
+    await revokeRefreshToken(userId, refreshToken)
     throw new AppError(
       'Suspicious activity detected. Please log in again.',
       HTTP_STATUS.UNAUTHORIZED,
@@ -85,18 +95,24 @@ export const refreshTokens = async (schemaPayload) => {
   try {
     jwt.verify(refreshToken, environment.auth.jwtRefreshSecret)
   } catch (error) {
-    await revokeRefreshToken(refreshToken, userId)
+    await revokeRefreshToken(userId, refreshToken)
     throw new AppError('Invalid refresh token signature', HTTP_STATUS.UNAUTHORIZED, {
       cause: error,
     })
   }
 
-  const newTokens = await generateTokens({
-    userId,
-    userRole,
-    ip: currentIp,
-    userAgent: currentUserAgent,
-  })
+  const user = await User.findById(userId)
+  if (!user) throw new AppError('User no longer exists', HTTP_STATUS.UNAUTHORIZED)
+
+  const newTokens = await generateTokens(
+    {
+      userId,
+      userRole: user.role,
+      ip: currentIp,
+      userAgent: currentUserAgent,
+    },
+    sessionId,
+  )
   parsedData.newTokens = newTokens
 
   const multi = redisClient.multi()
@@ -107,7 +123,7 @@ export const refreshTokens = async (schemaPayload) => {
   return newTokens
 }
 
-export const revokeRefreshToken = async (refreshToken, userId) => {
+export const revokeRefreshToken = async (userId, refreshToken) => {
   const multi = redisClient.multi()
   multi.del(`rt:${refreshToken}`)
   if (userId) multi.sRem(`user:${userId}:sessions`, refreshToken)
@@ -122,6 +138,25 @@ export const revokeUserSessions = async (userId) => {
   tokens.forEach((token) => multi.del(`rt:${token}`))
   multi.del(`user:${userId}:sessions`)
   await multi.exec()
+}
+
+export const revokeSpecificSession = async (userId, sessionId) => {
+  const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
+  if (!tokens.length) return
+
+  let targetToken = null
+
+  for (const token of tokens) {
+    const decoded = jwt.decode(token)
+    if (decoded && decoded.sessionId === sessionId) {
+      targetToken = token
+      break
+    }
+  }
+
+  if (targetToken) {
+    await revokeRefreshToken(userId, targetToken)
+  }
 }
 
 export const getAllSessions = async (userId) => {
