@@ -3,10 +3,12 @@ import { AppError } from '../utils/appError.js'
 import { HTTP_STATUS } from './constants.js'
 import environment from './environment.js'
 
-const allowedOrigins = environment.allowedOrigins
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean)
+const allowedOrigins = new Set(
+  environment.allowedOrigins
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+)
 
 const corsOptions = Object.freeze({
   origin: function (origin, callback) {

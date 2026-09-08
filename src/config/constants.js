@@ -29,3 +29,5 @@ export const COOKIE_OPTIONS = Object.freeze({
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: '/',
 })
+
+export const OTP_TTL = 10 * 60 // 10m

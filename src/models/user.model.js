@@ -5,6 +5,7 @@ import validator from 'validator'
 import { MODEL_OPTIONS } from '../config/constants.js'
 
 import addressSchema from './schemas/address.schema.js'
+import phoneSchema from './schemas/phone.schema.js'
 
 const userSchema = new mongoose.Schema(
   {
@@ -38,11 +39,7 @@ const userSchema = new mongoose.Schema(
     },
 
     phone: {
-      type: String,
-      validate: {
-        validator: (value) => /^(002|02|\+2)?01[0-25]\d{8}$/.test(value),
-        message: 'Invalid Egyptian phone number',
-      },
+      type: phoneSchema,
     },
 
     avatar: {

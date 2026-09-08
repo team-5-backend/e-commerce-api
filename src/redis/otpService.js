@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 
-import { HTTP_STATUS } from '../config/constants.js'
+import { HTTP_STATUS, OTP_TTL } from '../config/constants.js'
 import { AppError } from '../utils/appError.js'
 import { createOtpSchema, verifyOtpSchema } from '../validations/auth.validation.js'
 
@@ -14,11 +14,15 @@ export const generateSecureOtp = () => {
 
 // takes { email, otp, userData }
 export const saveOtp = async (schemaPayload) => {
-  const { value, error } = createOtpSchema.validate(schemaPayload)
-  if (error)
-    throw new AppError(`Schema validation failed: ${error.message}`, HTTP_STATUS.BAD_REQUEST, {
-      cause: error,
-    })
+  const { value, error: schemaError } = createOtpSchema.validate(schemaPayload)
+  if (schemaError)
+    throw new AppError(
+      `Schema validation failed: ${schemaError.message}`,
+      HTTP_STATUS.BAD_REQUEST,
+      {
+        cause: schemaError,
+      },
+    )
   const { email, otp, userData } = value
 
   const data = JSON.stringify({
@@ -27,16 +31,20 @@ export const saveOtp = async (schemaPayload) => {
     userData,
   })
 
-  await redisClient.setEx(`otp:${email}`, 10 * 60 /* 10m */, data)
+  await redisClient.setEx(`otp:${email}`, OTP_TTL, data)
 }
 
 // takes { email, otp }
 export const verifyOtp = async (schemaPayload) => {
-  const { value, error } = verifyOtpSchema.validate(schemaPayload)
-  if (error)
-    throw new AppError(`Schema validation failed: ${error.message}`, HTTP_STATUS.BAD_REQUEST, {
-      cause: error,
-    })
+  const { value, error: schemaError } = verifyOtpSchema.validate(schemaPayload)
+  if (schemaError)
+    throw new AppError(
+      `Schema validation failed: ${schemaError.message}`,
+      HTTP_STATUS.BAD_REQUEST,
+      {
+        cause: schemaError,
+      },
+    )
   const { email, otp } = value
 
   const key = `otp:${email}`

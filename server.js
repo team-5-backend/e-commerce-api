@@ -1,14 +1,11 @@
-import dotenv from 'dotenv'
-
 import app from './src/app.js'
 import environment from './src/config/environment.js'
 import { connectDatabase, disconnectDatabase } from './src/db/db.js'
-import redisClient from './src/redis/redisClient.js'
+import { connectRedis, disconnectRedis } from './src/redis/redisClient.js'
 import logger from './src/utils/logger.js'
 
-dotenv.config()
-
 await connectDatabase()
+await connectRedis()
 
 const server = app.listen(environment.port, () => {
   logger.info(`🚀 Server running at http://${environment.host}:${environment.port}`)
@@ -37,7 +34,7 @@ const shutdown = (signal) => {
     try {
       clearTimeout(forceShutdown)
       await disconnectDatabase()
-      await redisClient.quit()
+      await disconnectRedis()
       logger.info('Server, Redis and database connections closed successfully.')
       process.exit(0)
     } catch (error) {

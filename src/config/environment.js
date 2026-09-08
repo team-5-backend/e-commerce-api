@@ -1,4 +1,6 @@
-import 'dotenv/config'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const environment = {
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -14,8 +16,8 @@ const environment = {
   },
   brevo: {
     brevoApiKey: process.env.BREVO_API_KEY,
-    fromName: process.env.BREVO_FROM_NAME,
-    fromEmail: process.env.BREVO_FROM_EMAIL,
+    senderName: process.env.BREVO_SENDER_NAME,
+    senderEmail: process.env.BREVO_SENDER_EMAIL,
   },
   redisUrl: process.env.REDIS_URL,
   auth: {

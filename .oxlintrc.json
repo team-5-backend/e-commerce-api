@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": ["**/node_modules/", "dist/", "build/", ".next/", "coverage/"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn",
+    "style": "off"
+  },
+  "plugins": ["eslint", "typescript", "unicorn", "import", "promise"],
+  "rules": {
+    "eslint/no-unused-vars": "error",
+    "eslint/no-console": ["warn", { "allow": ["warn", "error"] }],
+    "eslint/no-underscore-dangle": ["error", { "allow": ["_id"] }]
+  }
+}

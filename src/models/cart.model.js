@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 
-import { MODEL_OPTIONS } from './../config/constants.js'
+import { MODEL_OPTIONS } from '../config/constants.js'
+
 import orderItemSchema from './schemas/orderItem.schema.js'
 
 const cartItemSchema = orderItemSchema.eachPath((path, schemaType) => {

@@ -21,14 +21,19 @@ export const cache =
       const cachedResponse = await redisClient.get(key)
 
       if (cachedResponse) {
+        const { statusCode, body } = JSON.parse(cachedResponse)
+        res.status(statusCode)
         res.set('Content-Type', 'application/json')
-        return res.send(cachedResponse)
+        return res.send(body)
       }
 
       // Intercept res.send
       const originalSend = res.send.bind(res)
       res.send = (body) => {
-        const cacheData = typeof body === 'object' ? JSON.stringify(body) : body
+        const cacheData = JSON.stringify({
+          statusCode: res.statusCode,
+          body: typeof body === 'object' ? body : JSON.parse(body),
+        })
 
         redisClient
           .setEx(key, durationInSeconds, cacheData)

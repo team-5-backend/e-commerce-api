@@ -14,11 +14,11 @@ export const authenticate = async (req, res, next) => {
   try {
     req.user = jwt.verify(accessToken, environment.auth.jwtAccessSecret)
     return next()
-  } catch (error) {
+  } catch (accessTokenError) {
     if (!refreshToken)
       return next(
         new AppError('Not authenticated. Please log in.', HTTP_STATUS.UNAUTHORIZED, {
-          cause: error,
+          cause: accessTokenError,
         }),
       )
 
