@@ -5,6 +5,6 @@ const passwordSchema = Joi.string()
   .messages({
     'string.pattern.base':
       'password must contain uppercase, lowercase, special characters and numbers',
-  })
+  }).required()
 
 export default passwordSchema

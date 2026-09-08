@@ -4,14 +4,13 @@ import emailFieldSchema from './schemas/email.schema.js'
 import objectIdSchema from './schemas/id.schema.js'
 import otpFieldSchema from './schemas/otp.schema.js'
 import { createUserSchema } from './user.validation.js'
+import passwordSchema from './schemas/password.schema.js'
 
 ////////////////////////////////////////////////////////////////////////
 
 export const loginSchema = Joi.object({
   email: emailFieldSchema,
-  password: Joi.string().required().messages({
-    'any.required': 'Password is required.',
-  }),
+  password: passwordSchema,
 })
 
 ////////////////////////////////////////////////////////////////////////
@@ -45,10 +44,7 @@ export const forgotPasswordSchema = Joi.object({
 ////////////////////////////////////////////////////////////////////////
 
 export const verifyForgotPasswordOtpSchema = verifyOtpSchema.keys({
-  newPassword: Joi.string().min(8).required().messages({
-    'string.min': 'New password must be at least 8 characters long.',
-    'any.required': 'New password is required.',
-  }),
+  newPassword: passwordSchema,
 })
 
 ////////////////////////////////////////////////////////////////////////

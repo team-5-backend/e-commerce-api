@@ -9,7 +9,7 @@ export const createUserSchema = Joi.object({
 
   email: emailFieldSchema,
 
-  password: passwordSchema.required(),
+  password: passwordSchema,
 
   phone: phoneSchema,
 })
