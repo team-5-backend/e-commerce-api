@@ -63,8 +63,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 import { User } from '../models/user.model.js';
+import { uploadImages } from '../utils/cloudinary.js';
 
-// Create
 export const createUser = async (req, res, next) => {
     try {
         const { username, email, password, phone } = req.body;
@@ -77,14 +77,26 @@ export const createUser = async (req, res, next) => {
             });
         }
 
+        let avatar;
+
+        if (req.file) {
+            const [uploadedImage] = await uploadImages(
+                [req.file.buffer],
+                'users/avatars',
+            );
+
+            avatar = uploadedImage.url;
+        }
+
         const user = await User.create({
             username,
             email,
             password,
             phone,
+            ...(avatar && { avatar }),
         });
 
-        res.status(201).json({
+        return res.status(201).json({
             message: 'User created successfully',
             user,
         });
@@ -93,12 +105,13 @@ export const createUser = async (req, res, next) => {
     }
 };
 
-// Get All
 export const getUsers = async (req, res, next) => {
     try {
-        const users = await User.find();
+        const users = await User.find().select(
+            '-resetPasswordToken -resetPasswordExpire',
+        );
 
-        res.status(200).json({
+        return res.status(200).json({
             users,
         });
     } catch (error) {
@@ -106,10 +119,11 @@ export const getUsers = async (req, res, next) => {
     }
 };
 
-// Get By ID
 export const getUserById = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.id);
+        const user = await User.findById(req.params.id).select(
+            '-resetPasswordToken -resetPasswordExpire',
+        );
 
         if (!user) {
             return res.status(404).json({
@@ -117,7 +131,7 @@ export const getUserById = async (req, res, next) => {
             });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             user,
         });
     } catch (error) {
@@ -125,10 +139,9 @@ export const getUserById = async (req, res, next) => {
     }
 };
 
-// Update
 export const updateUser = async (req, res, next) => {
     try {
-        const { username, email, phone, avatar } = req.body;
+        const { username, email, phone } = req.body;
 
         const user = await User.findById(req.params.id);
 
@@ -138,7 +151,6 @@ export const updateUser = async (req, res, next) => {
             });
         }
 
-        // User can update himself only
         if (
             req.user.role !== 'admin' &&
             req.user._id.toString() !== req.params.id
@@ -148,14 +160,42 @@ export const updateUser = async (req, res, next) => {
             });
         }
 
-        if (username !== undefined) user.username = username;
-        if (email !== undefined) user.email = email;
-        if (phone !== undefined) user.phone = phone;
-        if (avatar !== undefined) user.avatar = avatar;
+        if (email !== undefined && email !== user.email) {
+            const existingUser = await User.findOne({
+                email,
+                _id: { $ne: user._id },
+            });
+
+            if (existingUser) {
+                return res.status(409).json({
+                    message: 'Email already exists',
+                });
+            }
+
+            user.email = email;
+        }
+
+        if (username !== undefined) {
+            user.username = username;
+        }
+
+        if (phone !== undefined) {
+            user.phone = phone;
+        }
+
+        // عشان لو هنضيف صورة جديدة، لازم نحذف الصورة القديمة من Cloudinary
+        if (req.file) {
+            const [uploadedImage] = await uploadImages(
+                [req.file.buffer],
+                'users/avatars',
+            );
+
+            user.avatar = uploadedImage.url;
+        }
 
         await user.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'User updated successfully',
             user,
         });
@@ -164,10 +204,9 @@ export const updateUser = async (req, res, next) => {
     }
 };
 
-// Delete
 export const deleteUser = async (req, res, next) => {
     try {
-        const user = await User.findByIdAndDelete(req.params.id);
+        const user = await User.findById(req.params.id);
 
         if (!user) {
             return res.status(404).json({
@@ -175,7 +214,9 @@ export const deleteUser = async (req, res, next) => {
             });
         }
 
-        res.status(200).json({
+        await User.findByIdAndDelete(req.params.id);
+
+        return res.status(200).json({
             message: 'User deleted successfully',
         });
     } catch (error) {
