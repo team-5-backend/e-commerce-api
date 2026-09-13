@@ -207,7 +207,9 @@ export const createProduct = asyncHandler(async (req, res) => {
         })
       })
     }
-    throw error
+    throw error instanceof AppError
+      ? error
+      : new AppError(error.message || 'Something went wrong', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 })
 
@@ -292,7 +294,9 @@ export const updateProduct = asyncHandler(async (req, res) => {
         })
       })
     }
-    throw error
+    throw error instanceof AppError
+      ? error
+      : new AppError(error.message || 'Something went wrong', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 })
 
