@@ -1,34 +1,69 @@
 import express from 'express'
 
 import {
+  AdminCartsDashboard,
+  AdminOrderDashboard,
   cancelOrder,
   createOrder,
-  getAdminOrderById,
   getAllOrders,
   getMyOrderById,
   getMyOrders,
+  getOrderByIdAdmin,
+  handlePaymobWebhook,
+  handlePaypalWebhook,
+  handleStripeWebhook,
   updateOrderStatus,
 } from '../controllers/order.controller.js'
-import { adminOnly } from '../middleware/admin.middleware.js'
-import { protect } from '../middleware/auth.middleware.js'
-import { validate } from '../middleware/validate.middleware.js'
-import { asyncHandler } from '../utils/asyncHandler.js'
-import { createOrderSchema } from '../validation/order.validation.js'
+import { authenticate, authorize } from '../middlewares/auth.middleware.js'
+import validate from '../middlewares/validate.middleware.js'
+import { createOrderSchema, orderIdParamsSchema } from '../validations/order.validation.js'
 
 const router = express.Router()
 
-router.post('/', protect, validate(createOrderSchema), asyncHandler(createOrder))
+// WEBHOOKS
+router.post('/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook)
+router.post('/webhook/paypal', handlePaypalWebhook)
+router.post('/webhook/paymob', handlePaymobWebhook)
 
-router.get('/my', protect, asyncHandler(getMyOrders))
+router.use(authenticate)
 
-router.get('/my/:id', protect, asyncHandler(getMyOrderById))
+// ==========================================
+// CUSTOMER ROUTES
+// ==========================================
+// GET
+router.get('/my', getMyOrders)
+router.get('/my/:id', validate(orderIdParamsSchema, 'params'), getMyOrderById)
 
-router.patch('/my/:id/cancel', protect, asyncHandler(cancelOrder))
+// POST
+router.post('/', validate(createOrderSchema), createOrder)
 
-router.get('/admin', protect, adminOnly, asyncHandler(getAllOrders))
+// PATCH
+router.patch('/my/:id/cancel', validate(orderIdParamsSchema, 'params'), cancelOrder)
 
-router.get('/admin/:id', protect, adminOnly, asyncHandler(getAdminOrderById))
+// ==========================================
+// ADMIN ROUTES
+// ==========================================
 
-router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(updateOrderStatus))
+// GET
+// Dashboards
+router.get('/admin/dashboard', authorize('admin'), AdminOrderDashboard)
+router.get('/admin/carts', authorize('admin'), AdminCartsDashboard)
+
+// Order Management
+router.get('/admin/orders', authorize('admin'), getAllOrders)
+router.get(
+  '/admin/orders/:id',
+  authorize('admin'),
+  validate(orderIdParamsSchema, 'params'),
+  getOrderByIdAdmin,
+)
+
+// PATCH
+router.patch(
+  '/admin/orders/:id/status',
+  authorize('admin'),
+  validate(orderIdParamsSchema, 'params'),
+  updateOrderStatus,
+)
 
 export default router

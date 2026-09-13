@@ -67,24 +67,16 @@ export const createUser = asyncHandler(async (req, res) => {
 */
 
 export const getUsers = asyncHandler(async (req, res) => {
-  const { currentPage, currentLimit, skip } = getPagination(req.query.page, req.query.limit)
+  const { page, limit, search, role } = req.query
+  const query = {}
 
-  const [users, totalUsers] = await Promise.all([
-    User.find().skip(skip).limit(currentLimit).lean().exec(),
-    User.countDocuments(),
-  ])
+  if (search) query.name = { $regex: search, $options: 'i' }
 
-  res.status(HTTP_STATUS.OK).send(
-    ApiResponse('Users retrieved successfully.', {
-      users,
-      pagination: {
-        page: currentPage,
-        limit: currentLimit,
-        totalUsers,
-        totalPages: Math.ceil(totalUsers / currentLimit),
-      },
-    }),
-  )
+  if (role) query.role = role
+
+  const responseData = await getPaginatedData(User, query, page, limit)
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Users retrieved successfully.', responseData))
 })
 
 /*

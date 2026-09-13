@@ -17,7 +17,7 @@ const router = express.Router()
 router.use(authenticate)
 
 // GET
-router.get('/', authorize('admin'), cache(), getUsers)
+router.get('/', authorize('admin'), validate(getUsersQuerySchema, 'query'), cache(), getUsers)
 router.get('/:id', authorize('admin'), cache(), getUserById)
 
 // POST

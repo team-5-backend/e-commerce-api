@@ -1,6 +1,7 @@
-import checkoutNodeJssdk from '@paypal/checkout-server-sdk'
+import crypto from 'crypto'
+
 import mongoose from 'mongoose'
-import Stripe from 'stripe'
+import { Stripe } from 'stripe'
 
 import { HTTP_STATUS } from '../config/constants.js'
 import environment from '../config/environment.js'
@@ -13,70 +14,69 @@ import { AppError } from '../utils/appError.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { getOrderConfirmationTemplate, getStatusEmailTemplate } from '../utils/htmlTemplates.js'
 import logger from '../utils/logger.js'
+import { getPaginatedData } from '../utils/pagination.js'
+import {
+  processPaymobPayment,
+  processPaypalPayment,
+  processStripePayment,
+} from '../utils/payment.js'
 import { sendEmail } from '../utils/sendEmail.js'
 
-const paypalEnv = new checkoutNodeJssdk.core.SandboxEnvironment(
-  environment.paypal.clientId,
-  environment.paypal.clientSecret,
-)
+/*
+|--------------------------------------------------------------------------
+| Helpers
+|--------------------------------------------------------------------------
+*/
 
-const paypalClient = new checkoutNodeJssdk.core.PayPalHttpClient(paypalEnv)
-
-const stripe = environment?.stripe?.secretKey ? new Stripe(environment.stripe.secretKey) : null
-
-const FREE_SHIPPING_THRESHOLD = 1000
-const SHIPPING_FEE = 50
-const TAX_RATE = 0.14
-
-const getPagination = async (model, query = {}, page, limit) => {
-  const currentPage = Math.max(Number(page) || 1, 1)
-  const currentLimit = Math.min(Math.max(Number(limit) || 10, 1), 100)
-  const skip = (currentPage - 1) * currentLimit
-
-  const totalItems = await model.countDocuments(query)
-  const totalPages = Math.ceil(totalItems / currentLimit)
-
-  return {
-    currentPage,
-    currentLimit,
-    skip,
-    totalItems,
-    totalPages,
-    hasNextPage: currentPage < totalPages,
-    hasPrevPage: currentPage > 1,
-  }
-}
+const stripe = new Stripe(environment.stripe.secretKey)
 
 const calculateOrderTotals = (cart) => {
+  if (!cart || !Array.isArray(cart.items)) {
+    return { subtotal: 0, shippingFee: 0, tax: 0, discount: 0, totalPrice: 0 }
+  }
+
   const subtotal = cart.items.reduce(
     (total, item) => total + (item.price || 0) * (item.quantity || 0),
     0,
   )
-  const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE
-  const tax = Number((subtotal * TAX_RATE).toFixed(2))
+
+  const shippingFee =
+    subtotal >= environment.checkout.freeShippingThreshold ? 0 : environment.checkout.shippingFee
+
   const discount = Number((cart.discountAmount || 0).toFixed(2))
-  const totalPrice = Number((subtotal + shippingFee + tax - discount).toFixed(2))
-  return { subtotal: Number(subtotal.toFixed(2)), shippingFee, tax, discount, totalPrice }
+  const taxableAmount = Math.max(0, subtotal - discount)
+  const tax = Number((taxableAmount * environment.checkout.taxRate).toFixed(2))
+
+  const rawTotal = subtotal + shippingFee + tax - discount
+  const totalPrice = Math.max(0, Number(rawTotal.toFixed(2)))
+
+  return {
+    subtotal: Number(subtotal.toFixed(2)),
+    shippingFee,
+    tax,
+    discount,
+    totalPrice,
+  }
 }
 
-const allowedStatusTransitions = {
-  pending: ['confirmed', 'cancelled'],
-  confirmed: ['processing', 'cancelled'],
-  processing: ['shipped'],
-  shipped: ['delivered'],
-  delivered: ['returned'],
-  cancelled: [],
-  returned: [],
-}
+const validateStatusTransition = (currentStatus, nextStatus) => {
+  const allowedStatusTransitions = {
+    pending: ['confirmed', 'cancelled'],
+    confirmed: ['processing', 'cancelled'],
+    processing: ['shipped'],
+    shipped: ['delivered'],
+    delivered: ['returned'],
+    cancelled: [],
+    returned: [],
+  }
 
-const isValidStatusTransition = (currentStatus, nextStatus) => {
   const allowedStatuses = allowedStatusTransitions[currentStatus] || []
   return allowedStatuses.includes(nextStatus)
 }
 
 /*
 |--------------------------------------------------------------------------
-| 1. CREATE ORDER (Supports: cash, stripe, paypal, paymob)
+| Create Order
 |--------------------------------------------------------------------------
 */
 
@@ -91,24 +91,35 @@ export const createOrder = asyncHandler(async (req, res, next) => {
         .populate('items.product')
         .session(session)
 
-      if (!cart || !cart.items || cart.items.length === 0) {
-        throw new AppError('Cannot create an order from an empty cart', HTTP_STATUS.BAD_REQUEST)
+      if (!cart || !cart.items.length) {
+        throw new AppError('Cannot create an order from an empty cart.', HTTP_STATUS.BAD_REQUEST)
       }
 
       for (const item of cart.items) {
-        const product = item.product
-        if (!product || !product.isActive) {
-          throw new AppError('Product is no longer available', HTTP_STATUS.BAD_REQUEST)
-        }
-        if (product.stock < item.quantity) {
-          throw new AppError(
-            `Insufficient stock for product: ${product.name}`,
-            HTTP_STATUS.BAD_REQUEST,
-          )
-        }
+        if (!item.product?.isActive)
+          throw new AppError('Product unavailable.', HTTP_STATUS.BAD_REQUEST)
+        if (item.product.stock < item.quantity)
+          throw new AppError(`Insufficient stock: ${item.product.name}.`, HTTP_STATUS.BAD_REQUEST)
       }
 
       const totals = calculateOrderTotals(cart)
+      const validMethods = ['cash', 'stripe', 'paypal', 'paymob']
+      const paymentMethod = req.body.paymentMethod || 'cash'
+
+      if (!validMethods.includes(paymentMethod)) {
+        throw new AppError('Invalid payment method.', HTTP_STATUS.BAD_REQUEST)
+      }
+
+      await Promise.all(
+        cart.items.map((item) =>
+          Product.updateOne(
+            { _id: item.product._id },
+            { $inc: { stock: -item.quantity } },
+            { session },
+          ),
+        ),
+      )
+
       const orderItems = cart.items.map((item) => ({
         product: item.product._id,
         name: item.name || item.product.name,
@@ -116,20 +127,6 @@ export const createOrder = asyncHandler(async (req, res, next) => {
         price: item.price,
         quantity: item.quantity,
       }))
-
-      const paymentMethod = req.body.paymentMethod || 'cash'
-      const validMethods = ['cash', 'stripe', 'paypal', 'paymob']
-      if (!validMethods.includes(paymentMethod)) {
-        throw new AppError('Invalid payment method selected', HTTP_STATUS.BAD_REQUEST)
-      }
-
-      for (const item of cart.items) {
-        await Product.updateOne(
-          { _id: item.product._id },
-          { $inc: { stock: -item.quantity } },
-          { session },
-        )
-      }
 
       const [order] = await Order.create(
         [
@@ -139,11 +136,7 @@ export const createOrder = asyncHandler(async (req, res, next) => {
             shippingAddress: req.body.shippingAddress,
             paymentMethod,
             paymentStatus: 'pending',
-            subtotal: totals.subtotal,
-            shippingFee: totals.shippingFee,
-            tax: totals.tax,
-            discount: totals.discount,
-            totalPrice: totals.totalPrice,
+            ...totals,
             status: 'pending',
             customerNote: req.body.customerNote,
           },
@@ -152,7 +145,6 @@ export const createOrder = asyncHandler(async (req, res, next) => {
       )
 
       createdOrder = order
-
       cart.items = []
       cart.coupon = undefined
       cart.discountAmount = 0
@@ -160,161 +152,31 @@ export const createOrder = asyncHandler(async (req, res, next) => {
     })
 
     if (createdOrder.paymentMethod === 'stripe') {
-      if (!stripe) throw new AppError('Stripe is not configured', HTTP_STATUS.INTERNAL_ERROR)
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(createdOrder.totalPrice * 100),
-        currency: 'egp',
-        metadata: { orderId: createdOrder._id.toString() },
-      })
-      createdOrder.transactionId = paymentIntent.id
-      await createdOrder.save()
-      paymentGatewayData = { clientSecret: paymentIntent.client_secret }
+      paymentGatewayData = await processStripePayment(createdOrder)
     } else if (createdOrder.paymentMethod === 'paypal') {
-      const auth = Buffer.from(
-        `${environment.paypal.clientId}:${environment.paypal.clientSecret}`,
-      ).toString('base64')
-
-      const tokenResponse = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', {
-        method: 'POST',
-        body: 'grant_type=client_credentials',
-        headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      })
-
-      const tokenData = await tokenResponse.json()
-      if (!tokenResponse.ok) {
-        throw new AppError('Failed to authenticate with PayPal', HTTP_STATUS.INTERNAL_ERROR)
-      }
-      const accessToken = tokenData.access_token
-
-      const response = await fetch('https://api-m.sandbox.paypal.com/v2/checkout/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          intent: 'CAPTURE',
-          purchase_units: [
-            {
-              reference_id: createdOrder._id.toString(),
-              amount: {
-                currency_code: 'USD',
-                value: createdOrder.totalPrice.toFixed(2),
-              },
-            },
-          ],
-          application_context: {
-            return_url: `${environment.clientUrl}/payment/success`,
-            cancel_url: `${environment.clientUrl}/payment/cancel`,
-          },
-        }),
-      })
-
-      const paypalData = await response.json()
-      if (!response.ok) {
-        throw new AppError('Failed to create PayPal payment order', HTTP_STATUS.INTERNAL_ERROR)
-      }
-
-      const approvalUrl = paypalData.links.find((link) => link.rel === 'approve')?.href
-      if (!approvalUrl) {
-        throw new AppError('PayPal approval URL not found', HTTP_STATUS.INTERNAL_ERROR)
-      }
-
-      createdOrder.transactionId = paypalData.id
-      await createdOrder.save()
-      paymentGatewayData = { paypalApprovalUrl: approvalUrl }
+      paymentGatewayData = await processPaypalPayment(createdOrder)
     } else if (createdOrder.paymentMethod === 'paymob') {
-      const authResponse = await fetch('https://accept.paymob.com/api/auth/tokens', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ api_key: environment.paymob.paymob_ApiKey }),
-      })
-      const authData = await authResponse.json()
-      if (!authResponse.ok) {
-        throw new AppError('Failed to authenticate with Paymob', HTTP_STATUS.INTERNAL_ERROR)
-      }
-      const authToken = authData.token
+      paymentGatewayData = await processPaymobPayment(createdOrder, req.user)
+    }
 
-      const orderResponse = await fetch('https://accept.paymob.com/api/ecommerce/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          auth_token: authToken,
-          delivery_needed: 'false',
-          amount_cents: Math.round(createdOrder.totalPrice * 100),
-          currency: 'EGP',
-          merchant_order_id: createdOrder._id.toString(),
-          items: [],
-        }),
-      })
-      const orderData = await orderResponse.json()
-      if (!orderResponse.ok) {
-        throw new AppError('Failed to register order with Paymob', HTTP_STATUS.INTERNAL_ERROR)
-      }
-
-      const paymentKeyResponse = await fetch(
-        'https://accept.paymob.com/api/acceptance/payment_keys',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            auth_token: authToken,
-            amount_cents: Math.round(createdOrder.totalPrice * 100),
-            expiration: 3600,
-            order_id: orderData.id,
-            billing_data: {
-              apartment: 'NA',
-              email: req.user.email || 'test@test.com',
-              floor: 'NA',
-              first_name: req.user.username || 'Customer',
-              street: 'NA',
-              building: 'NA',
-              phone_number: req.user.phone || '01000000000',
-              shipping_method: 'NA',
-              postal_code: 'NA',
-              city: 'Cairo',
-              country: 'EGY',
-              last_name: 'NA',
-              state: 'NA',
-            },
-            currency: 'EGP',
-            integration_id: Number(environment.paymob.paymob_id),
-          }),
-        },
-      )
-      const paymentKeyData = await paymentKeyResponse.json()
-      if (!paymentKeyResponse.ok) {
-        throw new AppError('Failed to generate Paymob payment key', HTTP_STATUS.INTERNAL_ERROR)
-      }
-
-      createdOrder.transactionId = orderData.id.toString()
+    if (paymentGatewayData?.transactionId) {
+      createdOrder.transactionId = paymentGatewayData.transactionId
       await createdOrder.save()
-      paymentGatewayData = { paymobPaymentToken: paymentKeyData.token }
+      delete paymentGatewayData.transactionId
     }
 
-    const user = await User.findById(req.user._id).select('username email')
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: `Order Confirmation - #${createdOrder._id}`,
-        html: getOrderConfirmationTemplate(createdOrder, user.username),
-      })
-    } catch (emailError) {
-      logger.error({ message: 'Failed to send confirmation email', error: emailError })
-    }
+    const user = await User.findById(req.user._id).select('username email').lean().exec()
+    sendEmail({
+      to: user.email,
+      subject: `Order Confirmation - #${createdOrder._id}`,
+      html: getOrderConfirmationTemplate(createdOrder, user.username),
+    }).catch((error) => logger.error({ message: 'Failed to send confirmation email', error }))
 
-    return res.status(HTTP_STATUS.CREATED).send(
-      ApiResponse(
-        {
-          order: createdOrder,
-          ...paymentGatewayData,
-        },
-        'Order created successfully.',
-      ),
-    )
+    return res
+      .status(HTTP_STATUS.CREATED)
+      .send(
+        ApiResponse('Order created successfully.', { order: createdOrder, ...paymentGatewayData }),
+      )
   } catch (error) {
     return next(error)
   } finally {
@@ -324,47 +186,39 @@ export const createOrder = asyncHandler(async (req, res, next) => {
 
 /*
 |--------------------------------------------------------------------------
-| 2. GET MY ORDERS & DETAILS & CANCELLATION
+| Get Orders
 |--------------------------------------------------------------------------
 */
 
-export const getMyOrders = asyncHandler(async (req, res, next) => {
-  const { currentPage, currentLimit, skip } = await getPagination(
-    Order,
-    { user: req.user._id },
-    req.query.page,
-    req.query.limit,
-  )
+export const getMyOrders = asyncHandler(async (req, res) => {
   const filter = { user: req.user._id }
   if (req.query.status) filter.status = req.query.status
 
-  const [orders, totalOrders] = await Promise.all([
-    Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(currentLimit),
-    Order.countDocuments(filter),
-  ])
+  const responseData = await getPaginatedData(Order, filter, req.query.page, req.query.limit, {
+    createdAt: -1,
+  })
 
-  return res.status(HTTP_STATUS.OK).send(
-    ApiResponse(
-      {
-        orders,
-        pagination: {
-          page: currentPage,
-          limit: currentLimit,
-          totalOrders,
-          totalPages: Math.ceil(totalOrders / currentLimit),
-        },
-      },
-      'Orders fetched successfully.',
-    ),
-  )
+  return res.status(HTTP_STATUS.OK).send(ApiResponse('Orders fetched successfully.', responseData))
 })
 
-export const getMyOrderById = asyncHandler(async (req, res, next) => {
+/*
+|--------------------------------------------------------------------------
+| Get Order by Id
+|--------------------------------------------------------------------------
+*/
+
+export const getMyOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findOne({ _id: req.params.id, user: req.user._id })
   if (!order) throw new AppError('Order not found', HTTP_STATUS.NOT_FOUND)
 
-  return res.status(HTTP_STATUS.OK).send(ApiResponse({ order }, 'Order fetched successfully.'))
+  return res.status(HTTP_STATUS.OK).send(ApiResponse('Order fetched successfully.', { order }))
 })
+
+/*
+|--------------------------------------------------------------------------
+| Cancel Order
+|--------------------------------------------------------------------------
+*/
 
 export const cancelOrder = asyncHandler(async (req, res, next) => {
   const session = await mongoose.startSession()
@@ -378,13 +232,11 @@ export const cancelOrder = asyncHandler(async (req, res, next) => {
         throw new AppError('Order cannot be cancelled at this stage', HTTP_STATUS.BAD_REQUEST)
       }
 
-      for (const item of order.items) {
-        await Product.updateOne(
-          { _id: item.product },
-          { $inc: { stock: item.quantity } },
-          { session },
-        )
-      }
+      await Promise.all(
+        order.items.map((item) =>
+          Product.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } }, { session }),
+        ),
+      )
 
       order.status = 'cancelled'
       order.cancelledAt = new Date()
@@ -405,7 +257,7 @@ export const cancelOrder = asyncHandler(async (req, res, next) => {
 
     return res
       .status(HTTP_STATUS.OK)
-      .send(ApiResponse({ order: cancelledOrder }, 'Order cancelled successfully.'))
+      .send(ApiResponse('Order cancelled successfully.', { order: cancelledOrder }))
   } catch (error) {
     return next(error)
   } finally {
@@ -415,61 +267,64 @@ export const cancelOrder = asyncHandler(async (req, res, next) => {
 
 /*
 |--------------------------------------------------------------------------
-| 3. ADMIN CONTROLLERS
+| ADMIN CONTROLLERS
 |--------------------------------------------------------------------------
 */
 
-export const getAllOrders = asyncHandler(async (req, res, next) => {
-  const { currentPage, currentLimit, skip } = await getPagination(
-    Order,
-    {},
-    req.query.page,
-    req.query.limit,
-  )
+/*
+|--------------------------------------------------------------------------
+| Get All Orders
+|--------------------------------------------------------------------------
+*/
+
+export const getAllOrders = asyncHandler(async (req, res) => {
   const filter = {}
   if (req.query.status) filter.status = req.query.status
   if (req.query.paymentMethod) filter.paymentMethod = req.query.paymentMethod
 
-  const [orders, totalOrders] = await Promise.all([
-    Order.find(filter)
-      .populate('user', 'username email phone')
-      .sort('-createdAt')
-      .skip(skip)
-      .limit(currentLimit),
-    Order.countDocuments(filter),
-  ])
+  const populateOptions = [{ path: 'user', select: 'username email phone' }]
 
-  return res.status(HTTP_STATUS.OK).send(
-    ApiResponse(
-      {
-        orders,
-        pagination: {
-          page: currentPage,
-          limit: currentLimit,
-          totalOrders,
-          totalPages: Math.ceil(totalOrders / currentLimit),
-        },
-      },
-      'All orders fetched successfully.',
-    ),
+  const responseData = await getPaginatedData(
+    Order,
+    filter,
+    req.query.page,
+    req.query.limit,
+    '-createdAt',
+    populateOptions,
   )
+
+  return res
+    .status(HTTP_STATUS.OK)
+    .send(ApiResponse('All orders fetched successfully.', responseData))
 })
 
-export const getAdminOrderById = asyncHandler(async (req, res, next) => {
+/*
+|--------------------------------------------------------------------------
+| Get Order by Id for Admin
+|--------------------------------------------------------------------------
+*/
+
+export const getOrderByIdAdmin = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user', 'username email phone')
   if (!order) throw new AppError('Order not found', HTTP_STATUS.NOT_FOUND)
 
   return res
     .status(HTTP_STATUS.OK)
-    .send(ApiResponse({ order }, 'Order details fetched successfully.'))
+    .send(ApiResponse('Order details fetched successfully.', { order }))
 })
 
-export const updateOrderStatus = asyncHandler(async (req, res, next) => {
+/*
+|--------------------------------------------------------------------------
+| Update Order Status
+|--------------------------------------------------------------------------
+*/
+
+export const updateOrderStatus = asyncHandler(async (req, res) => {
   const { status, adminNote } = req.body
   const order = await Order.findById(req.params.id)
   if (!order) throw new AppError('Order not found', HTTP_STATUS.NOT_FOUND)
 
-  if (status && !isValidStatusTransition(order.status, status)) {
+  if (status && !validateStatusTransition(order.status, status)) {
     throw new AppError(
       `Invalid status transition from "${order.status}" to "${status}"`,
       HTTP_STATUS.BAD_REQUEST,
@@ -505,10 +360,16 @@ export const updateOrderStatus = asyncHandler(async (req, res, next) => {
 
   return res
     .status(HTTP_STATUS.OK)
-    .send(ApiResponse({ order }, 'Order status updated successfully.'))
+    .send(ApiResponse('Order status updated successfully.', { order }))
 })
 
-export const AdminOrderDashboard = asyncHandler(async (req, res, next) => {
+/*
+|--------------------------------------------------------------------------
+| Admin Order Analytics
+|--------------------------------------------------------------------------
+*/
+
+export const AdminOrderDashboard = asyncHandler(async (_, res) => {
   const totalOrders = await Order.countDocuments()
   const totalRevenueResult = await Order.aggregate([
     { $match: { status: { $ne: 'cancelled' } } },
@@ -517,24 +378,38 @@ export const AdminOrderDashboard = asyncHandler(async (req, res, next) => {
   const totalRevenue = totalRevenueResult[0]?.totalRevenue || 0
   const statusCounts = await Order.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }])
 
-  return res
-    .status(HTTP_STATUS.OK)
-    .send(
-      ApiResponse(
-        { totalOrders, totalRevenue, statusCounts },
-        'Dashboard stats fetched successfully.',
-      ),
-    )
-})
-
-export const AdminOrderCarts = asyncHandler(async (req, res, next) => {
-  const carts = await Cart.find().populate('user', 'username email')
-  return res.status(HTTP_STATUS.OK).send(ApiResponse({ carts }, 'Carts fetched successfully.'))
+  return res.status(HTTP_STATUS.OK).send(
+    ApiResponse('Dashboard stats fetched successfully.', {
+      totalOrders,
+      totalRevenue,
+      statusCounts,
+    }),
+  )
 })
 
 /*
 |--------------------------------------------------------------------------
-| 4. DEDICATED WEBHOOKS FOR EACH PAYMENT METHOD
+| Admin Carts Analytics
+|--------------------------------------------------------------------------
+*/
+
+export const AdminCartsDashboard = asyncHandler(async (req, res) => {
+  const populateOptions = [{ path: 'user', select: 'username email' }]
+  const responseData = await getPaginatedData(
+    Cart,
+    {},
+    req.query.page,
+    req.query.limit,
+    '-createdAt',
+    populateOptions,
+  )
+
+  return res.status(HTTP_STATUS.OK).send(ApiResponse('Carts fetched successfully.', responseData))
+})
+
+/*
+|--------------------------------------------------------------------------
+| Dedicated Webhooks
 |--------------------------------------------------------------------------
 */
 
@@ -567,10 +442,44 @@ export const handleStripeWebhook = async (req, res) => {
 
 // B. PayPal Webhook
 export const handlePaypalWebhook = async (req, res) => {
+  const auth = Buffer.from(
+    `${environment.paypal.clientId}:${environment.paypal.clientSecret}`,
+  ).toString('base64')
+  const tokenRes = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', {
+    method: 'POST',
+    body: 'grant_type=client_credentials',
+    headers: {
+      Authorization: `Basic ${auth}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  })
+  const { access_token } = await tokenRes.json()
+
+  const verifyRes = await fetch(
+    'https://api-m.sandbox.paypal.com/v1/notifications/verify-webhook-signature',
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transmission_id: req.headers['paypal-transmission-id'],
+        transmission_time: req.headers['paypal-transmission-time'],
+        cert_url: req.headers['paypal-cert-url'],
+        auth_algo: req.headers['paypal-auth-algo'],
+        transmission_sig: req.headers['paypal-transmission-sig'],
+        webhook_id: environment.paypal.webhookId,
+        webhook_event: req.body,
+      }),
+    },
+  )
+
+  const verifyData = await verifyRes.json()
+  if (verifyData.verification_status !== 'SUCCESS') {
+    return res.status(400).send('Invalid PayPal Webhook Signature')
+  }
+
   const event = req.body
   if (event.event_type === 'PAYMENT.SALE.COMPLETED') {
-    const resource = event.resource
-    const orderId = resource.custom_id || resource.invoice_id
+    const orderId = event.resource.custom_id || event.resource.invoice_id
     if (orderId) {
       await Order.findByIdAndUpdate(orderId, {
         paymentStatus: 'paid',
@@ -590,20 +499,54 @@ export const handlePaypalWebhook = async (req, res) => {
 
 // C. Paymob Webhook
 export const handlePaymobWebhook = async (req, res) => {
-  const eventData = req.body
-  const obj = eventData.obj
-  if (obj && obj.success === true) {
-    const orderId = obj.order?.merchant_order_id
-    if (orderId) {
+  const hmacHeader = req.query.hmac
+  if (!hmacHeader) return res.status(401).send('Missing HMAC')
+
+  const {
+    amount_cents,
+    created_at,
+    currency,
+    error_occured,
+    has_parent_transaction,
+    id,
+    integration_id,
+    is_3d_secure,
+    is_auth,
+    is_capture,
+    is_refunded,
+    is_standalone_payment,
+    is_voided,
+    order,
+    owner,
+    pending,
+    source_data,
+    success,
+  } = req.body.obj
+
+  // Strict Paymob Concatenation Order (DO NOT CHANGE)
+  const concatenatedString = `${amount_cents}${created_at}${currency}${error_occured}${has_parent_transaction}${id}${integration_id}${is_3d_secure}${is_auth}${is_capture}${is_refunded}${is_standalone_payment}${is_voided}${order.id}${owner}${pending}${source_data.pan}${source_data.sub_type}${source_data.type}${success}`
+
+  // Hash with your Paymob HMAC Secret (ensure you add this to environment.js and .env)
+  const hashedHMAC = crypto
+    .createHmac('sha512', environment.paymob.hmacSecret)
+    .update(concatenatedString)
+    .digest('hex')
+
+  if (hashedHMAC !== hmacHeader) {
+    return res.status(401).send('Invalid HMAC signature')
+  }
+
+  const obj = req.body.obj
+  const orderId = obj.order?.merchant_order_id
+
+  if (orderId) {
+    if (obj.success === true) {
       await Order.findByIdAndUpdate(orderId, {
         paymentStatus: 'paid',
         status: 'confirmed',
         paidAt: new Date(),
       })
-    }
-  } else if (obj && obj.success === false) {
-    const orderId = obj.order?.merchant_order_id
-    if (orderId) {
+    } else {
       await Order.findByIdAndUpdate(orderId, { paymentStatus: 'failed' })
     }
   }

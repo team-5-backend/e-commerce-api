@@ -5,7 +5,7 @@ import { User } from '../models/user.model.js'
 import { Wishlist } from '../models/wishlist.model.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
-import { getPagination } from '../utils/pagination.js'
+import { getPaginatedData } from '../utils/pagination.js'
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ const REVENUE_MATCH = {
 
 /*
 |--------------------------------------------------------------------------
-| 1. ADMIN DASHBOARD ANALYTICS
+| Admin Dashboard Analytics
 |--------------------------------------------------------------------------
 */
 
@@ -187,73 +187,63 @@ export const getAdminDashboardAnalytics = asyncHandler(async (_, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| 2. GET ALL ACTIVE CARTS (With Pagination & Lean)
+| Get All Active Carts
 |--------------------------------------------------------------------------
 */
 
 export const getAllActiveCarts = asyncHandler(async (req, res) => {
-  const { currentPage, currentLimit, skip } = getPagination(req.query.page, req.query.limit)
+  const { page, limit } = req.query
+  const query = { 'items.0': { $exists: true } }
+  const populateOptions = [
+    { path: 'user', select: 'username email phone' },
+    { path: 'items.product', select: 'name price images' },
+  ]
 
-  const [carts, totalCarts] = await Promise.all([
-    Cart.find({ 'items.0': { $exists: true } })
-      .populate('user', 'username email phone')
-      .populate('items.product', 'name price images')
-      .sort({ updatedAt: -1 })
-      .skip(skip)
-      .limit(currentLimit)
-      .lean(),
-    Cart.countDocuments({ 'items.0': { $exists: true } }),
-  ])
-
-  return res.status(HTTP_STATUS.OK).send(
-    ApiResponse('Active carts retrieved successfully.', {
-      carts,
-      pagination: {
-        page: currentPage,
-        limit: currentLimit,
-        totalCarts,
-        totalPages: Math.ceil(totalCarts / currentLimit),
-      },
-    }),
+  const responseData = await getPaginatedData(
+    Cart,
+    query,
+    page,
+    limit,
+    { updatedAt: -1 },
+    populateOptions,
   )
+
+  return res
+    .status(HTTP_STATUS.OK)
+    .send(ApiResponse('Active carts retrieved successfully.', responseData))
 })
 
 /*
 |--------------------------------------------------------------------------
-| 3. GET ALL USER WISHLISTS (With Pagination & Lean)
+| Get All User Wishlists
 |--------------------------------------------------------------------------
 */
 
 export const getAllUserWishlists = asyncHandler(async (req, res) => {
-  const { currentPage, currentLimit, skip } = getPagination(req.query.page, req.query.limit)
+  const { page, limit } = req.query
+  const query = { 'products.0': { $exists: true } }
+  const populateOptions = [
+    { path: 'user', select: 'username email' },
+    { path: 'products', select: 'name price images isActive' },
+  ]
 
-  const [wishlists, totalWishlists] = await Promise.all([
-    Wishlist.find({ 'products.0': { $exists: true } })
-      .populate('user', 'username email')
-      .populate('products', 'name price images isActive')
-      .sort({ updatedAt: -1 })
-      .skip(skip)
-      .limit(currentLimit)
-      .lean(),
-    Wishlist.countDocuments({ 'products.0': { $exists: true } }),
-  ])
-
-  return res.status(HTTP_STATUS.OK).send(
-    ApiResponse('User wishlists retrieved successfully.', {
-      wishlists,
-      pagination: {
-        page: currentPage,
-        limit: currentLimit,
-        totalWishlists,
-        totalPages: Math.ceil(totalWishlists / currentLimit),
-      },
-    }),
+  const responseData = await getPaginatedData(
+    Wishlist,
+    query,
+    page,
+    limit,
+    { updatedAt: -1 },
+    populateOptions,
   )
+
+  return res
+    .status(HTTP_STATUS.OK)
+    .send(ApiResponse('User wishlists retrieved successfully.', responseData))
 })
 
 /*
 |--------------------------------------------------------------------------
-| 4. GET TOP 10 MOST WISHLISTED PRODUCTS
+| Get Top Wishlisted Products
 |--------------------------------------------------------------------------
 */
 

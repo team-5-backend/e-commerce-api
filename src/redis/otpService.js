@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 
-import { HTTP_STATUS, OTP_TTL } from '../config/constants.js'
+import { HTTP_STATUS } from '../config/constants.js'
+import environment from '../config/environment.js'
 import { AppError } from '../utils/appError.js'
 import { createOtpSchema, verifyOtpSchema } from '../validations/auth.validation.js'
 
@@ -31,7 +32,7 @@ export const saveOtp = async (schemaPayload) => {
     userData,
   })
 
-  await redisClient.setEx(`otp:${email}`, OTP_TTL, data)
+  await redisClient.setEx(`otp:${email}`, environment.otpTtl, data)
 }
 
 // takes { email, otp }

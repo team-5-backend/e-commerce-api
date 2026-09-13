@@ -7,11 +7,16 @@ import { AppError } from '../utils/appError.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { deleteImages, uploadImages } from '../utils/cloudinary.js'
 import logger from '../utils/logger.js'
+import { getPaginatedData } from '../utils/pagination.js'
+
+/*
+|--------------------------------------------------------------------------
+| Helpers
+|--------------------------------------------------------------------------
+*/
 
 const PUBLIC_PRODUCT_FIELDS =
   'name slug shortDescription description price discountPrice stock sku images category subcategory brand tags averageRating numReviews featured isActive createdAt updatedAt'
-
-const getUserId = (req) => req.user?.id || req.user?._id
 
 const validateObjectId = (id) => {
   if (!mongoose.isValidObjectId(id)) {
@@ -37,13 +42,16 @@ const normalizeDeleteImageIds = (value) => {
     .filter(Boolean)
 }
 
-////////////////////////////////////////////////////////////////////////
-// GET ACTIVE PRODUCTS
+/*
+|--------------------------------------------------------------------------
+| Get Active Products
+|--------------------------------------------------------------------------
+*/
+
 export const getActiveProducts = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, category, brand, minPrice, maxPrice, sort = 'newest' } = req.query
 
   const query = { isActive: true }
-
   if (category) query.category = category
   if (brand) query.brand = brand
 
@@ -53,9 +61,6 @@ export const getActiveProducts = asyncHandler(async (req, res) => {
     if (maxPrice !== undefined) query.price.$lte = Number(maxPrice)
   }
 
-  const skip = (Number(page) - 1) * Number(limit)
-  const parsedLimit = Number(limit)
-
   const sortOptions = {
     newest: { createdAt: -1, _id: -1 },
     'price-asc': { price: 1, _id: 1 },
@@ -63,35 +68,28 @@ export const getActiveProducts = asyncHandler(async (req, res) => {
     rating: { averageRating: -1, _id: -1 },
   }
 
-  const [products, total] = await Promise.all([
-    Product.find(query)
-      .select(PUBLIC_PRODUCT_FIELDS)
-      .sort(sortOptions[sort] || sortOptions.newest)
-      .skip(skip)
-      .limit(parsedLimit)
-      .lean()
-      .exec(),
-    Product.countDocuments(query).exec(),
-  ])
-
-  res.status(HTTP_STATUS.OK).send(
-    ApiResponse('Products retrieved successfully.', {
-      data: products,
-      pagination: {
-        page: Number(page),
-        limit: parsedLimit,
-        total,
-        pages: Math.ceil(total / parsedLimit),
-      },
-    }),
+  const responseData = await getPaginatedData(
+    Product,
+    query,
+    page,
+    limit,
+    sortOptions[sort] || sortOptions.newest,
+    [],
+    PUBLIC_PRODUCT_FIELDS,
   )
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Products retrieved successfully.', responseData))
 })
 
-////////////////////////////////////////////////////////////////////////
-// SEARCH PRODUCTS
+/*
+|--------------------------------------------------------------------------
+| Search Products
+|--------------------------------------------------------------------------
+*/
+
 export const searchProducts = asyncHandler(async (req, res) => {
   const {
-    q,
+    query,
     page = 1,
     limit = 10,
     category,
@@ -102,18 +100,15 @@ export const searchProducts = asyncHandler(async (req, res) => {
     maxPrice,
   } = req.query
 
-  const query = { isActive: true }
+  const q = { isActive: true }
 
-  if (q) {
-    query.$text = { $search: q }
-  }
-
-  if (category) query.category = category
-  if (subcategory) query.subcategory = subcategory
-  if (brand) query.brand = brand
+  if (query) q.$text = { $search: query }
+  if (category) q.category = category
+  if (subcategory) q.subcategory = subcategory
+  if (brand) q.brand = brand
 
   if (tags) {
-    query.tags = {
+    q.tags = {
       $in: tags
         .split(',')
         .map((tag) => tag.trim().toLowerCase())
@@ -122,42 +117,32 @@ export const searchProducts = asyncHandler(async (req, res) => {
   }
 
   if (minPrice !== undefined || maxPrice !== undefined) {
-    query.price = {}
-    if (minPrice !== undefined) query.price.$gte = Number(minPrice)
-    if (maxPrice !== undefined) query.price.$lte = Number(maxPrice)
+    q.price = {}
+    if (minPrice !== undefined) q.price.$gte = Number(minPrice)
+    if (maxPrice !== undefined) q.price.$lte = Number(maxPrice)
   }
 
-  const skip = (Number(page) - 1) * Number(limit)
-  const parsedLimit = Number(limit)
+  const sort = query ? { score: { $meta: 'textScore' }, _id: 1 } : { createdAt: -1, _id: -1 }
 
-  const sort = q ? { score: { $meta: 'textScore' }, _id: 1 } : { createdAt: -1, _id: -1 }
-
-  const [products, total] = await Promise.all([
-    Product.find(query)
-      .select(PUBLIC_PRODUCT_FIELDS)
-      .sort(sort)
-      .skip(skip)
-      .limit(parsedLimit)
-      .lean()
-      .exec(),
-    Product.countDocuments(query).exec(),
-  ])
-
-  res.status(HTTP_STATUS.OK).send(
-    ApiResponse('Products searched successfully.', {
-      data: products,
-      pagination: {
-        page: Number(page),
-        limit: parsedLimit,
-        total,
-        pages: Math.ceil(total / parsedLimit),
-      },
-    }),
+  const responseData = await getPaginatedData(
+    Product,
+    q,
+    page,
+    limit,
+    sort,
+    [],
+    PUBLIC_PRODUCT_FIELDS,
   )
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Products searched successfully.', responseData))
 })
 
-////////////////////////////////////////////////////////////////////////
-// GET PRODUCT BY ID
+/*
+|--------------------------------------------------------------------------
+| Get Product by Id
+|--------------------------------------------------------------------------
+*/
+
 export const getProductById = asyncHandler(async (req, res) => {
   const { id } = req.params
   validateObjectId(id)
@@ -168,22 +153,26 @@ export const getProductById = asyncHandler(async (req, res) => {
     .exec()
 
   if (!product) {
-    throw new AppError('Product not found', HTTP_STATUS.NOT_FOUND)
+    throw new AppError('Product not found.', HTTP_STATUS.NOT_FOUND)
   }
 
   res.status(HTTP_STATUS.OK).send(ApiResponse('Product retrieved successfully.', product))
 })
 
-////////////////////////////////////////////////////////////////////////
-// CREATE PRODUCT (Admin Only)
+/*
+|--------------------------------------------------------------------------
+| Create Product
+|--------------------------------------------------------------------------
+*/
+
 export const createProduct = asyncHandler(async (req, res) => {
-  const userId = getUserId(req)
+  const userId = req.user._id
   if (!userId) {
     throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED)
   }
 
   if (!req.files || req.files.length === 0) {
-    throw new AppError('At least one product image is required', HTTP_STATUS.BAD_REQUEST)
+    throw new AppError('At least one product image is required.', HTTP_STATUS.BAD_REQUEST)
   }
 
   let uploadedImages = []
@@ -194,7 +183,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     )
 
     if (!uploadedImages?.length) {
-      throw new AppError('Failed to upload product images', HTTP_STATUS.INTERNAL_ERROR)
+      throw new AppError('Failed to upload product images.', HTTP_STATUS.INTERNAL_ERROR)
     }
 
     const images = uploadedImages.map((image) => ({
@@ -222,22 +211,25 @@ export const createProduct = asyncHandler(async (req, res) => {
   }
 })
 
-////////////////////////////////////////////////////////////////////////
-// UPDATE PRODUCT (Admin Only)
+/*
+|--------------------------------------------------------------------------
+| Update Product
+|--------------------------------------------------------------------------
+*/
+
 export const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params
   validateObjectId(id)
 
   const product = await Product.findById(id).exec()
   if (!product) {
-    throw new AppError('Product not found', HTTP_STATUS.NOT_FOUND)
+    throw new AppError('Product not found.', HTTP_STATUS.NOT_FOUND)
   }
 
   const { deleteImageIds, ...updates } = req.body
   const imageIdsToDelete = normalizeDeleteImageIds(deleteImageIds)
 
   const existingImageIds = new Set(product.images.map((image) => image.public_id))
-
   const invalidImageIds = imageIdsToDelete.filter((imageId) => !existingImageIds.has(imageId))
 
   if (invalidImageIds.length > 0) {
@@ -274,7 +266,6 @@ export const updateProduct = asyncHandler(async (req, res) => {
     }))
 
     product.images = product.images.filter((image) => !imageIdsToDelete.includes(image.public_id))
-
     product.images.push(...newImages)
     Object.assign(product, updates)
 
@@ -305,8 +296,12 @@ export const updateProduct = asyncHandler(async (req, res) => {
   }
 })
 
-////////////////////////////////////////////////////////////////////////
-// DELETE PRODUCT (Admin Only)
+/*
+|--------------------------------------------------------------------------
+| Delete Product
+|--------------------------------------------------------------------------
+*/
+
 export const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = req.params
   validateObjectId(id)
@@ -333,11 +328,15 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Product deleted successfully.'))
 })
 
-////////////////////////////////////////////////////////////////////////
-// ADD REVIEW
+/*
+|--------------------------------------------------------------------------
+| Add Review
+|--------------------------------------------------------------------------
+*/
+
 export const addReview = asyncHandler(async (req, res) => {
   const { id } = req.params
-  const userId = getUserId(req)
+  const userId = req.user._id
   validateObjectId(id)
 
   if (!userId) {
@@ -377,11 +376,15 @@ export const addReview = asyncHandler(async (req, res) => {
   )
 })
 
-////////////////////////////////////////////////////////////////////////
-// DELETE REVIEW
+/*
+|--------------------------------------------------------------------------
+| Delete Review
+|--------------------------------------------------------------------------
+*/
+
 export const deleteReview = asyncHandler(async (req, res) => {
   const { id, reviewId } = req.params
-  const userId = getUserId(req)
+  const userId = req.user._id
 
   validateObjectId(id)
   validateObjectId(reviewId)
@@ -419,8 +422,12 @@ export const deleteReview = asyncHandler(async (req, res) => {
   )
 })
 
-////////////////////////////////////////////////////////////////////////
-// GET REVIEWS (WITH PAGINATION)
+/*
+|--------------------------------------------------------------------------
+| Get Reviews
+|--------------------------------------------------------------------------
+*/
+
 export const getReviews = asyncHandler(async (req, res) => {
   const { id } = req.params
   const { page = 1, limit = 10 } = req.query
@@ -431,7 +438,7 @@ export const getReviews = asyncHandler(async (req, res) => {
 
   const product = await Product.findOne({ _id: id, isActive: true })
     .select({
-      numReviews: 1, //العدد الإجمالي للتقييمات.
+      numReviews: 1,
       reviews: { $slice: [skip, parsedLimit] },
     })
     .populate('reviews.user', 'username avatar')
