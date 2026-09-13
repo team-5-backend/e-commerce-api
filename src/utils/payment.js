@@ -1,9 +1,10 @@
 import { Client, Environment, OrdersController } from '@paypal/paypal-server-sdk'
 import { Stripe } from 'stripe'
 
+import { HTTP_STATUS } from '../config/constants.js'
 import environment from '../config/environment.js'
-import { AppError } from '../utils/AppError.js'
-import { HTTP_STATUS } from '../utils/httpStatus.js'
+
+import { AppError } from './appError.js'
 
 const stripe = new Stripe(environment.stripe.secretKey)
 

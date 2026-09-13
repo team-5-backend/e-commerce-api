@@ -1,4 +1,5 @@
-import express from 'express'
+import { Router } from 'express'
+import Joi from 'joi'
 
 import {
   addReview,
@@ -12,10 +13,8 @@ import {
   updateProduct,
 } from '../controllers/product.controller.js'
 import { authenticate, authorize } from '../middlewares/auth.middleware.js'
-import { cache } from '../middlewares/cache.middleware.js'
 import upload from '../middlewares/upload.middleware.js'
-import validateBody from '../middlewares/validateBody.js'
-import validateQuery from '../middlewares/validateQuery.js'
+import validate from '../middlewares/validate.middleware.js'
 import {
   createProductSchema,
   productQuerySchema,
@@ -23,46 +22,51 @@ import {
   searchProductSchema,
   updateProductSchema,
 } from '../validations/product.validation.js'
+import objectIdSchema from '../validations/schemas/id.schema.js'
 
-const router = express.Router()
+const router = Router()
 
-// PUBLIC PRODUCT ROUTES
+const paramSchema = Joi.object({
+  id: objectIdSchema.required(),
+})
 
-// Search must come before /:id
-router.get('/search', validateQuery(searchProductSchema), cache(300), searchProducts)
+const reviewParamSchema = Joi.object({
+  id: objectIdSchema.required(),
+  reviewId: objectIdSchema.required(),
+})
 
-router.get('/', validateQuery(productQuerySchema), cache(300), getActiveProducts)
+// ==========================================
+// 1. PUBLIC ROUTES
+// ==========================================
 
-router.get('/:id/reviews', getReviews)
+router.get('/', validate(productQuerySchema, 'query'), getActiveProducts)
+router.get('/search', validate(searchProductSchema, 'query'), searchProducts)
+router.get('/:id', validate(paramSchema, 'params'), getProductById)
+router.get('/:id/reviews', validate(paramSchema, 'params'), getReviews)
 
-router.get('/:id', getProductById)
+// ==========================================
+// AUTHENTICATED ROUTES
+// ==========================================
 
-// ADMIN PRODUCT ROUTES
+router.use(authenticate)
 
-router.post(
-  '/',
-  authenticate,
-  authorize('admin'),
-  upload.array('images', 5),
-  validateBody(createProductSchema),
-  createProduct,
-)
+router.post('/:id/reviews', validate(paramSchema, 'params'), validate(reviewSchema), addReview)
+router.delete('/:id/reviews/:reviewId', validate(reviewParamSchema, 'params'), deleteReview)
 
+// ==========================================
+// ADMIN ROUTES
+// ==========================================
+
+router.use(authorize('admin'))
+
+router.post('/', upload.array('images', 10), validate(createProductSchema), createProduct)
 router.patch(
   '/:id',
-  authenticate,
-  authorize('admin'),
-  upload.array('images', 5),
-  validateBody(updateProductSchema),
+  upload.array('images', 10),
+  validate(paramSchema, 'params'),
+  validate(updateProductSchema),
   updateProduct,
 )
-
-router.delete('/:id', authenticate, authorize('admin'), deleteProduct)
-
-// REVIEW ROUTES
-
-router.post('/:id/reviews', authenticate, validateBody(reviewSchema), addReview)
-
-router.delete('/:id/reviews/:reviewId', authenticate, deleteReview)
+router.delete('/:id', validate(paramSchema, 'params'), deleteProduct)
 
 export default router

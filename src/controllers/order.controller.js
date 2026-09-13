@@ -20,7 +20,7 @@ import {
   processPaypalPayment,
   processStripePayment,
 } from '../utils/payment.js'
-import { sendEmail } from '../utils/sendEmail.js'
+import { sendEmail } from '../utils/send.js'
 
 /*
 |--------------------------------------------------------------------------

@@ -1,5 +1,16 @@
 import Joi from 'joi'
 
+const priceRangeValidation = (value, helpers) => {
+  if (
+    value.minPrice !== undefined &&
+    value.maxPrice !== undefined &&
+    value.minPrice > value.maxPrice
+  ) {
+    return helpers.error('any.invalid')
+  }
+  return value
+}
+
 export const createProductSchema = Joi.object({
   name: Joi.string().max(200).trim().required(),
 
@@ -70,17 +81,7 @@ export const productQuerySchema = Joi.object({
 
   sort: Joi.string().valid('price-asc', 'price-desc', 'rating', 'newest'),
 })
-  .custom((value, helpers) => {
-    if (
-      value.minPrice !== undefined &&
-      value.maxPrice !== undefined &&
-      value.minPrice > value.maxPrice
-    ) {
-      return helpers.error('any.invalid')
-    }
-
-    return value
-  })
+  .custom(priceRangeValidation)
   .messages({
     'any.invalid': 'minPrice cannot be greater than maxPrice',
   })
@@ -104,17 +105,7 @@ export const searchProductSchema = Joi.object({
 
   maxPrice: Joi.number().min(0),
 })
-  .custom((value, helpers) => {
-    if (
-      value.minPrice !== undefined &&
-      value.maxPrice !== undefined &&
-      value.minPrice > value.maxPrice
-    ) {
-      return helpers.error('any.invalid')
-    }
-
-    return value
-  })
+  .custom(priceRangeValidation)
   .messages({
     'any.invalid': 'minPrice cannot be greater than maxPrice',
   })

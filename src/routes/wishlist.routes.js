@@ -3,7 +3,7 @@ import { Router } from 'express'
 import {
   addToWishlist,
   clearWishlist,
-  getMyWishlist,
+  getUserWishlist,
   removeFromWishlist,
 } from '../controllers/wishlist.controller.js'
 import { authenticate } from '../middlewares/auth.middleware.js'
@@ -18,7 +18,7 @@ const router = Router()
 router.use(authenticate)
 
 // GET
-router.get('/', getMyWishlist)
+router.get('/', getUserWishlist)
 
 // POST
 router.post('/', validate(addToWishlistSchema), addToWishlist)

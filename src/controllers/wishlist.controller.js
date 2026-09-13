@@ -11,7 +11,7 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 |--------------------------------------------------------------------------
 */
 
-export const getUsersWishlist = asyncHandler(async (req, res) => {
+export const getUserWishlist = asyncHandler(async (req, res) => {
   const wishlist = await Wishlist.findOneAndUpdate(
     { user: req.user._id },
     { $setOnInsert: { products: [] } },
