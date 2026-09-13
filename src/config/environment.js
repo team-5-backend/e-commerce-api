@@ -9,6 +9,7 @@ const environment = {
   logLevel: process.env.LOG_LEVEL || 'info',
   allowedOrigins: process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
   mongoUri: process.env.MONGODB_URI,
+  redisUrl: process.env.REDIS_URL,
   cloudinary: {
     cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
     cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
@@ -19,13 +20,23 @@ const environment = {
     senderName: process.env.BREVO_SENDER_NAME,
     senderEmail: process.env.BREVO_SENDER_EMAIL,
   },
-  redisUrl: process.env.REDIS_URL,
+  stripe: { secretKey: process.env.STRIPE_SECRET_KEY },
+  paypal: {
+    clientId: process.env.PAYPAL_CLIENT_ID,
+    clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+  },
+  paymob: {
+    apiKey: process.env.PAYMOB_API_KEY,
+    id: process.env.PAYMOB_INTEGRATION_ID,
+  },
   auth: {
     jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
     jwtAccessExp: process.env.JWT_ACCESS_EXP || '15m',
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
-    jwtRefreshExpDays: process.env.JWT_REFRESH_EXP_DAYS || '7d',
+    jwtRefreshExpDays: parseInt(process.env.JWT_REFRESH_EXP_DAYS, 10) || 7,
   },
+  OTP_TTL: parseInt(process.env.OTP_TTL, 10) || 5 * 60, // 5m
+  corsMaxAge: parseInt(process.env.CORS_MAX_AGE, 10) || 60 * 60 * 24, // 1d
 }
 
 environment.isProduction = environment.nodeEnv === 'production'

@@ -1,17 +1,23 @@
 import express from 'express'
 
-import { getAdminDashboardAnalytics } from '../controllers/admin.controller.js'
+import {
+  getAdminDashboardAnalytics,
+  getAllActiveCarts,
+  getAllUserWishlists,
+  getTopWishlistedProducts,
+} from '../controllers/admin.controller.js'
 import { authenticate, authorize } from '../middlewares/auth.middleware.js'
 import { cache } from '../middlewares/cache.middleware.js'
 
 const router = express.Router()
 
-router.get(
-  '/dashboard/analytics',
-  authenticate,
-  authorize('admin'),
-  cache(),
-  getAdminDashboardAnalytics,
-)
+router.use(authenticate)
+router.use(authorize('admin'))
+
+// GET
+router.get('/dashboard', cache(), getAdminDashboardAnalytics)
+router.get('/carts', getAllActiveCarts)
+router.get('/wishlists', getAllUserWishlists)
+router.get('/wishlists/top', cache(), getTopWishlistedProducts)
 
 export default router

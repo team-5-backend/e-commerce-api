@@ -2,12 +2,6 @@ import Joi from 'joi'
 
 import objectIdSchema from './schemas/id.schema.js'
 
-export const productIdParamsSchema = Joi.object({
-  productId: objectIdSchema.required().messages({
-    'any.required': 'Product ID is required',
-  }),
-})
-
 export const addCartItemSchema = Joi.object({
   productId: objectIdSchema.required().messages({
     'any.required': 'Product ID is required',
@@ -28,4 +22,8 @@ export const applyCouponSchema = Joi.object({
     .uppercase()
     .valid('SAVE10', 'SAVE20', 'SAVE50', 'SAVE80', 'OFF50')
     .required(),
+})
+
+export const deleteCartItemParamsSchema = Joi.object({
+  productId: objectIdSchema.required(),
 })

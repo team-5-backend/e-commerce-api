@@ -25,8 +25,8 @@ export const MODEL_OPTIONS = Object.freeze({
 export const COOKIE_OPTIONS = Object.freeze({
   httpOnly: true,
   secure: environment.isProduction,
-  sameSite: 'strict',
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  sameSite: environment.isProduction ? 'none' : 'lax',
+  maxAge: environment.auth.jwtRefreshExpDays * 24 * 60 * 60 * 1000,
   path: '/',
 })
 
@@ -37,5 +37,3 @@ export const STATIC_COUPONS = Object.freeze({
   SAVE80: { discountType: 'percentage', discountValue: 80 },
   OFF50: { discountType: 'fixed', discountValue: 50 },
 })
-
-export const OTP_TTL = 10 * 60 // 10m

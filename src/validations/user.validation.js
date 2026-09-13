@@ -12,4 +12,11 @@ export const createUserSchema = Joi.object({
   password: passwordSchema,
 
   phone: phoneSchema,
+
+  role: Joi.string().valid('admin', 'customer').default('customer'),
 })
+
+export const updateUserSchema = createUserSchema.fork(
+  Object.keys(createUserSchema.describe().keys),
+  (schema) => schema.optional(),
+)

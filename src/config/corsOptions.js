@@ -12,7 +12,7 @@ const allowedOrigins = new Set(
 
 const corsOptions = Object.freeze({
   origin: function (origin, callback) {
-    if (allowedOrigins.includes(origin) || !origin) {
+    if (allowedOrigins.has(origin) || !origin) {
       return callback(null, true)
     } else {
       return callback(new AppError('Not allowed by CORS', HTTP_STATUS.FORBIDDEN))
@@ -22,7 +22,7 @@ const corsOptions = Object.freeze({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'user-agent'],
   credentials: true,
   optionsSuccessStatus: HTTP_STATUS.OK,
-  maxAge: 60 * 60 * 24,
+  maxAge: environment.corsMaxAge,
 })
 
 export default corsOptions

@@ -14,7 +14,7 @@ export const cache =
       .update(JSON.stringify(req.body || {}))
       .digest('hex')
 
-    const userId = req.user?.id ? `:${req.user.id}` : ''
+    const userId = req.user?._id ? `:${req.user._id}` : ''
     const key = `cache${userId}:${req.originalUrl}:${bodyHash}`
 
     try {
@@ -30,14 +30,23 @@ export const cache =
       // Intercept res.send
       const originalSend = res.send.bind(res)
       res.send = (body) => {
-        const cacheData = JSON.stringify({
-          statusCode: res.statusCode,
-          body: typeof body === 'object' ? body : JSON.parse(body),
-        })
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          let parsedBody = body
+          if (typeof body === 'string') {
+            try {
+              parsedBody = JSON.parse(body)
+            } catch (e) {}
+          }
 
-        redisClient
-          .setEx(key, durationInSeconds, cacheData)
-          .catch((error) => logger.error({ message: 'Redis cache error', error }))
+          const cacheData = JSON.stringify({
+            statusCode: res.statusCode,
+            body: parsedBody,
+          })
+
+          redisClient
+            .setEx(key, durationInSeconds, cacheData)
+            .catch((error) => logger.error({ message: 'Redis cache error', error }))
+        }
 
         originalSend(body)
       }
@@ -48,3 +57,41 @@ export const cache =
       next()
     }
   }
+
+export const clearCache = (pattern) => {
+  return (_, res, next) => {
+    next()
+
+    res.on('finish', async () => {
+      if (res.statusCode >= 400 || typeof pattern !== 'string') return
+
+      try {
+        const sanitizedPattern = pattern.replace(/[^a-zA-Z0-9_:\/-]/g, '')
+        if (!sanitizedPattern) return
+
+        const cachePattern = `cache*:${sanitizedPattern}*`
+        let keys = []
+
+        for await (const key of redisClient.scanIterator({
+          MATCH: cachePattern,
+          COUNT: 100,
+        })) {
+          keys.push(key)
+
+          if (keys.length >= 100) {
+            await redisClient.unlink(keys)
+            keys = []
+          }
+        }
+
+        if (keys.length > 0) {
+          await redisClient.unlink(keys)
+        }
+
+        logger.info({ message: `Cache cleared for pattern: ${sanitizedPattern}` })
+      } catch (error) {
+        logger.error({ message: `Failed to clear cache for: ${pattern}`, error })
+      }
+    })
+  }
+}

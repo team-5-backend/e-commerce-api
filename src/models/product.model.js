@@ -124,6 +124,7 @@ const productSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: 'User',
           required: true,
+          index: true,
         },
 
         rating: {
@@ -168,6 +169,7 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      index: true,
     },
   },
   MODEL_OPTIONS,
@@ -202,4 +204,4 @@ productSchema.index({ brand: 1 })
 productSchema.index({ averageRating: -1 })
 productSchema.index({ createdAt: -1 })
 
-export const Product = mongoose.model('Product', productSchema)
+export const Product = mongoose.models.Product || mongoose.model('Product', productSchema)

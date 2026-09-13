@@ -27,4 +27,4 @@ wishlistSchema.pre(/^find/, function (next) {
   next()
 })
 
-export const Wishlist = mongoose.model('Wishlist', wishlistSchema)
+export const Wishlist = mongoose.models.Wishlist || mongoose.model('Wishlist', wishlistSchema)

@@ -3,8 +3,8 @@ import Joi from 'joi'
 import emailFieldSchema from './schemas/email.schema.js'
 import objectIdSchema from './schemas/id.schema.js'
 import otpFieldSchema from './schemas/otp.schema.js'
-import { createUserSchema } from './user.validation.js'
 import passwordSchema from './schemas/password.schema.js'
+import { createUserSchema } from './user.validation.js'
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -37,13 +37,13 @@ export const verifyRegisterOtpSchema = verifyOtpSchema
 
 ////////////////////////////////////////////////////////////////////////
 
-export const forgotPasswordSchema = Joi.object({
+export const resetPasswordSchema = Joi.object({
   email: emailFieldSchema,
 })
 
 ////////////////////////////////////////////////////////////////////////
 
-export const verifyForgotPasswordOtpSchema = verifyOtpSchema.keys({
+export const verifyResetPasswordOtpSchema = verifyOtpSchema.keys({
   newPassword: passwordSchema,
 })
 

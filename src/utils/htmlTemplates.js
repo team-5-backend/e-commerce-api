@@ -71,3 +71,54 @@ export const genericMessageHtml = (title, message) => `
 </body>
 </html>
 `
+
+export const getOrderConfirmationTemplate = (order, userName) => {
+  const itemsHtml = order.items
+    .map(
+      (item) => `
+    <tr>
+      <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.name}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantity}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${item.price}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${item.price * item.quantity}</td>
+    </tr>
+  `,
+    )
+    .join('')
+
+  return `
+    <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+      <h2>Thank you for your order, ${userName}!</h2>
+      <p>Order ID: <strong>#${order._id}</strong></p>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+          <tr style="background-color: #f8f9fa;">
+            <th style="padding: 8px; text-align: left;">Item</th>
+            <th style="padding: 8px; text-align: center;">Qty</th>
+            <th style="padding: 8px; text-align: right;">Price</th>
+            <th style="padding: 8px; text-align: right;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+
+      <div style="margin-top: 20px; text-align: right; font-size: 14px;">
+        <p>Subtotal: $${order.subtotal}</p>
+        <p>Discount: -$${order.discount}</p>
+        <h3>Grand Total: $${order.totalPrice}</h3>
+      </div>
+    </div>
+  `
+}
+
+export const getStatusEmailTemplate = (orderId, status, userName) => {
+  return `
+    <div style="font-family: Arial, sans-serif; padding: 20px;">
+      <h2>Hello ${userName},</h2>
+      <p>Your order <strong>#${orderId}</strong> status has been updated to: <b style="color: #007bff;">${status.toUpperCase()}</b></p>
+    </div>
+  `
+}

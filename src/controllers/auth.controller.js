@@ -1,7 +1,7 @@
 import { rateLimit } from 'express-rate-limit'
 
 import { COOKIE_OPTIONS, HTTP_STATUS } from '../config/constants.js'
-import { User } from '../models/index.js'
+import { User } from '../models/user.model.js'
 import {
   generateTokens,
   getAllSessions,
@@ -16,7 +16,11 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import { genericMessageHtml, otpHtml, passwordOtpHtml } from '../utils/htmlTemplates.js'
 import { sendEmail } from '../utils/send.js'
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Login
+|--------------------------------------------------------------------------
+*/
 
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body
@@ -50,7 +54,11 @@ export const login = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Logged in successfully.'))
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Register
+|--------------------------------------------------------------------------
+*/
 
 export const register = asyncHandler(async (req, res) => {
   const { username, phone, email, password } = req.body
@@ -59,6 +67,7 @@ export const register = asyncHandler(async (req, res) => {
   )
 
   const exists = await User.findOne({ email }).lean().exec()
+
   if (exists) {
     await sendEmail({
       to: email,
@@ -88,7 +97,11 @@ export const register = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(successResponse)
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Verify Register Otp
+|--------------------------------------------------------------------------
+*/
 
 export const verifyRegisterOtp = asyncHandler(async (req, res) => {
   const { email, otp } = req.body
@@ -121,9 +134,13 @@ export const verifyRegisterOtp = asyncHandler(async (req, res) => {
   )
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Reset Password
+|--------------------------------------------------------------------------
+*/
 
-export const forgotPassword = asyncHandler(async (req, res) => {
+export const resetPassword = asyncHandler(async (req, res) => {
   const { email } = req.body
   const successResponse = ApiResponse(
     'If an account exists, a password reset code has been sent to the email address provided.',
@@ -149,9 +166,13 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(successResponse)
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Verify Reset Password Otp
+|--------------------------------------------------------------------------
+*/
 
-export const verifyForgotPasswordOtp = asyncHandler(async (req, res) => {
+export const verifyResetPasswordOtp = asyncHandler(async (req, res) => {
   const { email, otp, newPassword } = req.body
   const ip = req.ip
   const userAgent = req.headers['user-agent']
@@ -190,7 +211,11 @@ export const verifyForgotPasswordOtp = asyncHandler(async (req, res) => {
   )
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Logout
+|--------------------------------------------------------------------------
+*/
 
 export const logout = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken
@@ -204,7 +229,11 @@ export const logout = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Logged out successfully.'))
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Logout of All Devices
+|--------------------------------------------------------------------------
+*/
 
 export const logoutAll = asyncHandler(async (req, res) => {
   const userId = req.user._id
@@ -217,19 +246,25 @@ export const logoutAll = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Logged out from all devices successfully.'))
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Get All Active Sessions
+|--------------------------------------------------------------------------
+*/
 
 export const getSessions = asyncHandler(async (req, res) => {
   const userId = req.user._id
 
   const sessions = await getAllSessions(userId)
 
-  res
-    .status(HTTP_STATUS.OK)
-    .send(ApiResponse('Active sessions retrieved successfully.', sessions))
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Active sessions retrieved successfully.', sessions))
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Delete an Active Session
+|--------------------------------------------------------------------------
+*/
 
 export const deleteSession = asyncHandler(async (req, res) => {
   const userId = req.user._id
@@ -240,7 +275,28 @@ export const deleteSession = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Session revoked successfully.'))
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Get Current User
+|--------------------------------------------------------------------------
+*/
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  const userId = req.user._id
+  const user = await User.findById(userId).lean().exec()
+
+  if (!user) {
+    throw new AppError('User not found.', HTTP_STATUS.NOT_FOUND)
+  }
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('User profile retrieved successfully.', user))
+})
+
+/*
+|--------------------------------------------------------------------------
+| Auth Limiter
+|--------------------------------------------------------------------------
+*/
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -253,7 +309,11 @@ export const authLimiter = rateLimit({
   legacyHeaders: false,
 })
 
-////////////////////////////////////////////////////////////////////////
+/*
+|--------------------------------------------------------------------------
+| Otp Limiter
+|--------------------------------------------------------------------------
+*/
 
 export const otpLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour

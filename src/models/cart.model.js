@@ -4,7 +4,9 @@ import { MODEL_OPTIONS } from '../config/constants.js'
 
 import orderItemSchema from './schemas/orderItem.schema.js'
 
-const cartItemSchema = orderItemSchema.eachPath((path, schemaType) => {
+const cartItemSchema = orderItemSchema.clone()
+
+cartItemSchema.eachPath((_, schemaType) => {
   schemaType.required(false)
 })
 
@@ -79,4 +81,4 @@ cartSchema.virtual('itemCount').get(function () {
   return this.items.reduce((total, item) => (total || 0) + (item.quantity || 0), 0)
 })
 
-export const Cart = mongoose.model('Cart', cartSchema)
+export const Cart = mongoose.models.Cart || mongoose.model('Cart', cartSchema)

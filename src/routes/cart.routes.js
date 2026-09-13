@@ -10,23 +10,31 @@ import {
   updateCartItem,
 } from '../controllers/cart.controller.js'
 import { authenticate } from '../middlewares/auth.middleware.js'
-import { validate, validateParams } from '../middlewares/validate.middleware.js'
+import validate from '../middlewares/validate.middleware.js'
 import {
   addCartItemSchema,
   applyCouponSchema,
-  productIdParamsSchema,
+  deleteCartItemParamsSchema,
   updateCartItemSchema,
 } from '../validations/cart.validation.js'
+import objectIdSchema from '../validations/schemas/id.schema.js'
 
 const router = Router()
 
 router.use(authenticate)
 
+// GET
 router.get('/', getCart)
+
+// POST
 router.post('/items', validate(addCartItemSchema), addCartItem)
-router.patch('/items', validate(updateCartItemSchema), updateCartItem)
-router.delete('/items/:productId', validateParams(productIdParamsSchema), removeCartItem)
 router.post('/coupon', validate(applyCouponSchema), applyCoupon)
+
+// PATCH
+router.patch('/items', validate(updateCartItemSchema), updateCartItem)
+
+// DELETE
+router.delete('/items/:productId', validate(deleteCartItemParamsSchema, 'params'), removeCartItem)
 router.delete('/coupon', removeCoupon)
 router.delete('/clear', clearCart)
 

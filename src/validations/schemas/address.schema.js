@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-import phoneSchema from './phone.schema'
+import phoneSchema from './phone.schema.js'
 
 const addressSchema = Joi.object({
   fullName: Joi.string().trim().required(),

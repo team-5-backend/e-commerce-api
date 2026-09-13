@@ -7,16 +7,24 @@ import {
   removeFromWishlist,
 } from '../controllers/wishlist.controller.js'
 import { authenticate } from '../middlewares/auth.middleware.js'
-import { validateParams } from '../middlewares/validate.middleware.js'
-import { productIdParamsSchema } from '../validations/wishlist.validation.js'
+import validate from '../middlewares/validate.middleware.js'
+import {
+  addToWishlistSchema,
+  deleteWishlistParamsSchema,
+} from '../validations/wishlist.validation.js'
 
 const router = Router()
 
 router.use(authenticate)
 
-router.get('/my', getMyWishlist)
-router.post('/add/:productId', validateParams(productIdParamsSchema), addToWishlist)
-router.delete('/remove/:productId', validateParams(productIdParamsSchema), removeFromWishlist)
+// GET
+router.get('/', getMyWishlist)
+
+// POST
+router.post('/', validate(addToWishlistSchema), addToWishlist)
+
+// DELETE
 router.delete('/clear', clearWishlist)
+router.delete('/:productId', validate(deleteWishlistParamsSchema, 'params'), removeFromWishlist)
 
 export default router

@@ -1,181 +1,167 @@
-// import { Constants } from '../config/constants'
-// import { userService } from '../services'
-
-// export const getAllUsers = async (_req, res, next) => {
-//   try {
-//     const users = await userService.fetchUsers()
-//     res.status(Constants.HTTP_STATUS.OK).json({
-//       success: true,
-//       count: users.length,
-//       data: users,
-//     })
-//   } catch (err) {
-//     next(err)
-//   }
-// }
-
-// export const getUserById = async (req, res, next) => {
-//   try {
-//     const user = await userService.fetchUserById(req.params.id)
-//     if (!user) {
-//       return res
-//         .status(Constants.HTTP_STATUS.NOT_FOUND)
-//         .json({ success: false, message: 'User not found' })
-//     }
-//     res.status(Constants.HTTP_STATUS.OK).json({
-//       success: true,
-//       data: user,
-//     })
-//   } catch (err) {
-//     next(err)
-//   }
-// }
-
-// export const createUser = async (req, res, next) => {
-//   try {
-//     const user = await userService.createUser(req.body)
-//     res.status(Constants.HTTP_STATUS.CREATED).json({
-//       success: true,
-//       data: user,
-//     })
-//   } catch (err) {
-//     next(err)
-//   }
-// }
-
-// export const deleteUser = async (req, res, next) => {
-//   try {
-//     const user = await userService.deleteUser(req.params.id)
-//     if (!user) {
-//       return res
-//         .status(Constants.HTTP_STATUS.NOT_FOUND)
-//         .json({ success: false, message: 'User not found' })
-//     }
-//     res.status(Constants.HTTP_STATUS.OK).json({
-//       success: true,
-//       message: 'User deleted successfully',
-//     })
-//   } catch (err) {
-//     next(err)
-//   }
-// }
-
-////////////////////////////////////////////////////////////////////////////////////////
-
+import { HTTP_STATUS } from '../config/constants.js'
 import { User } from '../models/user.model.js'
+import { ApiResponse } from '../utils/ApiResponse.js'
+import { AppError } from '../utils/appError.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { deleteImages, uploadImages } from '../utils/cloudinary.js'
 
-// Create
-export const createUser = async (req, res, next) => {
+/*
+|--------------------------------------------------------------------------
+| Helpers
+|--------------------------------------------------------------------------
+*/
+
+const getPublicId = (url) => {
+  if (!url || !url.includes('cloudinary.com')) return null
   try {
-    const { username, email, password, phone } = req.body
+    const parts = url.split('/upload/')
+    if (parts.length < 2) return null
 
-    const existingUser = await User.findOne({ email })
+    const file = parts[1].split('/').slice(1).join('/')
 
-    if (existingUser) {
-      return res.status(409).json({
-        message: 'Email already exists',
-      })
-    }
-
-    const user = await User.create({
-      username,
-      email,
-      password,
-      phone,
-    })
-
-    res.status(201).json({
-      message: 'User created successfully',
-      user,
-    })
-  } catch (error) {
-    next(error)
+    return file.substring(0, file.lastIndexOf('.'))
+  } catch {
+    return null
   }
 }
 
-// Get All
-export const getUsers = async (req, res, next) => {
-  try {
-    const users = await User.find()
+/*
+|--------------------------------------------------------------------------
+| Create User
+|--------------------------------------------------------------------------
+*/
 
-    res.status(200).json({
+export const createUser = asyncHandler(async (req, res) => {
+  const { username, email, password, phone, role, addresses, isVerified } = req.body
+
+  const exists = await User.findOne({ email }).lean().exec()
+  if (exists) throw new AppError('Email already exists.', HTTP_STATUS.CONFLICT)
+
+  let avatarUrl
+  if (req.file) {
+    const uploaded = await uploadImages([req.file.buffer], 'user_avatars')
+    if (uploaded?.[0]) avatarUrl = uploaded[0].url
+  }
+
+  const user = await User.create({
+    username,
+    email,
+    password,
+    phone,
+    role: req.user.role === 'admin' && role ? role : 'customer',
+    addresses: addresses || [],
+    isVerified: isVerified ?? true,
+    ...(avatarUrl && { avatar: avatarUrl }),
+  })
+
+  const result = user.toObject()
+  delete result.password
+
+  res.status(HTTP_STATUS.CREATED).send(ApiResponse('User created successfully.', result))
+})
+
+/*
+|--------------------------------------------------------------------------
+| Get All Users
+|--------------------------------------------------------------------------
+*/
+
+export const getUsers = asyncHandler(async (req, res) => {
+  const { currentPage, currentLimit, skip } = getPagination(req.query.page, req.query.limit)
+
+  const [users, totalUsers] = await Promise.all([
+    User.find().skip(skip).limit(currentLimit).lean().exec(),
+    User.countDocuments(),
+  ])
+
+  res.status(HTTP_STATUS.OK).send(
+    ApiResponse('Users retrieved successfully.', {
       users,
-    })
-  } catch (error) {
-    next(error)
+      pagination: {
+        page: currentPage,
+        limit: currentLimit,
+        totalUsers,
+        totalPages: Math.ceil(totalUsers / currentLimit),
+      },
+    }),
+  )
+})
+
+/*
+|--------------------------------------------------------------------------
+| Get User by Id
+|--------------------------------------------------------------------------
+*/
+
+export const getUserById = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id).lean().exec()
+  if (!user) throw new AppError('User not found.', HTTP_STATUS.NOT_FOUND)
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('User retrieved successfully.', user))
+})
+
+/*
+|--------------------------------------------------------------------------
+| Update User
+|--------------------------------------------------------------------------
+*/
+
+export const updateUser = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const { username, email, phone, addresses, role } = req.body
+
+  const isAdmin = req.user.role === 'admin'
+  const isSelf = req.user._id.toString() === id
+
+  if (!isAdmin && !isSelf) {
+    throw new AppError('Not authorized to update this user.', HTTP_STATUS.FORBIDDEN)
   }
-}
 
-// Get By ID
-export const getUserById = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.params.id)
+  const user = await User.findById(id).exec()
+  if (!user) throw new AppError('User not found.', HTTP_STATUS.NOT_FOUND)
 
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-      })
-    }
-
-    res.status(200).json({
-      user,
-    })
-  } catch (error) {
-    next(error)
+  if (email && email !== user.email) {
+    const emailExists = await User.findOne({ email }).lean().exec()
+    if (emailExists) throw new AppError('Email already in use.', HTTP_STATUS.CONFLICT)
   }
-}
 
-// Update
-export const updateUser = async (req, res, next) => {
-  try {
-    const { username, email, phone, avatar } = req.body
+  if (username !== undefined) user.username = username
+  if (email !== undefined) user.email = email
+  if (phone !== undefined) user.phone = phone
+  if (addresses !== undefined) user.addresses = addresses
 
-    const user = await User.findById(req.params.id)
-
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-      })
-    }
-
-    // User can update himself only
-    if (req.user.role !== 'admin' && req.user._id.toString() !== req.params.id) {
-      return res.status(403).json({
-        message: 'You are not allowed to update this user',
-      })
-    }
-
-    if (username !== undefined) user.username = username
-    if (email !== undefined) user.email = email
-    if (phone !== undefined) user.phone = phone
-    if (avatar !== undefined) user.avatar = avatar
-
-    await user.save()
-
-    res.status(200).json({
-      message: 'User updated successfully',
-      user,
-    })
-  } catch (error) {
-    next(error)
+  if (isAdmin && role !== undefined) {
+    user.role = role
   }
-}
 
-// Delete
-export const deleteUser = async (req, res, next) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id)
+  if (req.file) {
+    const oldId = getPublicId(user.avatar)
+    if (oldId) await deleteImages([oldId]).catch(() => {})
 
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-      })
-    }
-
-    res.status(200).json({
-      message: 'User deleted successfully',
-    })
-  } catch (error) {
-    next(error)
+    const uploaded = await uploadImages([req.file.buffer], 'user_avatars')
+    if (uploaded?.[0]) user.avatar = uploaded[0].url
   }
-}
+
+  await user.save()
+
+  const result = user.toObject()
+  delete result.password
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('User updated successfully.', result))
+})
+
+/*
+|--------------------------------------------------------------------------
+| Delete User
+|--------------------------------------------------------------------------
+*/
+
+export const deleteUser = asyncHandler(async (req, res) => {
+  const user = await User.findByIdAndDelete(req.params.id).lean().exec()
+  if (!user) throw new AppError('User not found.', HTTP_STATUS.NOT_FOUND)
+
+  const oldId = getPublicId(user.avatar)
+  if (oldId) await deleteImages([oldId]).catch(() => {})
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('User deleted successfully.'))
+})

@@ -1,39 +1,34 @@
-import express from "express";
+import express from 'express'
+
 import {
-  createOrder,
-  getMyOrders,
-  getMyOrderById,
   cancelOrder,
-  getAllOrders,
+  createOrder,
   getAdminOrderById,
+  getAllOrders,
+  getMyOrderById,
+  getMyOrders,
   updateOrderStatus,
-} from "../controllers/order.controller.js";
+} from '../controllers/order.controller.js'
+import { adminOnly } from '../middleware/admin.middleware.js'
+import { protect } from '../middleware/auth.middleware.js'
+import { validate } from '../middleware/validate.middleware.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { createOrderSchema } from '../validation/order.validation.js'
 
-import { asyncHandler } from "../utils/asyncHandler.js";
+const router = express.Router()
 
-import { protect } from "../middleware/auth.middleware.js";
-import { adminOnly } from "../middleware/admin.middleware.js";
+router.post('/', protect, validate(createOrderSchema), asyncHandler(createOrder))
 
-import { validate } from "../middleware/validate.middleware.js";
+router.get('/my', protect, asyncHandler(getMyOrders))
 
-import { createOrderSchema } from "../validation/order.validation.js";
+router.get('/my/:id', protect, asyncHandler(getMyOrderById))
 
-const router = express.Router();
+router.patch('/my/:id/cancel', protect, asyncHandler(cancelOrder))
 
-router.post("/",protect,validate(createOrderSchema),asyncHandler(createOrder),
-);
+router.get('/admin', protect, adminOnly, asyncHandler(getAllOrders))
 
-router.get("/my", protect, asyncHandler(getMyOrders));
+router.get('/admin/:id', protect, adminOnly, asyncHandler(getAdminOrderById))
 
-router.get("/my/:id", protect, asyncHandler(getMyOrderById));
+router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(updateOrderStatus))
 
-router.patch("/my/:id/cancel", protect, asyncHandler(cancelOrder));
-
-router.get("/admin", protect, adminOnly, asyncHandler(getAllOrders));
-
-router.get("/admin/:id", protect, adminOnly, asyncHandler(getAdminOrderById));
-
-router.patch("/admin/:id/status",protect,adminOnly,asyncHandler(updateOrderStatus),
-);
-
-export default router;
+export default router

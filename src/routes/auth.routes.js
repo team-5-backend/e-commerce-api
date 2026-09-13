@@ -3,55 +3,56 @@ import express from 'express'
 import {
   authLimiter,
   deleteSession,
-  forgotPassword,
+  getCurrentUser,
   getSessions,
   login,
   logout,
   logoutAll,
   otpLimiter,
   register,
-  verifyForgotPasswordOtp,
+  resetPassword,
   verifyRegisterOtp,
+  verifyResetPasswordOtp,
 } from '../controllers/auth.controller.js'
 import { authenticate } from '../middlewares/auth.middleware.js'
-import validateBody from '../middlewares/validateBody.js'
-import validateParams from '../middlewares/validateParams.js'
+import validate from '../middlewares/validate.middleware.js'
 import {
   deleteSessionParamsSchema,
-  forgotPasswordSchema,
   loginSchema,
   registerSchema,
-  verifyForgotPasswordOtpSchema,
+  resetPasswordSchema,
   verifyRegisterOtpSchema,
+  verifyResetPasswordOtpSchema,
 } from '../validations/auth.validation.js'
 
 const router = express.Router()
 
-router.post('/login', authLimiter, validateBody(loginSchema), login)
-router.post('/register', otpLimiter, validateBody(registerSchema), register)
-router.post(
-  '/verify-register',
-  authLimiter,
-  validateBody(verifyRegisterOtpSchema),
-  verifyRegisterOtp,
-)
+// GET
+router.get('/sessions', authenticate, getSessions)
+router.get('/current', authenticate, getCurrentUser)
 
-router.post('/forgot-password', otpLimiter, validateBody(forgotPasswordSchema), forgotPassword)
+// POST
+router.post('/login', authLimiter, validate(loginSchema), login)
+
+router.post('/register', otpLimiter, validate(registerSchema), register)
+router.post('/verify-register', authLimiter, validate(verifyRegisterOtpSchema), verifyRegisterOtp)
+
+router.post('/reset-password', otpLimiter, validate(resetPasswordSchema), resetPassword)
 router.post(
-  '/verify-forgot-password',
+  '/verify-reset-password',
   authLimiter,
-  validateBody(verifyForgotPasswordOtpSchema),
-  verifyForgotPasswordOtp,
+  validate(verifyResetPasswordOtpSchema),
+  verifyResetPasswordOtp,
 )
 
 router.post('/logout', authenticate, logout)
 router.post('/logout-all', authenticate, logoutAll)
 
-router.get('/sessions', authenticate, getSessions)
+// DELETE
 router.delete(
   '/sessions/:sessionId',
   authenticate,
-  validateParams(deleteSessionParamsSchema),
+  validate(deleteSessionParamsSchema, 'params'),
   deleteSession,
 )
 

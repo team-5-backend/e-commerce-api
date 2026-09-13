@@ -6,7 +6,10 @@ import { refreshTokens } from '../redis/jwtService.js'
 import { AppError } from '../utils/appError.js'
 
 export const authenticate = async (req, res, next) => {
-  const { accessToken, refreshToken } = req.cookies || {}
+  const authHeader = req.headers.authorization
+  const accessToken =
+    authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null
+  const { refreshToken } = req.cookies || {}
 
   if (!refreshToken && !accessToken)
     return next(new AppError('Not authenticated. Please log in.', HTTP_STATUS.UNAUTHORIZED))
@@ -32,7 +35,7 @@ export const authenticate = async (req, res, next) => {
         currentUserAgent,
       })
 
-      res.cookie('accessToken', newAccessToken, COOKIE_OPTIONS)
+      res.setHeader('x-access-token', newAccessToken)
       res.cookie('refreshToken', newRefreshToken, COOKIE_OPTIONS)
 
       req.user = jwt.verify(newAccessToken, environment.auth.jwtAccessSecret)

@@ -8,17 +8,25 @@ import {
   updateUser,
 } from '../controllers/user.controller.js'
 import { authenticate, authorize } from '../middlewares/auth.middleware.js'
-import { cache } from '../middlewares/cache.middleware.js'
+import { cache, clearCache } from '../middlewares/cache.middleware.js'
+import { validate } from '../middlewares/validate.middleware.js'
+import { createUserSchema, updateUserSchema } from '../validations/user.validation.js'
 
 const router = express.Router()
 
-router.get('/all', authenticate, authorize('admin'), cache(), getUsers)
-router.get('/:id', authenticate, authorize('admin'), cache(), getUserById)
+router.use(authenticate)
 
-router.post('/add', authenticate, authorize('admin'), createUser)
+// GET
+router.get('/', authorize('admin'), cache(), getUsers)
+router.get('/:id', authorize('admin'), cache(), getUserById)
 
-router.patch('/:id', authenticate, updateUser)
+// POST
+router.post('/', authorize('admin'), validate(createUserSchema), clearCache('/users'), createUser)
 
-router.delete('/:id', authenticate, authorize('admin'), deleteUser)
+// PATCH
+router.patch('/:id', validate(updateUserSchema), clearCache('/users'), updateUser)
+
+// DELETE
+router.delete('/:id', authorize('admin'), clearCache('/users'), deleteUser)
 
 export default router
