@@ -17,7 +17,6 @@ import {
   deleteCartItemParamsSchema,
   updateCartItemSchema,
 } from '../validations/cart.validation.js'
-import objectIdSchema from '../validations/schemas/id.schema.js'
 
 const router = Router()
 

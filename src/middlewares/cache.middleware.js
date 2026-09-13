@@ -35,7 +35,7 @@ export const cache =
           if (typeof body === 'string') {
             try {
               parsedBody = JSON.parse(body)
-            } catch (e) {}
+            } catch {}
           }
 
           const cacheData = JSON.stringify({
@@ -66,7 +66,7 @@ export const clearCache = (pattern) => {
       if (res.statusCode >= 400 || typeof pattern !== 'string') return
 
       try {
-        const sanitizedPattern = pattern.replace(/[^a-zA-Z0-9_:\/-]/g, '')
+        const sanitizedPattern = pattern.replace(/[^a-zA-Z0-9_:/-]/g, '')
         if (!sanitizedPattern) return
 
         const cachePattern = `cache*:${sanitizedPattern}*`

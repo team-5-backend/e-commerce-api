@@ -4,7 +4,7 @@ import { connectDatabase, disconnectDatabase } from './src/db/db.js'
 import { connectRedis, disconnectRedis } from './src/redis/redisClient.js'
 import logger from './src/utils/logger.js'
 
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', (error) => {
   logger.error({ message: 'UNCAUGHT EXCEPTION! 💥 Shutting down...', error })
   process.exit(1)
 })
