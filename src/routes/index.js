@@ -21,6 +21,6 @@ router.use('/admin', adminRoutes)
 router.use('/auth', authRoutes)
 router.use('/cart', cartRoutes)
 router.use('/users', userRoutes)
-router.use('/wishlists', wishlistRoutes)
+router.use('/wishlist', wishlistRoutes)
 
 export default router
