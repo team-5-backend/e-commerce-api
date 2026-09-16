@@ -22,9 +22,8 @@ const wishlistSchema = new mongoose.Schema(
   MODEL_OPTIONS,
 )
 
-wishlistSchema.pre(/^find/, function (next) {
+wishlistSchema.pre(/^find/, function () {
   this.populate('products')
-  next()
 })
 
-export const Wishlist = mongoose.model('Wishlist', wishlistSchema)
+export const Wishlist = mongoose.models.Wishlist || mongoose.model('Wishlist', wishlistSchema)

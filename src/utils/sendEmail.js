@@ -9,6 +9,8 @@ import { emailSchema } from '../validations/brevo.schema.js'
 import { AppError } from './appError.js'
 import logger from './logger.js'
 
+////////////////////////////////////////////
+
 const httpsAgent = new https.Agent({ keepAlive: true })
 
 const brevoClient = create({
@@ -21,6 +23,8 @@ const brevoClient = create({
   timeout: 5000,
   httpsAgent,
 })
+
+////////////////////////////////////////////
 
 export const sendEmail = async (payload) => {
   const { value, error: schemaError } = emailSchema.validate(payload)

@@ -1,15 +1,11 @@
 import Joi from 'joi'
-import mongoose from 'mongoose'
 
-const objectIdSchema = Joi.any()
-  .custom((value, helpers) => {
-    if (mongoose.Types.ObjectId.isValid(value)) {
-      return value.toString()
-    }
-    return helpers.error('any.invalid')
-  })
-  .messages({
-    'any.invalid': 'Invalid ID format',
-  })
+const objectIdSchema = Joi.object({
+  id: Joi.string().hex().length(24).required().messages({
+    'string.hex': 'Invalid ID format',
+    'string.length': 'Invalid ID format',
+    'any.required': 'ID is required',
+  }),
+})
 
 export default objectIdSchema

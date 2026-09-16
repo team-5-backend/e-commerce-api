@@ -4,18 +4,18 @@ import {
   authLimiter,
   deleteSession,
   forgotPassword,
+  getMe,
   getSessions,
   login,
   logout,
   logoutAll,
-  otpLimiter,
+  refresh,
   register,
   verifyForgotPasswordOtp,
   verifyRegisterOtp,
 } from '../controllers/auth.controller.js'
 import { authenticate } from '../middlewares/auth.middleware.js'
-import validateBody from '../middlewares/validateBody.js'
-import validateParams from '../middlewares/validateParams.js'
+import validate from '../middlewares/validate.js'
 import {
   deleteSessionParamsSchema,
   forgotPasswordSchema,
@@ -25,34 +25,52 @@ import {
   verifyRegisterOtpSchema,
 } from '../validations/auth.validation.js'
 
+/////////////////////////////////////////////////////////////////////
+
 const router = express.Router()
 
-router.post('/login', authLimiter, validateBody(loginSchema), login)
-router.post('/register', otpLimiter, validateBody(registerSchema), register)
-router.post(
-  '/verify-register',
-  authLimiter,
-  validateBody(verifyRegisterOtpSchema),
-  verifyRegisterOtp,
-)
+// http://localhost:5000/api/v1/auth/login
+router.post('/login', authLimiter, validate(loginSchema), login)
 
-router.post('/forgot-password', otpLimiter, validateBody(forgotPasswordSchema), forgotPassword)
+// http://localhost:5000/api/v1/auth/register/send-otp
+router.post('/register/send-otp', authLimiter, validate(registerSchema), register)
+
+// http://localhost:5000/api/v1/auth/verify-otp
+router.post('/verify-otp', authLimiter, validate(verifyRegisterOtpSchema), verifyRegisterOtp)
+
+// http://localhost:5000/api/v1/auth/forgotpassword/send-otp
+router.post('/forgotpassword/send-otp', authLimiter, validate(forgotPasswordSchema), forgotPassword)
+
+// http://localhost:5000/api/v1/auth/forgotpassword/verify-otp
 router.post(
-  '/verify-forgot-password',
+  '/forgotpassword/verify-otp',
   authLimiter,
-  validateBody(verifyForgotPasswordOtpSchema),
+  validate(verifyForgotPasswordOtpSchema),
   verifyForgotPasswordOtp,
 )
 
+// http://localhost:5000/api/v1/auth/logout
 router.post('/logout', authenticate, logout)
+
+// http://localhost:5000/api/v1/auth/logout-all
 router.post('/logout-all', authenticate, logoutAll)
 
+// http://localhost:5000/api/v1/auth/refresh
+router.post('/refresh', refresh)
+
+// http://localhost:5000/api/v1/auth/sessions
 router.get('/sessions', authenticate, getSessions)
+
+// http://localhost:5000/api/v1/auth/me
+router.get('/me', authenticate, getMe)
+
+// http://localhost:5000/api/v1/auth/sessions/:sessionId
 router.delete(
   '/sessions/:sessionId',
   authenticate,
-  validateParams(deleteSessionParamsSchema),
+  validate(deleteSessionParamsSchema, 'params'),
   deleteSession,
 )
 
+/////////////////////////////////////////////////////////////////
 export default router

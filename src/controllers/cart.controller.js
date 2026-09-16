@@ -1,21 +1,12 @@
-import Cart from '../models/cart.model.js'
-import { Product } from '../models/product.model.js'
+import { HTTP_STATUS, STATIC_COUPONS } from '../config/constants.js'
+import { asyncHandler } from '../middlewares/asyncHandler.js'
+import { Cart, Product } from '../models/index.js'
+import { ApiResponse } from '../utils/ApiResponse.js'
+import { AppError } from '../utils/appError.js'
 
-const COUPONS = {
-  SAVE10: { discountType: 'percentage', discountValue: 10 },
-  SAVE20: { discountType: 'percentage', discountValue: 20 },
-  SAVE50: { discountType: 'percentage', discountValue: 50 },
-  SAVE80: { discountType: 'percentage', discountValue: 80 },
-  OFF50: { discountType: 'fixed', discountValue: 50 },
-}
+///////////////////////////////////////////////////////////////
 
 const getUserId = (req) => req.user?._id || req.user?.id || req.user?.userId
-
-const ensureUser = (req, res) => {
-  if (getUserId(req)) return true
-  res.status(401).json({ message: 'Authentication is required' })
-  return false
-}
 
 const getFinalPrice = (product) =>
   product.discountPrice > 0 ? product.discountPrice : product.price
@@ -24,38 +15,92 @@ const getImageUrl = (product) => {
   const image = product.images?.[0]
   return typeof image === 'string' ? image : image?.url
 }
+///////////////////////////////////////////////////////////////
 
-export const getCart = async (req, res, next) => {
-  try {
-    if (!ensureUser(req, res)) return
-    let cart = await Cart.findOne({ user: getUserId(req) })
-    if (!cart) cart = await Cart.create({ user: getUserId(req) })
-    res.status(200).json({ cart })
-  } catch (error) {
-    next(error)
+export const getCart = asyncHandler(async (req, res) => {
+  const userId = getUserId(req)
+  if (!userId) {
+    throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED)
   }
-}
 
-export const addCartItem = async (req, res, next) => {
+  let cart = await Cart.findOne({ user: userId })
+  if (!cart) {
+    cart = await Cart.create({ user: userId, items: [] })
+  }
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Cart retrieved successfully', cart))
+})
+///////////////////////////////////////////////////////////////
+
+export const addCartItem = asyncHandler(async (req, res) => {
+  const userId = getUserId(req)
+  if (!userId) {
+    throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED)
+  }
+
+  const { items } = req.body
+
+  const validatedProducts = []
+
   try {
-    if (!ensureUser(req, res)) return
-    const { productId, quantity } = req.body
-    const product = await Product.findById(productId)
+    const results = await Promise.all(
+      items.map(async (inputItem) => {
+        const quantity = Number(inputItem.quantity)
+        const productId = inputItem.productId || inputItem.product
 
-    if (!product || product.isActive === false) {
-      return res.status(404).json({ message: 'Product not found' })
-    }
-    if (product.stock < quantity) {
-      return res.status(400).json({ message: 'Insufficient product stock' })
-    }
+        const product = await Product.findOneAndUpdate(
+          { _id: productId, isActive: true, stock: { $gte: quantity } },
+          { $inc: { stock: -quantity } },
+          { new: true },
+        )
 
-    let cart = await Cart.findOne({ user: getUserId(req) })
-    if (!cart) cart = new Cart({ user: getUserId(req), items: [] })
+        if (!product) {
+          const checkProduct = await Product.findById(productId)
+          if (!checkProduct || !checkProduct.isActive) {
+            throw new AppError(
+              `Product with ID ${productId} is not found or inactive`,
+              HTTP_STATUS.NOT_FOUND,
+            )
+          }
+          throw new AppError(
+            `Insufficient stock for product ID ${productId}`,
+            HTTP_STATUS.BAD_REQUEST,
+          )
+        }
 
-    const item = cart.items.find((cartItem) => cartItem.product.toString() === productId)
+        return { product, quantity }
+      }),
+    )
 
-    if (item) item.quantity += quantity
-    else {
+    validatedProducts.push(...results)
+  } catch (error) {
+    await Promise.all(
+      validatedProducts.map(async (deducted) => {
+        await Product.updateOne(
+          { _id: deducted.product._id },
+          { $inc: { stock: deducted.quantity } },
+        )
+      }),
+    )
+    throw error
+  }
+
+  let cart = await Cart.findOne({ user: userId })
+  if (!cart) {
+    cart = new Cart({ user: userId, items: [] })
+  } else if (cart.items.length === 0) {
+    cart.coupon = undefined
+    cart.discountAmount = 0
+  }
+
+  for (const { product, quantity } of validatedProducts) {
+    const existingItem = cart.items.find(
+      (cartItem) => cartItem.product.toString() === product._id.toString(),
+    )
+
+    if (existingItem) {
+      existingItem.quantity += quantity
+    } else {
       cart.items.push({
         product: product._id,
         name: product.name,
@@ -64,111 +109,184 @@ export const addCartItem = async (req, res, next) => {
         quantity,
       })
     }
-
-    product.stock -= quantity
-    await Promise.all([cart.save(), product.save()])
-    res.status(201).json({ cart })
-  } catch (error) {
-    next(error)
   }
-}
 
-export const updateCartItem = async (req, res, next) => {
-  try {
-    if (!ensureUser(req, res)) return
-    const { productId, quantity } = req.body
-    const cart = await Cart.findOne({ user: getUserId(req) })
-    if (!cart) return res.status(404).json({ message: 'Cart not found' })
+  await cart.save()
 
-    const item = cart.items.find((cartItem) => cartItem.product.toString() === productId)
-    if (!item) return res.status(404).json({ message: 'Cart item not found' })
+  res.status(HTTP_STATUS.CREATED).send(ApiResponse('Items added to cart successfully', cart))
+})
+///////////////////////////////////////////////////////////////
 
-    const product = await Product.findById(productId)
-    if (!product) return res.status(404).json({ message: 'Product not found' })
-
-    const difference = quantity - item.quantity
-    if (difference > 0 && product.stock < difference) {
-      return res.status(400).json({ message: 'Insufficient product stock' })
-    }
-
-    item.quantity = quantity
-    product.stock -= difference
-    await Promise.all([cart.save(), product.save()])
-    res.status(200).json({ cart })
-  } catch (error) {
-    next(error)
+export const updateCartItem = asyncHandler(async (req, res) => {
+  const userId = getUserId(req)
+  if (!userId) {
+    throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED)
   }
-}
 
-export const removeCartItem = async (req, res, next) => {
-  try {
-    if (!ensureUser(req, res)) return
-    const cart = await Cart.findOne({ user: getUserId(req) })
-    if (!cart) return res.status(404).json({ message: 'Cart not found' })
+  const { items } = req.body
 
-    const item = cart.items.find((cartItem) => cartItem.product.toString() === req.params.productId)
-    if (!item) return res.status(404).json({ message: 'Cart item not found' })
-
-    await Product.findByIdAndUpdate(item.product, {
-      $inc: { stock: item.quantity },
-    })
-    cart.items = cart.items.filter(
-      (cartItem) => cartItem.product.toString() !== req.params.productId,
-    )
-    await cart.save()
-    res.status(200).json({ cart })
-  } catch (error) {
-    next(error)
+  const cart = await Cart.findOne({ user: userId })
+  if (!cart) {
+    throw new AppError('Cart not found', HTTP_STATUS.NOT_FOUND)
   }
-}
 
-export const applyCoupon = async (req, res, next) => {
+  const stockChanges = []
+
   try {
-    if (!ensureUser(req, res)) return
-    const coupon = COUPONS[req.body.code]
-    if (!coupon) return res.status(400).json({ message: 'Invalid coupon code' })
-
-    const cart = await Cart.findOne({ user: getUserId(req) })
-    if (!cart) return res.status(404).json({ message: 'Cart not found' })
-
-    cart.coupon = { code: req.body.code, ...coupon }
-    await cart.save()
-    res.status(200).json({ cart })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const removeCoupon = async (req, res, next) => {
-  try {
-    if (!ensureUser(req, res)) return
-    const cart = await Cart.findOne({ user: getUserId(req) })
-    if (!cart) return res.status(404).json({ message: 'Cart not found' })
-
-    cart.coupon = undefined
-    await cart.save()
-    res.status(200).json({ cart })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const clearCart = async (req, res, next) => {
-  try {
-    if (!ensureUser(req, res)) return
-    const cart = await Cart.findOne({ user: getUserId(req) })
-    if (!cart) return res.status(404).json({ message: 'Cart not found' })
-
     await Promise.all(
-      cart.items.map((item) =>
-        Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } }),
-      ),
+      items.map(async (update) => {
+        const { productId, quantity: newQuantity } = update
+
+        const cartItem = cart.items.find((item) => item.product.toString() === productId)
+        if (!cartItem) {
+          throw new AppError(
+            `Cart item with product ID ${productId} not found`,
+            HTTP_STATUS.NOT_FOUND,
+          )
+        }
+
+        const difference = newQuantity - cartItem.quantity
+        if (difference === 0) return
+
+        if (difference > 0) {
+          const product = await Product.findOneAndUpdate(
+            { _id: productId, stock: { $gte: difference } },
+            { $inc: { stock: -difference } },
+            { new: true },
+          )
+          if (!product) {
+            throw new AppError(
+              `Insufficient stock for product ID ${productId}`,
+              HTTP_STATUS.BAD_REQUEST,
+            )
+          }
+          stockChanges.push({ productId, type: 'decrement', amount: difference })
+        } else {
+          const absDiff = Math.abs(difference)
+          await Product.updateOne({ _id: productId }, { $inc: { stock: absDiff } })
+          stockChanges.push({ productId, type: 'increment', amount: absDiff })
+        }
+
+        cartItem.quantity = newQuantity
+      }),
     )
-    cart.items = []
-    cart.coupon = undefined
-    await cart.save()
-    res.status(200).json({ cart })
   } catch (error) {
-    next(error)
+    await Promise.all(
+      stockChanges.map(async (change) => {
+        if (change.type === 'decrement') {
+          await Product.updateOne({ _id: change.productId }, { $inc: { stock: change.amount } })
+        } else {
+          await Product.updateOne({ _id: change.productId }, { $inc: { stock: -change.amount } })
+        }
+      }),
+    )
+    throw error
   }
-}
+
+  await cart.save()
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Cart items updated successfully', cart))
+})
+///////////////////////////////////////////////////////////////
+
+export const removeCartItem = asyncHandler(async (req, res) => {
+  const userId = getUserId(req)
+  if (!userId) {
+    throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED)
+  }
+
+  const { id: productId } = req.params
+  const cart = await Cart.findOne({ user: userId })
+  if (!cart) {
+    throw new AppError('Cart not found', HTTP_STATUS.NOT_FOUND)
+  }
+
+  const item = cart.items.find((cartItem) => cartItem.product.toString() === productId)
+  if (!item) {
+    throw new AppError('Cart item not found', HTTP_STATUS.NOT_FOUND)
+  }
+
+  await Product.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } })
+
+  cart.items = cart.items.filter((cartItem) => cartItem.product.toString() !== productId)
+  await cart.save()
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Cart item removed successfully', cart))
+})
+///////////////////////////////////////////////////////////////
+
+export const applyCoupon = asyncHandler(async (req, res) => {
+  const userId = getUserId(req)
+  if (!userId) {
+    throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED)
+  }
+
+  const couponConfig = STATIC_COUPONS[req.body.code]
+  if (!couponConfig) {
+    throw new AppError('Invalid coupon code', HTTP_STATUS.BAD_REQUEST)
+  }
+
+  const cart = await Cart.findOne({ user: userId })
+  if (!cart) {
+    throw new AppError('Cart not found', HTTP_STATUS.NOT_FOUND)
+  }
+
+  if (cart.coupon) {
+    throw new AppError('Coupon is applied already', HTTP_STATUS.NOT_FOUND)
+  }
+
+  cart.coupon = { code: req.body.code, ...couponConfig }
+  await cart.save()
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Coupon applied successfully', cart))
+})
+///////////////////////////////////////////////////////////////
+
+export const removeCoupon = asyncHandler(async (req, res) => {
+  const userId = getUserId(req)
+  if (!userId) {
+    throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED)
+  }
+
+  const cart = await Cart.findOne({ user: userId })
+  if (!cart) {
+    throw new AppError('Cart not found', HTTP_STATUS.NOT_FOUND)
+  }
+
+  if (!cart.coupon?.code) {
+    throw new AppError('No coupon applied to this cart to remove', HTTP_STATUS.BAD_REQUEST)
+  }
+
+  cart.coupon = undefined
+  await cart.save()
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Coupon removed successfully', cart))
+})
+
+///////////////////////////////////////////////////////////////
+export const clearCart = asyncHandler(async (req, res) => {
+  const userId = getUserId(req)
+  if (!userId) {
+    throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED)
+  }
+
+  const cart = await Cart.findOne({ user: userId })
+  if (!cart || !cart.items || cart.items.length === 0) {
+    throw new AppError('No items in cart to remove', HTTP_STATUS.NOT_FOUND)
+  }
+
+  const bulkOperations = cart.items.map((item) => ({
+    updateOne: {
+      filter: { _id: item.product },
+      update: { $inc: { stock: item.quantity } },
+    },
+  }))
+
+  await Product.bulkWrite(bulkOperations)
+
+  cart.items = []
+  cart.coupon = undefined
+  await cart.save()
+
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Cart cleared successfully', cart))
+})

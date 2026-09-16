@@ -1,10 +1,13 @@
 import crypto from 'crypto'
 
-import { HTTP_STATUS, OTP_TTL } from '../config/constants.js'
+import { HTTP_STATUS } from '../config/constants.js'
+import environment from '../config/environment.js'
 import { AppError } from '../utils/appError.js'
 import { createOtpSchema, verifyOtpSchema } from '../validations/auth.validation.js'
 
 import redisClient from './redisClient.js'
+
+/////////////////////////////////////////////////////////////////////
 
 const hashOtp = (otp) => crypto.createHash('sha256').update(otp).digest('hex')
 
@@ -12,7 +15,8 @@ export const generateSecureOtp = () => {
   return crypto.randomInt(100000, 1000000).toString()
 }
 
-// takes { email, otp, userData }
+/////////////////////////////////////////////////////////////////////
+
 export const saveOtp = async (schemaPayload) => {
   const { value, error: schemaError } = createOtpSchema.validate(schemaPayload)
   if (schemaError)
@@ -31,10 +35,11 @@ export const saveOtp = async (schemaPayload) => {
     userData,
   })
 
-  await redisClient.setEx(`otp:${email}`, OTP_TTL, data)
+  await redisClient.setEx(`otp:${email}`, environment.OTP_TTL, data)
 }
 
-// takes { email, otp }
+/////////////////////////////////////////////////////////////////////
+
 export const verifyOtp = async (schemaPayload) => {
   const { value, error: schemaError } = verifyOtpSchema.validate(schemaPayload)
   if (schemaError)
@@ -56,7 +61,7 @@ export const verifyOtp = async (schemaPayload) => {
 
   if (attempts <= 0) {
     await redisClient.del(key)
-    throw new AppError('Maximum attempts reached', HTTP_STATUS.FORBIDDEN)
+    throw new AppError('Maximum attempts reached', HTTP_STATUS.TOO_MANY_REQUESTS)
   }
 
   const isValid = hashOtp(otp) === storedOtp

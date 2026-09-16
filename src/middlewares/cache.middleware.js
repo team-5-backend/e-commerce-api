@@ -3,7 +3,8 @@ import crypto from 'crypto'
 import redisClient from '../redis/redisClient.js'
 import logger from '../utils/logger.js'
 
-// MUST be used after authenticate and authorize if present
+/////////////////////////////////////////////////////////
+
 export const cache =
   (durationInSeconds = 3600) =>
   async (req, res, next) => {
@@ -27,7 +28,6 @@ export const cache =
         return res.send(body)
       }
 
-      // Intercept res.send
       const originalSend = res.send.bind(res)
       res.send = (body) => {
         const cacheData = JSON.stringify({

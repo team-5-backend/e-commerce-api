@@ -1,6 +1,9 @@
 import multer from 'multer'
 
+import { HTTP_STATUS } from '../config/constants.js'
 import { AppError } from '../utils/appError.js'
+
+////////////////////////////////////////////////
 
 const storage = multer.memoryStorage()
 
@@ -15,7 +18,7 @@ const fileFilter = (_req, file, cb) => {
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
+    fileSize: 5 * 1024 * 1024,
   },
   fileFilter,
 })

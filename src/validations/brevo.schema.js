@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-import emailFieldSchema from './schemas/email.schema'
+import emailFieldSchema from './schemas/email.schema.js'
 
 export const emailSchema = Joi.object({
   to: emailFieldSchema,

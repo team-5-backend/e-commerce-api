@@ -58,6 +58,12 @@ const orderSchema = new mongoose.Schema(
     discount: {
       type: Number,
       default: 0,
+      validate: {
+        validator: function (val) {
+          return this.subtotal === undefined || val < this.subtotal
+        },
+        message: 'Discount amount cannot be greater than or equal to the subtotal',
+      },
     },
 
     totalPrice: {
@@ -96,4 +102,4 @@ const orderSchema = new mongoose.Schema(
   MODEL_OPTIONS,
 )
 
-export const Order = mongoose.model('Order', orderSchema)
+export const Order = mongoose.models.Order || mongoose.model('Order', orderSchema)

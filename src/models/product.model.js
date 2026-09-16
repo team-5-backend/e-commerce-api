@@ -124,6 +124,7 @@ const productSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: 'User',
           required: true,
+          index: true,
         },
 
         rating: {
@@ -168,12 +169,15 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      index: true,
     },
   },
   MODEL_OPTIONS,
 )
 
-productSchema.pre('save', function (next) {
+/////////////////////////////////////////////////////////////////////
+
+productSchema.pre('save', function () {
   if (this.isModified('name')) {
     const baseSlug = slugify(this.name, {
       lower: true,
@@ -182,8 +186,9 @@ productSchema.pre('save', function (next) {
     })
     this.slug = `${baseSlug}-${Date.now().toString().slice(-6)}`
   }
-  next()
 })
+
+/////////////////////////////////////////////////////////////////////
 
 productSchema.methods.calcAverageRating = function () {
   if (!this.reviews || this.reviews.length === 0) {
@@ -196,10 +201,14 @@ productSchema.methods.calcAverageRating = function () {
   }
 }
 
+/////////////////////////////////////////////////////////////////////
+
 productSchema.index({ name: 'text', description: 'text', brand: 'text' })
 productSchema.index({ category: 1, price: 1 })
 productSchema.index({ brand: 1 })
 productSchema.index({ averageRating: -1 })
 productSchema.index({ createdAt: -1 })
 
-export const Product = mongoose.model('Product', productSchema)
+/////////////////////////////////////////////////////////////////////
+
+export const Product = mongoose.models.Product || mongoose.model('Product', productSchema)

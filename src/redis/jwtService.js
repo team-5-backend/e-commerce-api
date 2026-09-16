@@ -8,13 +8,15 @@ import { generateTokenSchema, refreshTokenSchema } from '../validations/auth.val
 
 import redisClient from './redisClient.js'
 
+/////////////////////////////////////////////////////////////////////
+
 export const cleanUpDeadSessions = async (userId) => {
   const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
   if (!tokens.length) return
 
   const tokenKeys = tokens.map((t) => `rt:${t}`)
-  const activeTokens = await redisClient.mGet(tokenKeys)
 
+  const activeTokens = await redisClient.mGet(tokenKeys)
   const multi = redisClient.multi()
   tokens.forEach((token, index) => {
     if (!activeTokens[index]) multi.sRem(`user:${userId}:sessions`, token)
@@ -22,7 +24,8 @@ export const cleanUpDeadSessions = async (userId) => {
   await multi.exec()
 }
 
-// takes { userId, userRole, ip, userAgent }
+/////////////////////////////////////////////////////////////////////
+
 export const generateTokens = async (schemaPayload, existingSessionId = null) => {
   const { value, error: schemaError } = generateTokenSchema.validate(schemaPayload)
   if (schemaError)
@@ -33,6 +36,7 @@ export const generateTokens = async (schemaPayload, existingSessionId = null) =>
         cause: schemaError,
       },
     )
+
   const { userId, userRole, ip, userAgent } = value
 
   const sessionId = existingSessionId || crypto.randomUUID()
@@ -43,11 +47,10 @@ export const generateTokens = async (schemaPayload, existingSessionId = null) =>
   })
 
   const refreshToken = jwt.sign(tokenPayload, environment.auth.jwtRefreshSecret, {
-    expiresIn: environment.auth.jwtRefreshExpDays,
+    expiresIn: `${environment.auth.jwtRefreshExpDays}d`,
   })
 
-  const ttlInSeconds =
-    Number(String(environment.auth.jwtRefreshExpDays).replace('d', '')) * 24 * 60 * 60
+  const ttlInSeconds = Number(environment.auth.jwtRefreshExpDays) * 24 * 60 * 60
   const sessionData = JSON.stringify({ sessionId, userId, userRole, ip, userAgent })
 
   const multi = redisClient.multi()
@@ -61,7 +64,8 @@ export const generateTokens = async (schemaPayload, existingSessionId = null) =>
   return { accessToken, refreshToken }
 }
 
-// takes { refreshToken, currentIp, currentUserAgent }
+/////////////////////////////////////////////////////////////////////
+
 export const refreshTokens = async (schemaPayload) => {
   const { value, error: schemaError } = refreshTokenSchema.validate(schemaPayload)
   if (schemaError)
@@ -72,7 +76,7 @@ export const refreshTokens = async (schemaPayload) => {
         cause: schemaError,
       },
     )
-  const { refreshToken, currentIp, currentUserAgent } = value
+  const { incomingRefreshToken: refreshToken, currentIp, currentUserAgent } = value
 
   const dataString = await redisClient.get(`rt:${refreshToken}`)
   if (!dataString) throw new AppError('Invalid or expired refresh token', HTTP_STATUS.UNAUTHORIZED)
@@ -113,15 +117,19 @@ export const refreshTokens = async (schemaPayload) => {
     },
     sessionId,
   )
+
   parsedData.newTokens = newTokens
 
   const multi = redisClient.multi()
   multi.setEx(`rt:${refreshToken}`, 30, JSON.stringify(parsedData))
-  multi.sRem(`user:${parsedData.userId}:sessions`, refreshToken)
+  multi.sRem(`user:${userId}:sessions`, refreshToken)
+  multi.sAdd(`user:${userId}:sessions`, newTokens.refreshToken)
   await multi.exec()
 
   return newTokens
 }
+
+/////////////////////////////////////////////////////////////////////
 
 export const revokeRefreshToken = async (userId, refreshToken) => {
   const multi = redisClient.multi()
@@ -129,6 +137,8 @@ export const revokeRefreshToken = async (userId, refreshToken) => {
   if (userId) multi.sRem(`user:${userId}:sessions`, refreshToken)
   await multi.exec()
 }
+
+/////////////////////////////////////////////////////////////////////
 
 export const revokeUserSessions = async (userId) => {
   const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
@@ -139,10 +149,11 @@ export const revokeUserSessions = async (userId) => {
   multi.del(`user:${userId}:sessions`)
   await multi.exec()
 }
+/////////////////////////////////////////////////////////////////////
 
 export const revokeSpecificSession = async (userId, sessionId) => {
   const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
-  if (!tokens.length) return
+  if (!tokens.length) return false
 
   let targetToken = null
 
@@ -156,8 +167,13 @@ export const revokeSpecificSession = async (userId, sessionId) => {
 
   if (targetToken) {
     await revokeRefreshToken(userId, targetToken)
+    return true
   }
+
+  return false
 }
+
+/////////////////////////////////////////////////////////////////////
 
 export const getAllSessions = async (userId) => {
   const tokens = await redisClient.sMembers(`user:${userId}:sessions`)

@@ -11,7 +11,7 @@ import morganMiddleware from './middlewares/morgan.middleware.js'
 import notFoundHandler from './middlewares/notFoundHandler.js'
 import router from './routes/index.js'
 
-const app = express()
+//////////////////////////////////////////////////////
 
 // Logging
 app.use(morganMiddleware)
@@ -37,5 +37,7 @@ app.use('/api/v1', router)
 // ErrorHandling
 app.use(notFoundHandler)
 app.use(errorHandler)
+
+//////////////////////////////////////////////////////
 
 export default app
