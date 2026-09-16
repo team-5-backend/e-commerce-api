@@ -39,81 +39,32 @@ const normalizeDeleteImageIds = (value) => {
 
 ////////////////////////////////////////////////////////////////////////
 
-export const getActiveProducts = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, category, brand, minPrice, maxPrice, sort = 'newest' } = req.query
-
-  const query = { isActive: true }
-
-  if (category) query.category = category
-  if (brand) query.brand = brand
-
-  if (minPrice !== undefined || maxPrice !== undefined) {
-    query.price = {}
-    if (minPrice !== undefined) query.price.$gte = Number(minPrice)
-    if (maxPrice !== undefined) query.price.$lte = Number(maxPrice)
-  }
-
-  const skip = (Number(page) - 1) * Number(limit)
-  const parsedLimit = Number(limit)
-
-  const sortOptions = {
-    newest: { createdAt: -1, _id: -1 },
-    'price-asc': { price: 1, _id: 1 },
-    'price-desc': { price: -1, _id: -1 },
-    rating: { averageRating: -1, _id: -1 },
-  }
-
-  const [products, total] = await Promise.all([
-    Product.find(query)
-      .select(PUBLIC_PRODUCT_FIELDS)
-      // oxlint-disable-next-line unicorn/no-array-sort
-      .sort(sortOptions[sort] || sortOptions.newest)
-      .skip(skip)
-      .limit(parsedLimit)
-      .lean()
-      .exec(),
-    Product.countDocuments(query).exec(),
-  ])
-  if (!products || products.length === 0) {
-    throw new AppError('No products match your search criteria.', HTTP_STATUS.NOT_FOUND)
-  }
-  res.status(HTTP_STATUS.OK).send(
-    ApiResponse('Products retrieved successfully.', {
-      products,
-      pagination: {
-        page: Number(page),
-        limit: parsedLimit,
-        total,
-        pages: Math.ceil(total / parsedLimit),
-      },
-    }),
-  )
-})
-
-////////////////////////////////////////////////////////////////////////
-
-export const searchProducts = asyncHandler(async (req, res) => {
+export const getProducts = asyncHandler(async (req, res) => {
   const {
-    q,
     page = 1,
     limit = 10,
+    query,
+    tags,
     category,
     subcategory,
     brand,
-    tags,
     minPrice,
     maxPrice,
+    sort = 'newest',
   } = req.query
 
-  const query = { isActive: true }
+  const q = { isActive: true }
 
-  if (q) {
-    query.$text = { $search: q }
+  if (query) q.$text = { $search: query }
+  if (category) q.category = category
+  if (subcategory) q.subcategory = subcategory
+  if (brand) q.brand = brand
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    q.price = {}
+    if (minPrice !== undefined) q.price.$gte = Number(minPrice)
+    if (maxPrice !== undefined) q.price.$lte = Number(maxPrice)
   }
-
-  if (category) query.category = category
-  if (subcategory) query.subcategory = subcategory
-  if (brand) query.brand = brand
 
   if (tags) {
     query.tags = {
@@ -124,34 +75,38 @@ export const searchProducts = asyncHandler(async (req, res) => {
     }
   }
 
-  if (minPrice !== undefined || maxPrice !== undefined) {
-    query.price = {}
-    if (minPrice !== undefined) query.price.$gte = Number(minPrice)
-    if (maxPrice !== undefined) query.price.$lte = Number(maxPrice)
-  }
-
   const skip = (Number(page) - 1) * Number(limit)
   const parsedLimit = Number(limit)
 
-  const sort = q ? { score: { $meta: 'textScore' }, _id: 1 } : { createdAt: -1, _id: -1 }
+  const sortOptions = {
+    newest: { createdAt: -1, _id: -1 },
+    oldest: { createdAt: 1, _id: -1 },
+    'price-asc': { price: 1, _id: 1 },
+    'price-desc': { price: -1, _id: -1 },
+    'rating-asc': { averageRating: 1, _id: -1 },
+    'rating-desc': { averageRating: -1, _id: -1 },
+  }
+
+  sortOptions.default = searchQuery ? { score: { $meta: 'textScore' }, _id: 1 } : sortOptions.newest
 
   const [products, total] = await Promise.all([
-    Product.find(query)
+    Product.find(q)
       .select(PUBLIC_PRODUCT_FIELDS)
       // oxlint-disable-next-line unicorn/no-array-sort
-      .sort(sort)
+      .sort(sortOptions[sort] || sortOptions.default)
       .skip(skip)
       .limit(parsedLimit)
       .lean()
       .exec(),
-    Product.countDocuments(query).exec(),
+    Product.countDocuments(q).exec(),
   ])
+
   if (!products || products.length === 0) {
     throw new AppError('No products match your search criteria.', HTTP_STATUS.NOT_FOUND)
   }
 
   res.status(HTTP_STATUS.OK).send(
-    ApiResponse('Products searched successfully.', {
+    ApiResponse('Products retrieved successfully.', {
       products,
       pagination: {
         page: Number(page),

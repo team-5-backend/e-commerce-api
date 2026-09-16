@@ -75,54 +75,20 @@ export const updateProductSchema = createProductSchema
 
 export const productQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
-
   limit: Joi.number().integer().min(1).max(100).default(10),
 
-  category: Joi.string().trim().lowercase(),
-
-  brand: Joi.string().trim(),
-
-  minPrice: Joi.number().min(0),
-
-  maxPrice: Joi.number().min(0),
-
-  sort: Joi.string().valid('price-asc', 'price-desc', 'rating', 'newest'),
-})
-  .custom((value, helpers) => {
-    if (
-      value.minPrice !== undefined &&
-      value.maxPrice !== undefined &&
-      value.minPrice > value.maxPrice
-    ) {
-      return helpers.error('any.invalid')
-    }
-
-    return value
-  })
-  .messages({
-    'any.invalid': 'minPrice cannot be greater than maxPrice',
-  })
-
-//////////////////////////////////////////////
-
-export const searchProductSchema = Joi.object({
-  q: Joi.string().trim().min(1).max(100),
-
-  page: Joi.number().integer().min(1).default(1),
-
-  limit: Joi.number().integer().min(1).max(100).default(10),
-
-  category: Joi.string().trim().lowercase(),
-
+  query: Joi.string().trim().allow(''),
+  tags: Joi.string().trim().allow(''),
   subcategory: Joi.string().trim().lowercase(),
 
+  category: Joi.string().trim().lowercase(),
   brand: Joi.string().trim(),
-
-  tags: Joi.string().trim(),
-
   minPrice: Joi.number().min(0),
-
   maxPrice: Joi.number().min(0),
+
+  sort: Joi.string()
+    .valid('newest', 'oldest', 'price-asc', 'price-desc', 'rating-asc', 'rating-desc')
+    .default('newest'),
 })
   .custom((value, helpers) => {
     if (
@@ -132,7 +98,6 @@ export const searchProductSchema = Joi.object({
     ) {
       return helpers.error('any.invalid')
     }
-
     return value
   })
   .messages({

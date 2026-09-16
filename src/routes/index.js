@@ -21,20 +21,18 @@ router.get('/health', (_req, res) =>
   }),
 )
 
-////////////////////////////////////////////////////////////////////
-
 router.get('/docs', (_req, res) => {
   res.render('docs')
 })
 
 ////////////////////////////////////////////////////////////////////
 
-router.use('/products', productRoutes)
-router.use('/orders', orderRoutes)
 router.use('/auth', authRoutes)
 router.use('/admin', adminRoutes)
 router.use('/users', userRoutes)
 router.use('/carts', cartRoutes)
+router.use('/orders', orderRoutes)
+router.use('/products', productRoutes)
 router.use('/wishlists', wishlistRoutes)
 
 ////////////////////////////////////////////////////////////////////

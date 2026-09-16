@@ -35,8 +35,13 @@ router.post('/login', authLimiter, validate(loginSchema), login)
 // http://localhost:3000/api/v1/auth/register/send-otp
 router.post('/register/send-otp', authLimiter, validate(registerSchema), register)
 
-// http://localhost:3000/api/v1/auth/verify-otp
-router.post('/verify-otp', authLimiter, validate(verifyRegisterOtpSchema), verifyRegisterOtp)
+// http://localhost:3000/api/v1/auth/register/verify-otp
+router.post(
+  '/register/verify-otp',
+  authLimiter,
+  validate(verifyRegisterOtpSchema),
+  verifyRegisterOtp,
+)
 
 // http://localhost:3000/api/v1/auth/forgotpassword/send-otp
 router.post('/forgotpassword/send-otp', authLimiter, validate(forgotPasswordSchema), forgotPassword)

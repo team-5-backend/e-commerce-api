@@ -5,10 +5,9 @@ import {
   createProduct,
   deleteProduct,
   deleteReview,
-  getActiveProducts,
   getProductById,
+  getProducts,
   getReviews,
-  searchProducts,
   updateProduct,
 } from '../controllers/product.controller.js'
 import { authenticate, authorize } from '../middlewares/auth.middleware.js'
@@ -21,7 +20,6 @@ import {
   productQuerySchema,
   reviewParamsSchema,
   reviewSchema,
-  searchProductSchema,
   updateProductSchema,
 } from '../validations/product.validation.js'
 import objectIdSchema from '../validations/schemas/id.schema.js'
@@ -29,14 +27,15 @@ import objectIdSchema from '../validations/schemas/id.schema.js'
 ////////////////////////////////////////////////////////////////////////////
 const router = express.Router()
 
-router.get('/search', validate(searchProductSchema, 'query'), cache(300), searchProducts)
-// http://localhost:3000/api/v1/products
-// http://localhost:3000/api/v1/products/?category=electronics&minPrice=50&maxPrice=150
-// http://localhost:3000/api/v1/products/?category=not
+router.get('/search', validate(productQuerySchema, 'query'), cache(300), getProducts)
 
-router.get('/', validate(productQuerySchema, 'query'), cache(300), getActiveProducts)
+// http://localhost:3000/api/v1/products
+// http://localhost:3000/api/v1/products?category=electronics&minPrice=50&maxPrice=150
+// http://localhost:3000/api/v1/products?category=notebook&minPrice=1000&maxPrice=2000&sortBy=price&sortOrder=desc&page=1&limit=5
+router.get('/', validate(productQuerySchema, 'query'), cache(300), getProducts)
 
 router.get('/:id/reviews', validate(objectIdSchema, 'params'), cache(300), getReviews)
+
 // http://localhost:3000/api/v1/products/
 router.get('/:id', validate(objectIdSchema, 'params'), cache(300), getProductById)
 
@@ -50,6 +49,7 @@ router.post(
   clearCache('products'),
   createProduct,
 )
+
 // http://localhost:3000/api/v1/products/6aa78ac6194d7f17ab6dc2b7
 router.patch(
   '/:id',
@@ -61,8 +61,8 @@ router.patch(
   clearCache('products'),
   updateProduct,
 )
-// http://localhost:3000/api/v1/products/6aa78ac6194d7f17ab6dc2b7
 
+// http://localhost:3000/api/v1/products/6aa78ac6194d7f17ab6dc2b7
 router.delete(
   '/:id',
   validate(objectIdSchema, 'params'),
@@ -81,6 +81,7 @@ router.post(
   clearCache('products'),
   addReview,
 )
+
 // http://localhost:3000/api/v1/products/6aa793ae7f0cdf585bdb228e/reviews/6aa79695dbbd77f53e600042
 router.delete(
   '/:id/reviews/:reviewId',

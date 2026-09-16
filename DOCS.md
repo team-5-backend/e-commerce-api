@@ -75,7 +75,7 @@ Returns a success message and sends a one-time password to the email address.
 ### 2) Verify the OTP and complete registration
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/auth/verify-otp \
+curl -X POST http://localhost:3000/api/v1/auth/register/verify-otp \
   -H 'Content-Type: application/json' \
   -d '{
     "email": "jane@example.com",
@@ -222,7 +222,7 @@ Response `200`:
 }
 ```
 
-#### `POST /auth/verify-otp`
+#### `POST /auth/register/verify-otp`
 
 Authentication: none. Verifies the registration OTP, creates the account, and sets
 `refreshToken`.
@@ -386,15 +386,24 @@ Response `200`:
 
 ### Products
 
-#### `GET /products`
+#### `GET /products` and `GET /products/search`
 
 Authentication: none.
 
-Query parameters: optional `page` (integer, default `1`), `limit` (integer `1-100`, default
-`10`), `category` (string), `brand` (string), `minPrice` (number), `maxPrice` (number), and
-`sort` (`price-asc`, `price-desc`, `rating`, or `newest`, default `newest`).
+Query parameters (all optional):
 
-Example: `GET /products?category=electronics&minPrice=50&maxPrice=150&sort=price-asc`.
+- `page` (integer, default `1`)
+- `limit` (integer `1-100`, default `10`)
+- `query` (string)
+- `tags` (comma-separated string)
+- `category` (string)
+- `subcategory` (string)
+- `brand` (string)
+- `minPrice` (number)
+- `maxPrice` (number)
+- `sort` (`newest`, `oldest`, `price-asc`, `price-desc`, `rating-asc`, `rating-desc`, default `newest`)
+
+Example: `GET /products/search?query=headphones&category=electronics&tags=bluetooth,audio&minPrice=50&sort=price-asc`
 
 Response `200`:
 
@@ -414,7 +423,12 @@ Response `200`:
         "discountPrice": 99.99,
         "stock": 25,
         "sku": "WH-2201",
-        "images": [{ "public_id": "products/abc123", "url": "https://example.com/image.jpg" }],
+        "images": [
+          {
+            "public_id": "products/abc123",
+            "url": "[https://example.com/image.jpg](https://example.com/image.jpg)"
+          }
+        ],
         "category": "electronics",
         "subcategory": "audio",
         "brand": "AudioMax",
@@ -422,44 +436,6 @@ Response `200`:
         "averageRating": 4.8,
         "numReviews": 21,
         "featured": true,
-        "isActive": true
-      }
-    ],
-    "pagination": { "page": 1, "limit": 10, "total": 1, "pages": 1 }
-  }
-}
-```
-
-#### `GET /products/search`
-
-Authentication: none.
-
-Query parameters: optional `q` (string), `page` (integer, default `1`), `limit` (integer
-`1-100`, default `10`), `category`, `subcategory`, `brand`, `tags` (comma-separated string),
-`minPrice`, and `maxPrice`.
-
-Example: `GET /products/search?q=headphones&tags=bluetooth,audio&limit=10`.
-
-Response `200`:
-
-```json
-{
-  "success": true,
-  "message": "Products searched successfully.",
-  "data": {
-    "products": [
-      {
-        "_id": "67d5e2b3d9a711c43b1d9a4d",
-        "name": "Wireless Headphones",
-        "price": 129.99,
-        "discountPrice": 99.99,
-        "stock": 25,
-        "category": "electronics",
-        "brand": "AudioMax",
-        "tags": ["bluetooth", "audio"],
-        "images": [{ "public_id": "products/abc123", "url": "https://example.com/image.jpg" }],
-        "averageRating": 4.8,
-        "numReviews": 21,
         "isActive": true
       }
     ],
