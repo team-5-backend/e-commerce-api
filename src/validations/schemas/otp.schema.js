@@ -1,6 +1,7 @@
 import Joi from 'joi'
 
 const otpFieldSchema = Joi.string()
+  .trim()
   .length(6)
   .pattern(/^[0-9]+$/)
   .required()

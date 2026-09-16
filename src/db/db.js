@@ -3,8 +3,10 @@ import mongoose from 'mongoose'
 import environment from '../config/environment.js'
 import logger from '../utils/logger.js'
 
-mongoose.connection.on('error', (error) => {
-  logger.error({ message: 'MongoDB connection error', error })
+///////////////////////////////////////////////
+
+mongoose.connection.on('error', (err) => {
+  logger.error({ message: 'MongoDB connection error', err })
 })
 
 mongoose.connection.on('connected', () => {
@@ -14,6 +16,8 @@ mongoose.connection.on('connected', () => {
 mongoose.connection.on('disconnected', () => {
   logger.warn('MongoDB connection lost. Mongoose will attempt to auto-reconnect...')
 })
+
+///////////////////////////////////////////////
 
 export const connectDatabase = async () => {
   if (mongoose.connection.readyState >= 1) {
@@ -27,6 +31,8 @@ export const connectDatabase = async () => {
     process.exit(1)
   }
 }
+
+///////////////////////////////////////////////
 
 export const disconnectDatabase = async () => {
   if (mongoose.connection.readyState === 0) {

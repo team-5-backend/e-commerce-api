@@ -10,31 +10,39 @@ import {
   updateCartItem,
 } from '../controllers/cart.controller.js'
 import { authenticate } from '../middlewares/auth.middleware.js'
-import validate from '../middlewares/validate.middleware.js'
+import validate from '../middlewares/validate.js'
 import {
   addCartItemSchema,
   applyCouponSchema,
-  deleteCartItemParamsSchema,
   updateCartItemSchema,
 } from '../validations/cart.validation.js'
+import objectIdSchema from '../validations/schemas/id.schema.js'
 
+///////////////////////////////////////////////
 const router = Router()
-
 router.use(authenticate)
+///////////////////////////////////////////////
 
-// GET
+// http://localhost:5000/api/v1/carts
 router.get('/', getCart)
 
-// POST
-router.post('/items', validate(addCartItemSchema), addCartItem)
-router.post('/coupon', validate(applyCouponSchema), applyCoupon)
-
-// PATCH
-router.patch('/items', validate(updateCartItemSchema), updateCartItem)
-
-// DELETE
-router.delete('/items/:productId', validate(deleteCartItemParamsSchema, 'params'), removeCartItem)
-router.delete('/coupon', removeCoupon)
+// http://localhost:5000/api/v1/carts/clear
 router.delete('/clear', clearCart)
 
+// http://localhost:5000/api/v1/carts/items
+router.post('/items', validate(addCartItemSchema), addCartItem)
+
+// http://localhost:5000/api/v1/carts/items
+router.patch('/items', validate(updateCartItemSchema), updateCartItem)
+
+// http://localhost:5000/api/v1/carts/items/6aa78b77194d7f17ab6dc2b9
+router.delete('/items/:id', validate(objectIdSchema, 'params'), removeCartItem)
+
+//  http://localhost:5000/api/v1/carts/coupon
+router.post('/coupon', validate(applyCouponSchema), applyCoupon)
+
+//  http://localhost:5000/api/v1/carts/coupon
+router.delete('/coupon', removeCoupon)
+
+///////////////////////////////////////////////
 export default router

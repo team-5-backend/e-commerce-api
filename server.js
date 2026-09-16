@@ -4,16 +4,22 @@ import { connectDatabase, disconnectDatabase } from './src/db/db.js'
 import { connectRedis, disconnectRedis } from './src/redis/redisClient.js'
 import logger from './src/utils/logger.js'
 
+///////////////////////////////////////////////////////////////////////////
+
 process.on('uncaughtException', (error) => {
   logger.error({ message: 'UNCAUGHT EXCEPTION! 💥 Shutting down...', error })
   process.exit(1)
 })
 
+///////////////////////////////////////////////////////////////////////////
+
 await connectDatabase()
 await connectRedis()
 
+///////////////////////////////////////////////////////////////////////////
+
 const server = app.listen(environment.port, () => {
-  logger.info(`🚀 Server running at http://${environment.host}:${environment.port}`)
+  logger.info(`  Server running at http://${environment.host}:${environment.port}`)
 })
 
 server.on('error', (error) => {
@@ -26,6 +32,8 @@ server.on('error', (error) => {
     throw error
   }
 })
+
+///////////////////////////////////////////////////////////////////////////
 
 const shutdown = (signal) => {
   logger.info(`${signal} received. Shutting down gracefully...`)
@@ -52,6 +60,8 @@ const shutdown = (signal) => {
 process.on('SIGINT', () => shutdown('SIGINT'))
 process.on('SIGTERM', () => shutdown('SIGTERM'))
 process.on('SIGUSR2', () => shutdown('SIGUSR2'))
+
+///////////////////////////////////////////////////////////////////////////
 
 process.on('unhandledRejection', (error) => {
   logger.error({ message: 'UNHANDLED REJECTION! 💥 Shutting down...', error })

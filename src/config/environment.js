@@ -4,10 +4,12 @@ dotenv.config()
 
 const environment = {
   nodeEnv: process.env.NODE_ENV || 'development',
-  port: Number(process.env.PORT || 3000),
+  port: Number(process.env.PORT || 5000),
   host: process.env.HOST || 'localhost',
   logLevel: process.env.LOG_LEVEL || 'info',
-  allowedOrigins: process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
+  allowedOrigins: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:5000'],
   mongoUri: process.env.MONGODB_URI,
   redisUrl: process.env.REDIS_URL,
   auth: {
@@ -28,20 +30,19 @@ const environment = {
     senderName: process.env.BREVO_SENDER_NAME,
     senderEmail: process.env.BREVO_SENDER_EMAIL,
   },
-  stripe: { secretKey: process.env.STRIPE_SECRET_KEY },
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY,
+    webhookSecret: process.env.STRIPEWEBHOOKSECRET,
+  },
   paypal: {
     clientId: process.env.PAYPAL_CLIENT_ID,
     clientSecret: process.env.PAYPAL_CLIENT_SECRET,
     webhookId: process.env.PAYPAL_WEBHOOK_ID,
   },
   paymob: {
-    apiKey: process.env.PAYMOB_API_KEY,
-    id: process.env.PAYMOB_INTEGRATION_ID,
-  },
-  checkout: {
-    freeShippingThreshold: Number(process.env.FREE_SHIPPING_THRESHOLD) || 1000,
-    shippingFee: Number(process.env.SHIPPING_FEE) || 50,
-    taxRate: Number(process.env.TAX_RATE) || 0.14,
+    paymobId: process.env.PAYMOB_INTEGRATION_ID,
+    paymobApiKey: process.env.PAYMOB_API_KEY,
+    hmacSecret: process.env.PAYMOB_HMAC_SECRET,
   },
 }
 

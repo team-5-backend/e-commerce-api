@@ -2,7 +2,7 @@ export const otpHtml = (otp) => {
   return `
     <div style="font-family: Helvetica, Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; text-align: center;">
       <h2 style="color: #333;">Verification Code</h2>
-      <p style="color: #555; font-size: 16px;">Please use the following One-Time Password (OTP) to proceed. This code is valid for 10 minutes.</p>
+      <p style="color: #555; font-size: 16px;">Please use the following One-Time Password (OTP) to proceed. This code is valid for 5 minutes.</p>
       <div style="background-color: #f9f9f9; padding: 15px; margin: 20px 0; border-radius: 4px;">
         <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #000;">${otp}</span>
       </div>
@@ -10,6 +10,7 @@ export const otpHtml = (otp) => {
     </div>
   `
 }
+//////////////////////////////////////////////////////////////
 
 export const passwordOtpHtml = (otp) => `
 <!DOCTYPE html>
@@ -36,12 +37,13 @@ export const passwordOtpHtml = (otp) => `
       <p>If you didn't request a password reset, you can safely ignore this email.</p>
     </div>
     <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} YourAppName. All rights reserved.</p>
+      <p>&copy; ${new Date().getFullYear()} EcomerceBackend. All rights reserved.</p>
     </div>
   </div>
 </body>
 </html>
 `
+//////////////////////////////////////////////////////////////
 
 export const genericMessageHtml = (title, message) => `
 <!DOCTYPE html>
@@ -65,12 +67,13 @@ export const genericMessageHtml = (title, message) => `
     </div>
     <div class="footer">
       <p>If you didn't request this email, you can safely ignore it.</p>
-      <p>&copy; ${new Date().getFullYear()} YourAppName. All rights reserved.</p>
+      <p>&copy; ${new Date().getFullYear()} EcomerceBackend. All rights reserved.</p>
     </div>
   </div>
 </body>
 </html>
 `
+//////////////////////////////////////////////////////////////
 
 export const getOrderConfirmationTemplate = (order, userName) => {
   const itemsHtml = order.items
@@ -113,6 +116,7 @@ export const getOrderConfirmationTemplate = (order, userName) => {
     </div>
   `
 }
+//////////////////////////////////////////////////////////////
 
 export const getStatusEmailTemplate = (orderId, status, userName) => {
   return `

@@ -1,20 +1,27 @@
 import Joi from 'joi'
 
-import objectIdSchema from './schemas/id.schema.js'
-
 export const addCartItemSchema = Joi.object({
-  productId: objectIdSchema.required().messages({
-    'any.required': 'Product ID is required',
-  }),
-  quantity: Joi.number().integer().min(1).default(1),
+  items: Joi.array()
+    .items(
+      Joi.object({
+        productId: Joi.string().trim().hex().length(24).required().messages({
+          'string.base': 'Invalid Product ID format',
+          'string.hex': 'Invalid Product ID format',
+          'string.length': 'Invalid Product ID format',
+          'any.required': 'Product ID is required',
+        }),
+        quantity: Joi.number().integer().min(1).required(),
+      }),
+    )
+    .min(1)
+    .required(),
 })
 
-export const updateCartItemSchema = Joi.object({
-  productId: objectIdSchema.required().messages({
-    'any.required': 'Product ID is required',
-  }),
-  quantity: Joi.number().integer().min(1).required(),
-})
+/////////////////////////////////////////
+
+export const updateCartItemSchema = addCartItemSchema
+
+/////////////////////////////////////////
 
 export const applyCouponSchema = Joi.object({
   code: Joi.string()
@@ -22,8 +29,4 @@ export const applyCouponSchema = Joi.object({
     .uppercase()
     .valid('SAVE10', 'SAVE20', 'SAVE50', 'SAVE80', 'OFF50')
     .required(),
-})
-
-export const deleteCartItemParamsSchema = Joi.object({
-  productId: objectIdSchema.required(),
 })

@@ -1,29 +1,23 @@
 import { HTTP_STATUS } from '../config/constants.js'
-import { Cart } from '../models/cart.model.js'
-import { Order } from '../models/order.model.js'
-import { User } from '../models/user.model.js'
-import { Wishlist } from '../models/wishlist.model.js'
+import { asyncHandler } from '../middlewares/asyncHandler.js'
+import { Cart, Order, User, Wishlist } from '../models/index.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
-import { asyncHandler } from '../utils/asyncHandler.js'
-import { getPaginatedData } from '../utils/pagination.js'
 
-/*
-|--------------------------------------------------------------------------
-| Constants
-|--------------------------------------------------------------------------
-*/
+/////////////////////////////////////////////////////////////
 
 const REVENUE_MATCH = {
   paymentStatus: 'paid',
   status: { $nin: ['cancelled', 'returned'] },
 }
 
-/*
-|--------------------------------------------------------------------------
-| Admin Dashboard Analytics
-|--------------------------------------------------------------------------
-*/
+const getPagination = (page, limit) => {
+  const currentPage = Math.max(Number(page) || 1, 1)
+  const currentLimit = Math.min(Math.max(Number(limit) || 10, 1), 100)
+  const skip = (currentPage - 1) * currentLimit
+  return { currentPage, currentLimit, skip }
+}
 
+/////////////////////////////////////////////////////////////
 export const getAdminDashboardAnalytics = asyncHandler(async (_, res) => {
   const now = new Date()
   const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -182,70 +176,90 @@ export const getAdminDashboardAnalytics = asyncHandler(async (_, res) => {
 
   return res
     .status(HTTP_STATUS.OK)
-    .send(ApiResponse('Dashboard analytics retrieved successfully.', responseData))
+    .send(ApiResponse('Dashboard analytics retrieved successfully', responseData))
 })
 
-/*
-|--------------------------------------------------------------------------
-| Get All Active Carts
-|--------------------------------------------------------------------------
-*/
+/////////////////////////////////////////////////////////////
 
 export const getAllActiveCarts = asyncHandler(async (req, res) => {
-  const { page, limit } = req.query
-  const query = { 'items.0': { $exists: true } }
-  const populateOptions = [
-    { path: 'user', select: 'username email phone' },
-    { path: 'items.product', select: 'name price images' },
-  ]
+  const { currentPage, currentLimit, skip } = getPagination(req.query.page, req.query.limit)
 
-  const responseData = await getPaginatedData(
-    Cart,
-    query,
-    page,
-    limit,
-    { updatedAt: -1 },
-    populateOptions,
+  const [carts, totalCarts] = await Promise.all([
+    Cart.find({ 'items.0': { $exists: true } })
+      .populate('user', 'username email phone')
+      .populate('items.product', 'name price images')
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(currentLimit)
+      .lean(),
+    Cart.countDocuments({ 'items.0': { $exists: true } }),
+  ])
+
+  if (carts.length === 0 || totalCarts === 0) {
+    return res.status(HTTP_STATUS.OK).send(
+      ApiResponse('No active carts found', {
+        carts: [],
+        pagination: {
+          page: currentPage,
+          limit: currentLimit,
+          totalCarts: 0,
+          totalPages: 0,
+        },
+      }),
+    )
+  }
+
+  return res.status(HTTP_STATUS.OK).send(
+    ApiResponse('Active carts retrieved successfully', {
+      carts,
+      pagination: {
+        page: currentPage,
+        limit: currentLimit,
+        totalCarts,
+        totalPages: Math.ceil(totalCarts / currentLimit),
+      },
+    }),
   )
-
-  return res
-    .status(HTTP_STATUS.OK)
-    .send(ApiResponse('Active carts retrieved successfully.', responseData))
 })
 
-/*
-|--------------------------------------------------------------------------
-| Get All User Wishlists
-|--------------------------------------------------------------------------
-*/
+/////////////////////////////////////////////////////////////
 
 export const getAllUserWishlists = asyncHandler(async (req, res) => {
-  const { page, limit } = req.query
-  const query = { 'products.0': { $exists: true } }
-  const populateOptions = [
-    { path: 'user', select: 'username email' },
-    { path: 'products', select: 'name price images isActive' },
-  ]
+  const { currentPage, currentLimit, skip } = getPagination(req.query.page, req.query.limit)
 
-  const responseData = await getPaginatedData(
-    Wishlist,
-    query,
-    page,
-    limit,
-    { updatedAt: -1 },
-    populateOptions,
+  const [wishlists, totalWishlists] = await Promise.all([
+    Wishlist.find({ 'products.0': { $exists: true } })
+      .populate('user', 'username email')
+      .populate('products', 'name price images isActive')
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(currentLimit)
+      .lean(),
+    Wishlist.countDocuments({ 'products.0': { $exists: true } }),
+  ])
+
+  if (wishlists.length === 0) {
+    return res.status(HTTP_STATUS.OK).send(
+      ApiResponse('No wishlists found', {
+        wishlists: [],
+        pagination: { page: currentPage, limit: currentLimit, totalWishlists: 0, totalPages: 0 },
+      }),
+    )
+  }
+  return res.status(HTTP_STATUS.OK).send(
+    ApiResponse('User wishlists retrieved successfully', {
+      wishlists,
+      pagination: {
+        page: currentPage,
+        limit: currentLimit,
+        totalWishlists,
+        totalPages: Math.ceil(totalWishlists / currentLimit),
+      },
+    }),
   )
-
-  return res
-    .status(HTTP_STATUS.OK)
-    .send(ApiResponse('User wishlists retrieved successfully.', responseData))
 })
 
-/*
-|--------------------------------------------------------------------------
-| Get Top Wishlisted Products
-|--------------------------------------------------------------------------
-*/
+/////////////////////////////////////////////////////////////
 
 export const getTopWishlistedProducts = asyncHandler(async (_, res) => {
   const topWishlisted = await Wishlist.aggregate([
@@ -283,7 +297,13 @@ export const getTopWishlistedProducts = asyncHandler(async (_, res) => {
     },
   ])
 
+  if (topWishlisted.length === 0) {
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(ApiResponse('No top wishlisted products found', { topWishlisted: [] }))
+  }
+
   return res
     .status(HTTP_STATUS.OK)
-    .send(ApiResponse('Top wishlisted products retrieved successfully.', topWishlisted))
+    .send(ApiResponse('Top wishlisted products retrieved successfully', { topWishlisted }))
 })

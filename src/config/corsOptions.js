@@ -4,10 +4,7 @@ import { HTTP_STATUS } from './constants.js'
 import environment from './environment.js'
 
 const allowedOrigins = new Set(
-  environment.allowedOrigins
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean),
+  environment.allowedOrigins.map((origin) => origin.trim()).filter(Boolean),
 )
 
 const corsOptions = Object.freeze({

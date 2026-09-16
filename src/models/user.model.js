@@ -38,13 +38,12 @@ const userSchema = new mongoose.Schema(
       },
     },
 
-    phone: {
-      type: phoneSchema,
-    },
+    phone: phoneSchema,
 
     avatar: {
       type: String,
       default: 'https://i.pinimg.com/736x/f5/47/d8/f547d800625af9056d62efe8969aeea0.jpg',
+      trim: true,
     },
 
     role: {
@@ -82,13 +81,20 @@ const userSchema = new mongoose.Schema(
   MODEL_OPTIONS,
 )
 
+/////////////////////////////////////////////////////////////////////
+
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return
-  this.password = await bcrypt.hash(this.password, 12)
+  const salt = await bcrypt.genSalt(12)
+  this.password = await bcrypt.hash(this.password, salt)
 })
+
+/////////////////////////////////////////////////////////////////////
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password)
 }
+
+/////////////////////////////////////////////////////////////////////
 
 export const User = mongoose.models.User || mongoose.model('User', userSchema)

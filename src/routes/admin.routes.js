@@ -9,15 +9,24 @@ import {
 import { authenticate, authorize } from '../middlewares/auth.middleware.js'
 import { cache } from '../middlewares/cache.middleware.js'
 
-const router = express.Router()
+/////////////////////////////////////////////////////////////////////
 
+const router = express.Router()
 router.use(authenticate)
 router.use(authorize('admin'))
 
-// GET
+/////////////////////////////////////////////////////////////////////
+
+// http://localhost:5000/api/v1/admin/dashboard
 router.get('/dashboard', cache(), getAdminDashboardAnalytics)
+
+// http://localhost:5000/api/v1/admin/carts
 router.get('/carts', getAllActiveCarts)
+
+// http://localhost:5000/api/v1/admin/wishlists
 router.get('/wishlists', getAllUserWishlists)
-router.get('/wishlists/top', cache(), getTopWishlistedProducts)
+
+// http://localhost:5000/api/v1/admin/wishlists/stats
+router.get('/wishlists/stats', cache(), getTopWishlistedProducts)
 
 export default router

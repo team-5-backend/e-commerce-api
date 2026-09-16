@@ -1,7 +1,6 @@
 import Joi from 'joi'
 
 import emailFieldSchema from './schemas/email.schema.js'
-import objectIdSchema from './schemas/id.schema.js'
 import otpFieldSchema from './schemas/otp.schema.js'
 import passwordSchema from './schemas/password.schema.js'
 import { createUserSchema } from './user.validation.js'
@@ -37,20 +36,20 @@ export const verifyRegisterOtpSchema = verifyOtpSchema
 
 ////////////////////////////////////////////////////////////////////////
 
-export const resetPasswordSchema = Joi.object({
+export const forgotPasswordSchema = Joi.object({
   email: emailFieldSchema,
-})
+}).unknown(false)
 
 ////////////////////////////////////////////////////////////////////////
 
-export const verifyResetPasswordOtpSchema = verifyOtpSchema.keys({
+export const verifyForgotPasswordOtpSchema = verifyOtpSchema.keys({
   newPassword: passwordSchema,
 })
 
 ////////////////////////////////////////////////////////////////////////
 
 export const deleteSessionParamsSchema = Joi.object({
-  sessionId: Joi.string().guid({ version: 'uuidv4' }).required().messages({
+  sessionId: Joi.string().trim().guid({ version: 'uuidv4' }).required().messages({
     'string.guid': 'Session ID must be a valid UUID.',
     'any.required': 'Session ID is required.',
   }),
@@ -59,18 +58,16 @@ export const deleteSessionParamsSchema = Joi.object({
 ////////////////////////////////////////////////////////////////////////
 
 export const generateTokenSchema = Joi.object({
-  userId: objectIdSchema.required().messages({
-    'any.required': 'User ID is required',
-  }),
-  userRole: Joi.string().required(),
-  ip: Joi.string().allow(null, '').optional(),
-  userAgent: Joi.string().allow(null, '').optional(),
+  userId: Joi.string().trim(),
+  userRole: Joi.string().trim().required(),
+  ip: Joi.string().trim().allow(null, '').optional(),
+  userAgent: Joi.string().trim().allow(null, '').optional(),
 })
 
 ////////////////////////////////////////////////////////////////////////
 
 export const refreshTokenSchema = Joi.object({
-  incomingRefreshToken: Joi.string().required(),
-  currentIp: Joi.string().allow(null, '').optional(),
-  currentUserAgent: Joi.string().allow(null, '').optional(),
+  incomingRefreshToken: Joi.string().trim().required(),
+  currentIp: Joi.string().trim().allow(null, ''),
+  currentUserAgent: Joi.string().trim().allow(null, ''),
 })

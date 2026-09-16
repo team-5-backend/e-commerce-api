@@ -3,6 +3,8 @@ import { createClient } from 'redis'
 import environment from '../config/environment.js'
 import logger from '../utils/logger.js'
 
+/////////////////////////////////////////////////////////////////////
+
 const redisClient = createClient({
   url: environment.redisUrl,
   socket: {
@@ -20,14 +22,15 @@ redisClient.on('error', (error) => {
 
   logger.error({ message: 'Redis connection error', error })
 })
-
 redisClient.on('connect', () => {
-  logger.info('Redis connected successfully.')
+  logger.info('Redis connected successfully')
 })
 
 redisClient.on('end', () => {
   logger.warn('Redis connection lost. Client will attempt to auto-reconnect...')
 })
+
+/////////////////////////////////////////////////////////////////////
 
 export const connectRedis = async () => {
   if (redisClient.isOpen) {
@@ -41,6 +44,8 @@ export const connectRedis = async () => {
     process.exit(1)
   }
 }
+
+/////////////////////////////////////////////////////////////////////
 
 export const disconnectRedis = async () => {
   if (!redisClient.isOpen) {

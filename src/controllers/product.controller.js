@@ -1,22 +1,19 @@
 import mongoose from 'mongoose'
 
 import { HTTP_STATUS } from '../config/constants.js'
+import { asyncHandler } from '../middlewares/asyncHandler.js'
 import { Product } from '../models/product.model.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { AppError } from '../utils/appError.js'
-import { asyncHandler } from '../utils/asyncHandler.js'
 import { deleteImages, uploadImages } from '../utils/cloudinary.js'
 import logger from '../utils/logger.js'
-import { getPaginatedData } from '../utils/pagination.js'
 
-/*
-|--------------------------------------------------------------------------
-| Helpers
-|--------------------------------------------------------------------------
-*/
+///////////////////////////////////////////////////////////////
 
 const PUBLIC_PRODUCT_FIELDS =
   'name slug shortDescription description price discountPrice stock sku images category subcategory brand tags averageRating numReviews featured isActive createdAt updatedAt'
+
+const getUserId = (req) => req.user?.id || req.user?._id
 
 const validateObjectId = (id) => {
   if (!mongoose.isValidObjectId(id)) {
@@ -32,9 +29,7 @@ const normalizeDeleteImageIds = (value) => {
   try {
     const parsed = JSON.parse(value)
     if (Array.isArray(parsed)) return parsed.filter(Boolean)
-  } catch {
-    // Continue with comma-separated values
-  }
+  } catch {}
 
   return value
     .split(',')
@@ -42,16 +37,12 @@ const normalizeDeleteImageIds = (value) => {
     .filter(Boolean)
 }
 
-/*
-|--------------------------------------------------------------------------
-| Get Active Products
-|--------------------------------------------------------------------------
-*/
-
+////////////////////////////////////////////////////////////////////////
 export const getActiveProducts = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, category, brand, minPrice, maxPrice, sort = 'newest' } = req.query
 
   const query = { isActive: true }
+
   if (category) query.category = category
   if (brand) query.brand = brand
 
@@ -61,6 +52,9 @@ export const getActiveProducts = asyncHandler(async (req, res) => {
     if (maxPrice !== undefined) query.price.$lte = Number(maxPrice)
   }
 
+  const skip = (Number(page) - 1) * Number(limit)
+  const parsedLimit = Number(limit)
+
   const sortOptions = {
     newest: { createdAt: -1, _id: -1 },
     'price-asc': { price: 1, _id: 1 },
@@ -68,28 +62,37 @@ export const getActiveProducts = asyncHandler(async (req, res) => {
     rating: { averageRating: -1, _id: -1 },
   }
 
-  const responseData = await getPaginatedData(
-    Product,
-    query,
-    page,
-    limit,
-    sortOptions[sort] || sortOptions.newest,
-    [],
-    PUBLIC_PRODUCT_FIELDS,
+  const [products, total] = await Promise.all([
+    Product.find(query)
+      .select(PUBLIC_PRODUCT_FIELDS)
+      // oxlint-disable-next-line unicorn/no-array-sort
+      .sort(sortOptions[sort] || sortOptions.newest)
+      .skip(skip)
+      .limit(parsedLimit)
+      .lean()
+      .exec(),
+    Product.countDocuments(query).exec(),
+  ])
+  if (!products || products.length === 0) {
+    throw new AppError('No products match your search criteria.', HTTP_STATUS.NOT_FOUND)
+  }
+  res.status(HTTP_STATUS.OK).send(
+    ApiResponse('Products retrieved successfully.', {
+      data: products,
+      pagination: {
+        page: Number(page),
+        limit: parsedLimit,
+        total,
+        pages: Math.ceil(total / parsedLimit),
+      },
+    }),
   )
-
-  res.status(HTTP_STATUS.OK).send(ApiResponse('Products retrieved successfully.', responseData))
 })
 
-/*
-|--------------------------------------------------------------------------
-| Search Products
-|--------------------------------------------------------------------------
-*/
-
+////////////////////////////////////////////////////////////////////////
 export const searchProducts = asyncHandler(async (req, res) => {
   const {
-    query,
+    q,
     page = 1,
     limit = 10,
     category,
@@ -100,15 +103,18 @@ export const searchProducts = asyncHandler(async (req, res) => {
     maxPrice,
   } = req.query
 
-  const q = { isActive: true }
+  const query = { isActive: true }
 
-  if (query) q.$text = { $search: query }
-  if (category) q.category = category
-  if (subcategory) q.subcategory = subcategory
-  if (brand) q.brand = brand
+  if (q) {
+    query.$text = { $search: q }
+  }
+
+  if (category) query.category = category
+  if (subcategory) query.subcategory = subcategory
+  if (brand) query.brand = brand
 
   if (tags) {
-    q.tags = {
+    query.tags = {
       $in: tags
         .split(',')
         .map((tag) => tag.trim().toLowerCase())
@@ -117,32 +123,45 @@ export const searchProducts = asyncHandler(async (req, res) => {
   }
 
   if (minPrice !== undefined || maxPrice !== undefined) {
-    q.price = {}
-    if (minPrice !== undefined) q.price.$gte = Number(minPrice)
-    if (maxPrice !== undefined) q.price.$lte = Number(maxPrice)
+    query.price = {}
+    if (minPrice !== undefined) query.price.$gte = Number(minPrice)
+    if (maxPrice !== undefined) query.price.$lte = Number(maxPrice)
   }
 
-  const sort = query ? { score: { $meta: 'textScore' }, _id: 1 } : { createdAt: -1, _id: -1 }
+  const skip = (Number(page) - 1) * Number(limit)
+  const parsedLimit = Number(limit)
 
-  const responseData = await getPaginatedData(
-    Product,
-    q,
-    page,
-    limit,
-    sort,
-    [],
-    PUBLIC_PRODUCT_FIELDS,
+  const sort = q ? { score: { $meta: 'textScore' }, _id: 1 } : { createdAt: -1, _id: -1 }
+
+  const [products, total] = await Promise.all([
+    Product.find(query)
+      .select(PUBLIC_PRODUCT_FIELDS)
+      // oxlint-disable-next-line unicorn/no-array-sort
+      .sort(sort)
+      .skip(skip)
+      .limit(parsedLimit)
+      .lean()
+      .exec(),
+    Product.countDocuments(query).exec(),
+  ])
+  if (!products || products.length === 0) {
+    throw new AppError('No products match your search criteria.', HTTP_STATUS.NOT_FOUND)
+  }
+
+  res.status(HTTP_STATUS.OK).send(
+    ApiResponse('Products searched successfully.', {
+      data: products,
+      pagination: {
+        page: Number(page),
+        limit: parsedLimit,
+        total,
+        pages: Math.ceil(total / parsedLimit),
+      },
+    }),
   )
-
-  res.status(HTTP_STATUS.OK).send(ApiResponse('Products searched successfully.', responseData))
 })
 
-/*
-|--------------------------------------------------------------------------
-| Get Product by Id
-|--------------------------------------------------------------------------
-*/
-
+////////////////////////////////////////////////////////////////////////
 export const getProductById = asyncHandler(async (req, res) => {
   const { id } = req.params
   validateObjectId(id)
@@ -153,43 +172,44 @@ export const getProductById = asyncHandler(async (req, res) => {
     .exec()
 
   if (!product) {
-    throw new AppError('Product not found.', HTTP_STATUS.NOT_FOUND)
+    throw new AppError('Product not found', HTTP_STATUS.NOT_FOUND)
   }
 
   res.status(HTTP_STATUS.OK).send(ApiResponse('Product retrieved successfully.', product))
 })
 
-/*
-|--------------------------------------------------------------------------
-| Create Product
-|--------------------------------------------------------------------------
-*/
-
+////////////////////////////////////////////////////////////////////////
 export const createProduct = asyncHandler(async (req, res) => {
-  const userId = req.user._id
+  const userId = getUserId(req)
   if (!userId) {
     throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED)
   }
 
-  if (!req.files || req.files.length === 0) {
-    throw new AppError('At least one product image is required.', HTTP_STATUS.BAD_REQUEST)
-  }
-
+  let images = []
   let uploadedImages = []
-  try {
-    uploadedImages = await uploadImages(
-      req.files.map((file) => file.buffer),
-      'products',
-    )
 
-    if (!uploadedImages?.length) {
-      throw new AppError('Failed to upload product images.', HTTP_STATUS.INTERNAL_ERROR)
+  try {
+    if (req.files && req.files.length > 0) {
+      uploadedImages = await uploadImages(
+        req.files.map((file) => file.buffer),
+        'products',
+      )
+
+      if (!uploadedImages?.length) {
+        throw new AppError('Failed to upload product images', HTTP_STATUS.INTERNAL_ERROR)
+      }
+
+      images = uploadedImages.map((image) => ({
+        public_id: image.publicId,
+        url: image.url,
+      }))
+    } else if (req.body.images && Array.isArray(req.body.images)) {
+      images = req.body.images
     }
 
-    const images = uploadedImages.map((image) => ({
-      public_id: image.publicId,
-      url: image.url,
-    }))
+    if (images.length === 0) {
+      throw new AppError('At least one product image is required', HTTP_STATUS.BAD_REQUEST)
+    }
 
     const product = await Product.create({
       ...req.body,
@@ -197,7 +217,7 @@ export const createProduct = asyncHandler(async (req, res) => {
       createdBy: userId,
     })
 
-    res.status(HTTP_STATUS.CREATED).send(ApiResponse('Product created successfully.', product))
+    res.status(HTTP_STATUS.CREATED).send(ApiResponse('Product created successfully', product))
   } catch (error) {
     if (uploadedImages.length > 0) {
       await deleteImages(uploadedImages.map((image) => image.publicId)).catch((cleanupError) => {
@@ -207,31 +227,25 @@ export const createProduct = asyncHandler(async (req, res) => {
         })
       })
     }
-    throw error instanceof AppError
-      ? error
-      : new AppError(error.message || 'Something went wrong', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    throw error
   }
 })
 
-/*
-|--------------------------------------------------------------------------
-| Update Product
-|--------------------------------------------------------------------------
-*/
-
+////////////////////////////////////////////////////////////////////////
 export const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params
   validateObjectId(id)
 
   const product = await Product.findById(id).exec()
   if (!product) {
-    throw new AppError('Product not found.', HTTP_STATUS.NOT_FOUND)
+    throw new AppError('Product not found', HTTP_STATUS.NOT_FOUND)
   }
 
   const { deleteImageIds, ...updates } = req.body
   const imageIdsToDelete = normalizeDeleteImageIds(deleteImageIds)
 
   const existingImageIds = new Set(product.images.map((image) => image.public_id))
+
   const invalidImageIds = imageIdsToDelete.filter((imageId) => !existingImageIds.has(imageId))
 
   if (invalidImageIds.length > 0) {
@@ -268,6 +282,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
     }))
 
     product.images = product.images.filter((image) => !imageIdsToDelete.includes(image.public_id))
+
     product.images.push(...newImages)
     Object.assign(product, updates)
 
@@ -284,7 +299,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
       })
     }
 
-    res.status(HTTP_STATUS.OK).send(ApiResponse('Product updated successfully.', product))
+    res.status(HTTP_STATUS.OK).send(ApiResponse('Product updated successfully', product))
   } catch (error) {
     if (uploadedImages.length > 0) {
       await deleteImages(uploadedImages.map((image) => image.publicId)).catch((cleanupError) => {
@@ -294,18 +309,11 @@ export const updateProduct = asyncHandler(async (req, res) => {
         })
       })
     }
-    throw error instanceof AppError
-      ? error
-      : new AppError(error.message || 'Something went wrong', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    throw error
   }
 })
 
-/*
-|--------------------------------------------------------------------------
-| Delete Product
-|--------------------------------------------------------------------------
-*/
-
+////////////////////////////////////////////////////////////////////////
 export const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = req.params
   validateObjectId(id)
@@ -329,18 +337,13 @@ export const deleteProduct = asyncHandler(async (req, res) => {
     })
   }
 
-  res.status(HTTP_STATUS.OK).send(ApiResponse('Product deleted successfully.'))
+  res.status(HTTP_STATUS.OK).send(ApiResponse('Product deleted successfully'))
 })
 
-/*
-|--------------------------------------------------------------------------
-| Add Review
-|--------------------------------------------------------------------------
-*/
-
+////////////////////////////////////////////////////////////////////////
 export const addReview = asyncHandler(async (req, res) => {
   const { id } = req.params
-  const userId = req.user._id
+  const userId = getUserId(req)
   validateObjectId(id)
 
   if (!userId) {
@@ -372,7 +375,7 @@ export const addReview = asyncHandler(async (req, res) => {
   const review = product.reviews[product.reviews.length - 1]
 
   res.status(HTTP_STATUS.CREATED).send(
-    ApiResponse('Review added successfully.', {
+    ApiResponse('Review added successfully', {
       review,
       averageRating: product.averageRating,
       numReviews: product.numReviews,
@@ -380,15 +383,10 @@ export const addReview = asyncHandler(async (req, res) => {
   )
 })
 
-/*
-|--------------------------------------------------------------------------
-| Delete Review
-|--------------------------------------------------------------------------
-*/
-
+////////////////////////////////////////////////////////////////////////
 export const deleteReview = asyncHandler(async (req, res) => {
   const { id, reviewId } = req.params
-  const userId = req.user._id
+  const userId = getUserId(req)
 
   validateObjectId(id)
   validateObjectId(reviewId)
@@ -419,19 +417,14 @@ export const deleteReview = asyncHandler(async (req, res) => {
   await product.save()
 
   res.status(HTTP_STATUS.OK).send(
-    ApiResponse('Review deleted successfully.', {
+    ApiResponse('Review deleted successfully', {
       averageRating: product.averageRating,
       numReviews: product.numReviews,
     }),
   )
 })
 
-/*
-|--------------------------------------------------------------------------
-| Get Reviews
-|--------------------------------------------------------------------------
-*/
-
+////////////////////////////////////////////////////////////////////////
 export const getReviews = asyncHandler(async (req, res) => {
   const { id } = req.params
   const { page = 1, limit = 10 } = req.query
@@ -455,8 +448,12 @@ export const getReviews = asyncHandler(async (req, res) => {
 
   const total = product.numReviews || 0
 
+  if (!product.reviews || product.reviews.length === 0) {
+    throw new AppError('No reviews found for this product.', HTTP_STATUS.NOT_FOUND)
+  }
+
   res.status(HTTP_STATUS.OK).send(
-    ApiResponse('Reviews retrieved successfully.', {
+    ApiResponse('Reviews retrieved successfully', {
       data: product.reviews,
       pagination: {
         page: Number(page),
