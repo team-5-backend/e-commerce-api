@@ -44,6 +44,11 @@ const environment = {
     paymobApiKey: process.env.PAYMOB_API_KEY,
     hmacSecret: process.env.PAYMOB_HMAC_SECRET,
   },
+  checkout: {
+    freeShippingThreshold: parseInt(process.env.FREE_SHIPPING_THRESHOLD, 10) || 1000,
+    shippingFee: parseInt(process.env.SHIPPING_FEE, 10) || 50,
+    taxRate: parseFloat(process.env.TAX_RATE) || 0.14,
+  },
 }
 
 environment.isProduction = environment.nodeEnv === 'production'

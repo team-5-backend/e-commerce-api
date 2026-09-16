@@ -18,10 +18,6 @@ import { sendEmail } from '../utils/sendEmail.js'
 
 const stripe = environment?.stripe?.secretKey ? new Stripe(environment.stripe.secretKey) : null
 
-const FREE_SHIPPING_THRESHOLD = 1000
-const SHIPPING_FEE = 50
-const TAX_RATE = 0.14
-
 const getPagination = async (model, query = {}, page, limit) => {
   const currentPage = Math.max(Number(page) || 1, 1)
   const currentLimit = Math.min(Math.max(Number(limit) || 10, 1), 100)
@@ -46,8 +42,9 @@ const calculateOrderTotals = (cart) => {
     (total, item) => total + (item.price || 0) * (item.quantity || 0),
     0,
   )
-  const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE
-  const tax = Number((subtotal * TAX_RATE).toFixed(2))
+  const shippingFee =
+    subtotal >= environment.checkout.freeShippingThreshold ? 0 : environment.checkout.shippingFee
+  const tax = Number((subtotal * environment.checkout.taxRate).toFixed(2))
   const discount = Number((cart.discountAmount || 0).toFixed(2))
   const totalPrice = Number((subtotal + shippingFee + tax - discount).toFixed(2))
   return { subtotal: Number(subtotal.toFixed(2)), shippingFee, tax, discount, totalPrice }
