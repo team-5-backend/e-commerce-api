@@ -1,3 +1,5 @@
+import path from 'path'
+
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
@@ -12,6 +14,8 @@ import notFoundHandler from './middlewares/notFoundHandler.js'
 import router from './routes/index.js'
 
 //////////////////////////////////////////////////////
+
+const app = express()
 
 // Logging
 app.use(morganMiddleware)
@@ -30,6 +34,10 @@ app.use(cookieParser())
 // Body Parsing
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
+
+// View Engine
+app.set('view engine', 'ejs')
+app.set('views', path.join(process.cwd(), 'src', 'views'))
 
 // Routes
 app.use('/api/v1', router)

@@ -7,7 +7,7 @@ import logger from './src/utils/logger.js'
 ///////////////////////////////////////////////////////////////////////////
 
 process.on('uncaughtException', (error) => {
-  logger.error({ message: 'UNCAUGHT EXCEPTION! 💥 Shutting down...', error })
+  logger.error({ message: 'UNCAUGHT EXCEPTION! Shutting down...', error })
   process.exit(1)
 })
 
@@ -19,7 +19,7 @@ await connectRedis()
 ///////////////////////////////////////////////////////////////////////////
 
 const server = app.listen(environment.port, () => {
-  logger.info(`  Server running at http://${environment.host}:${environment.port}`)
+  logger.info(`Server running at http://${environment.host}:${environment.port}`)
 })
 
 server.on('error', (error) => {
@@ -64,6 +64,6 @@ process.on('SIGUSR2', () => shutdown('SIGUSR2'))
 ///////////////////////////////////////////////////////////////////////////
 
 process.on('unhandledRejection', (error) => {
-  logger.error({ message: 'UNHANDLED REJECTION! 💥 Shutting down...', error })
+  logger.error({ message: 'UNHANDLED REJECTION! Shutting down...', error })
   shutdown('unhandledRejection')
 })
