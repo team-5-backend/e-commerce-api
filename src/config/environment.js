@@ -35,13 +35,13 @@ const environment = {
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   },
   paypal: {
-    clientId: process.env.PAYPAL_CLIENT_ID,
     clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+    clientId: process.env.PAYPAL_CLIENT_ID,
     webhookId: process.env.PAYPAL_WEBHOOK_ID,
   },
   paymob: {
-    paymobId: process.env.PAYMOB_INTEGRATION_ID,
     paymobApiKey: process.env.PAYMOB_API_KEY,
+    paymobId: process.env.PAYMOB_INTEGRATION_ID,
     hmacSecret: process.env.PAYMOB_HMAC_SECRET,
   },
   checkout: {

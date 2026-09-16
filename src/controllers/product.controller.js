@@ -38,6 +38,7 @@ const normalizeDeleteImageIds = (value) => {
 }
 
 ////////////////////////////////////////////////////////////////////////
+
 export const getActiveProducts = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, category, brand, minPrice, maxPrice, sort = 'newest' } = req.query
 
@@ -78,7 +79,7 @@ export const getActiveProducts = asyncHandler(async (req, res) => {
   }
   res.status(HTTP_STATUS.OK).send(
     ApiResponse('Products retrieved successfully.', {
-      data: products,
+      products,
       pagination: {
         page: Number(page),
         limit: parsedLimit,
@@ -90,6 +91,7 @@ export const getActiveProducts = asyncHandler(async (req, res) => {
 })
 
 ////////////////////////////////////////////////////////////////////////
+
 export const searchProducts = asyncHandler(async (req, res) => {
   const {
     q,
@@ -150,7 +152,7 @@ export const searchProducts = asyncHandler(async (req, res) => {
 
   res.status(HTTP_STATUS.OK).send(
     ApiResponse('Products searched successfully.', {
-      data: products,
+      products,
       pagination: {
         page: Number(page),
         limit: parsedLimit,
@@ -162,6 +164,7 @@ export const searchProducts = asyncHandler(async (req, res) => {
 })
 
 ////////////////////////////////////////////////////////////////////////
+
 export const getProductById = asyncHandler(async (req, res) => {
   const { id } = req.params
   validateObjectId(id)
@@ -179,6 +182,7 @@ export const getProductById = asyncHandler(async (req, res) => {
 })
 
 ////////////////////////////////////////////////////////////////////////
+
 export const createProduct = asyncHandler(async (req, res) => {
   const userId = getUserId(req)
   if (!userId) {
@@ -232,6 +236,7 @@ export const createProduct = asyncHandler(async (req, res) => {
 })
 
 ////////////////////////////////////////////////////////////////////////
+
 export const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params
   validateObjectId(id)
@@ -314,6 +319,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
 })
 
 ////////////////////////////////////////////////////////////////////////
+
 export const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = req.params
   validateObjectId(id)
@@ -341,6 +347,7 @@ export const deleteProduct = asyncHandler(async (req, res) => {
 })
 
 ////////////////////////////////////////////////////////////////////////
+
 export const addReview = asyncHandler(async (req, res) => {
   const { id } = req.params
   const userId = getUserId(req)
@@ -384,6 +391,7 @@ export const addReview = asyncHandler(async (req, res) => {
 })
 
 ////////////////////////////////////////////////////////////////////////
+
 export const deleteReview = asyncHandler(async (req, res) => {
   const { id, reviewId } = req.params
   const userId = getUserId(req)
@@ -425,6 +433,7 @@ export const deleteReview = asyncHandler(async (req, res) => {
 })
 
 ////////////////////////////////////////////////////////////////////////
+
 export const getReviews = asyncHandler(async (req, res) => {
   const { id } = req.params
   const { page = 1, limit = 10 } = req.query
@@ -454,7 +463,7 @@ export const getReviews = asyncHandler(async (req, res) => {
 
   res.status(HTTP_STATUS.OK).send(
     ApiResponse('Reviews retrieved successfully', {
-      data: product.reviews,
+      reviews: product.reviews,
       pagination: {
         page: Number(page),
         limit: parsedLimit,

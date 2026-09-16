@@ -113,7 +113,7 @@ Example response:
   "success": true,
   "message": "Products retrieved successfully.",
   "data": {
-    "data": [
+    "products": [
       {
         "_id": "67d5e2b3d9a711c43b1d9a4d",
         "name": "Wireless Headphones",
@@ -151,32 +151,59 @@ Example response:
 
 ## Endpoint reference
 
-### Authentication
+All paths below are relative to `/api/v1`. Every JSON response uses the common envelope
+`{ "success": true, "message": "...", "data": ... }` unless noted otherwise. MongoDB IDs
+are 24-character hexadecimal strings.
 
-| Method   | Path                              | Description                                             | Auth              |
-| -------- | --------------------------------- | ------------------------------------------------------- | ----------------- |
-| `POST`   | `/auth/login`                     | Sign in and return an access token                      | No                |
-| `POST`   | `/auth/register/send-otp`         | Send registration OTP to an email                       | No                |
-| `POST`   | `/auth/verify-otp`                | Verify registration OTP and create the account          | No                |
-| `POST`   | `/auth/forgotpassword/send-otp`   | Send reset-password OTP                                 | No                |
-| `POST`   | `/auth/forgotpassword/verify-otp` | Reset the password after OTP verification               | No                |
-| `POST`   | `/auth/logout`                    | Revoke the current session and clear the refresh cookie | Yes               |
-| `POST`   | `/auth/logout-all`                | Revoke all sessions for the current user                | Yes               |
-| `POST`   | `/auth/refresh`                   | Exchange the refresh cookie for a new access token      | No (cookie-based) |
-| `GET`    | `/auth/sessions`                  | List active sessions for the current user               | Yes               |
-| `GET`    | `/auth/me`                        | Get the current user profile                            | Yes               |
-| `DELETE` | `/auth/sessions/:sessionId`       | Revoke one user session                                 | Yes               |
+### Health
 
-Request body for login:
+#### `GET /health`
+
+No authentication or parameters.
+
+Response `200`:
 
 ```json
 {
-  "email": "customer@example.com",
-  "password": "Password123!"
+  "status": "OK",
+  "timestamp": "2026-09-16T19:00:00.000Z"
 }
 ```
 
-Request body for registration OTP:
+### Authentication
+
+#### `POST /auth/login`
+
+Authentication: none. Sets the HTTP-only `refreshToken` cookie.
+
+Body:
+
+| Field      | Type   | Required | Description   |
+| ---------- | ------ | -------: | ------------- |
+| `email`    | string |      Yes | User email    |
+| `password` | string |      Yes | User password |
+
+```json
+{ "email": "customer@example.com", "password": "Password123!" }
+```
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Logged in successfully.",
+  "data": { "accessToken": "<JWT_ACCESS_TOKEN>" }
+}
+```
+
+#### `POST /auth/register/send-otp`
+
+Authentication: none. Sends a registration OTP by email.
+
+Body: `username` (string, required), `email` (string, required), `password` (string, required),
+`phone` (string, required), optional `role` (`admin` or `customer`, default `customer`),
+optional `addresses` (object), and optional `isVerified` (boolean).
 
 ```json
 {
@@ -188,132 +215,721 @@ Request body for registration OTP:
 }
 ```
 
-### Products
-
-| Method   | Path                              | Description                                        | Auth          |
-| -------- | --------------------------------- | -------------------------------------------------- | ------------- |
-| `GET`    | `/products/search`                | Search active products                             | No            |
-| `GET`    | `/products`                       | List active products with filtering and pagination | No            |
-| `GET`    | `/products/:id`                   | Get a single active product by ID                  | No            |
-| `GET`    | `/products/:id/reviews`           | List reviews on a product                          | No            |
-| `POST`   | `/products`                       | Create a product                                   | Admin         |
-| `PATCH`  | `/products/:id`                   | Update a product                                   | Admin         |
-| `DELETE` | `/products/:id`                   | Delete a product                                   | Admin         |
-| `POST`   | `/products/:id/reviews`           | Add a customer review                              | Authenticated |
-| `DELETE` | `/products/:id/reviews/:reviewId` | Delete a product review                            | Authenticated |
-
-Allowed query parameters for `GET /products`:
-
-| Name       | Type    | Required | Description                                      |
-| ---------- | ------- | -------- | ------------------------------------------------ |
-| `page`     | integer | No       | Page number, default `1`                         |
-| `limit`    | integer | No       | Results per page, default `10`, max `100`        |
-| `category` | string  | No       | Product category                                 |
-| `brand`    | string  | No       | Brand filter                                     |
-| `minPrice` | number  | No       | Minimum price                                    |
-| `maxPrice` | number  | No       | Maximum price                                    |
-| `sort`     | string  | No       | `price-asc`, `price-desc`, `rating`, or `newest` |
-
-Example product creation request:
+Response `200`:
 
 ```json
 {
-  "name": "Wireless Headphones",
-  "shortDescription": "Noise cancelling bluetooth headphones",
-  "description": "Premium wireless headphones with a 30-hour battery life.",
-  "price": 129.99,
-  "discountPrice": 99.99,
-  "stock": 25,
-  "sku": "WH-2201",
-  "category": "electronics",
-  "subcategory": "audio",
-  "brand": "AudioMax",
-  "tags": ["bluetooth", "audio", "wireless"],
-  "featured": true,
-  "isActive": true,
-  "images": [
+  "success": true,
+  "message": "otp sent successfully."
+}
+```
+
+#### `POST /auth/verify-otp`
+
+Authentication: none. Verifies the registration OTP, creates the account, and sets
+`refreshToken`.
+
+Body: `email` (string, required) and `otp` (string, required).
+
+```json
+{ "email": "jane@example.com", "otp": "123456" }
+```
+
+Response `201`:
+
+```json
+{
+  "success": true,
+  "message": "Account created successfully.",
+  "data": {
+    "accessToken": "<JWT_ACCESS_TOKEN>",
+    "_id": "67a8a6f4a1b23d441b1dd1d0",
+    "username": "jane doe",
+    "email": "jane@example.com"
+  }
+}
+```
+
+#### `POST /auth/forgotpassword/send-otp`
+
+Authentication: none. Sends a password-reset OTP when the email exists.
+
+Body: `email` (string, required).
+
+```json
+{ "email": "jane@example.com" }
+```
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "If an account exists, a password reset code has been sent to the email address provided."
+}
+```
+
+#### `POST /auth/forgotpassword/verify-otp`
+
+Authentication: none. Resets the password, revokes prior sessions, and sets a new
+`refreshToken`.
+
+Body: `email` (string, required), `otp` (string, required), and `newPassword` (string, required).
+
+```json
+{
+  "email": "jane@example.com",
+  "otp": "123456",
+  "newPassword": "NewPassword123!"
+}
+```
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Password reset successfully.",
+  "data": {
+    "_id": "67a8a6f4a1b23d441b1dd1d0",
+    "username": "jane doe",
+    "email": "jane@example.com",
+    "accessToken": "<JWT_ACCESS_TOKEN>"
+  }
+}
+```
+
+#### `POST /auth/logout`
+
+Authentication: bearer access token or refresh cookie. No body or query parameters.
+
+Response `200`:
+
+```json
+{ "success": true, "message": "Logged out successfully." }
+```
+
+#### `POST /auth/logout-all`
+
+Authentication: bearer access token or refresh cookie. No body or query parameters.
+
+Response `200`:
+
+```json
+{ "success": true, "message": "Logged out from all devices successfully." }
+```
+
+#### `POST /auth/refresh`
+
+Authentication: refresh cookie named `refreshToken`; no body or query parameters.
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Token refreshed successfully.",
+  "data": { "accessToken": "<NEW_JWT_ACCESS_TOKEN>" }
+}
+```
+
+#### `GET /auth/sessions`
+
+Authentication: bearer access token or refresh cookie. No inputs.
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Active sessions retrieved successfully.",
+  "data": [
     {
-      "public_id": "products/abc123",
-      "url": "https://example.com/images/headphones.jpg"
+      "sessionId": "6f1d2d2a-3c3a-4f5e-8c1d-123456789abc",
+      "ip": "127.0.0.1",
+      "userAgent": "Mozilla/5.0",
+      "createdAt": "2026-09-16T19:00:00.000Z"
     }
   ]
 }
 ```
 
-### Carts
+#### `GET /auth/me`
 
-| Method   | Path               | Description                 | Auth |
-| -------- | ------------------ | --------------------------- | ---- |
-| `GET`    | `/carts`           | Get the current user's cart | Yes  |
-| `POST`   | `/carts/items`     | Add an item to the cart     | Yes  |
-| `PATCH`  | `/carts/items`     | Update a cart item          | Yes  |
-| `DELETE` | `/carts/items/:id` | Remove one cart item        | Yes  |
-| `DELETE` | `/carts/clear`     | Clear the cart              | Yes  |
-| `POST`   | `/carts/coupon`    | Apply a coupon              | Yes  |
-| `DELETE` | `/carts/coupon`    | Remove the active coupon    | Yes  |
+Authentication: bearer access token or refresh cookie. No inputs.
 
-Example add-to-cart payload:
+Response `200`:
 
 ```json
 {
-  "productId": "67d5e2b3d9a711c43b1d9a4d",
-  "quantity": 1
+  "success": true,
+  "message": "User profile retrieved successfully.",
+  "data": {
+    "_id": "67a8a6f4a1b23d441b1dd1d0",
+    "username": "jane doe",
+    "email": "jane@example.com",
+    "role": "customer",
+    "isVerified": true
+  }
 }
 ```
 
+#### `DELETE /auth/sessions/:sessionId`
+
+Authentication: bearer access token or refresh cookie.
+
+Path parameter: `sessionId` (UUID v4, required).
+
+Response `200`:
+
+```json
+{ "success": true, "message": "Session revoked successfully." }
+```
+
+### Products
+
+#### `GET /products`
+
+Authentication: none.
+
+Query parameters: optional `page` (integer, default `1`), `limit` (integer `1-100`, default
+`10`), `category` (string), `brand` (string), `minPrice` (number), `maxPrice` (number), and
+`sort` (`price-asc`, `price-desc`, `rating`, or `newest`, default `newest`).
+
+Example: `GET /products?category=electronics&minPrice=50&maxPrice=150&sort=price-asc`.
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Products retrieved successfully.",
+  "data": {
+    "products": [
+      {
+        "_id": "67d5e2b3d9a711c43b1d9a4d",
+        "name": "Wireless Headphones",
+        "slug": "wireless-headphones",
+        "shortDescription": "Noise cancelling bluetooth headphones",
+        "description": "Premium wireless headphones.",
+        "price": 129.99,
+        "discountPrice": 99.99,
+        "stock": 25,
+        "sku": "WH-2201",
+        "images": [{ "public_id": "products/abc123", "url": "https://example.com/image.jpg" }],
+        "category": "electronics",
+        "subcategory": "audio",
+        "brand": "AudioMax",
+        "tags": ["bluetooth", "audio"],
+        "averageRating": 4.8,
+        "numReviews": 21,
+        "featured": true,
+        "isActive": true
+      }
+    ],
+    "pagination": { "page": 1, "limit": 10, "total": 1, "pages": 1 }
+  }
+}
+```
+
+#### `GET /products/search`
+
+Authentication: none.
+
+Query parameters: optional `q` (string), `page` (integer, default `1`), `limit` (integer
+`1-100`, default `10`), `category`, `subcategory`, `brand`, `tags` (comma-separated string),
+`minPrice`, and `maxPrice`.
+
+Example: `GET /products/search?q=headphones&tags=bluetooth,audio&limit=10`.
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Products searched successfully.",
+  "data": {
+    "products": [
+      {
+        "_id": "67d5e2b3d9a711c43b1d9a4d",
+        "name": "Wireless Headphones",
+        "price": 129.99,
+        "discountPrice": 99.99,
+        "stock": 25,
+        "category": "electronics",
+        "brand": "AudioMax",
+        "tags": ["bluetooth", "audio"],
+        "images": [{ "public_id": "products/abc123", "url": "https://example.com/image.jpg" }],
+        "averageRating": 4.8,
+        "numReviews": 21,
+        "isActive": true
+      }
+    ],
+    "pagination": { "page": 1, "limit": 10, "total": 1, "pages": 1 }
+  }
+}
+```
+
+#### `GET /products/:id`
+
+Authentication: none. Path parameter `id` (MongoDB ObjectId, required).
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Product retrieved successfully.",
+  "data": {
+    "_id": "67d5e2b3d9a711c43b1d9a4d",
+    "name": "Wireless Headphones",
+    "price": 129.99,
+    "discountPrice": 99.99,
+    "stock": 25,
+    "category": "electronics",
+    "images": [{ "public_id": "products/abc123", "url": "https://example.com/image.jpg" }],
+    "averageRating": 4.8,
+    "numReviews": 21,
+    "isActive": true
+  }
+}
+```
+
+#### `GET /products/:id/reviews`
+
+Authentication: none. Path parameter `id` (MongoDB ObjectId, required). Query parameters:
+optional `page` (integer, default `1`) and `limit` (integer, default `10`).
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Reviews retrieved successfully",
+  "data": {
+    "reviews": [
+      {
+        "_id": "67d5e2b3d9a711c43b1d9a50",
+        "user": { "_id": "67a8a6f4a1b23d441b1dd1d0", "username": "jane doe" },
+        "rating": 5,
+        "comment": "Great sound quality."
+      }
+    ],
+    "pagination": { "page": 1, "limit": 10, "total": 1, "pages": 1 }
+  }
+}
+```
+
+#### `POST /products`
+
+Authentication: admin bearer token. Content type may be `multipart/form-data` with up to five
+`images` files, or JSON with an `images` array. Body fields: required `name`, `shortDescription`,
+`description`, `price`, `stock`, `category`, and `images`; optional `discountPrice`, `sku`,
+`subcategory`, `brand`, `tags` (array or comma-separated string), `featured`, and `isActive`.
+
+Response `201`:
+
+```json
+{
+  "success": true,
+  "message": "Product created successfully",
+  "data": {
+    "_id": "67d5e2b3d9a711c43b1d9a4d",
+    "name": "Wireless Headphones",
+    "price": 129.99,
+    "stock": 25,
+    "category": "electronics",
+    "images": [{ "public_id": "products/abc123", "url": "https://example.com/image.jpg" }]
+  }
+}
+```
+
+#### `PATCH /products/:id`
+
+Authentication: admin bearer token. Path parameter `id` (MongoDB ObjectId, required).
+Content type may be `multipart/form-data` with up to five new `images` files, or JSON.
+At least one product field, new image, or `deleteImageIds` is required. `deleteImageIds` is an
+array or comma-separated string of existing Cloudinary public IDs; the product must retain an
+image. The other body fields match `POST /products`, but are optional.
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Product updated successfully",
+  "data": {
+    "_id": "67d5e2b3d9a711c43b1d9a4d",
+    "name": "Wireless Headphones - Updated",
+    "price": 119.99,
+    "images": [{ "public_id": "products/abc123", "url": "https://example.com/image.jpg" }]
+  }
+}
+```
+
+#### `DELETE /products/:id`
+
+Authentication: admin bearer token. Path parameter `id` (MongoDB ObjectId, required). No body.
+
+Response `200`:
+
+```json
+{ "success": true, "message": "Product deleted successfully" }
+```
+
+#### `POST /products/:id/reviews`
+
+Authentication: bearer access token or refresh cookie. Path parameter `id` (MongoDB ObjectId).
+Body: `rating` (integer `1-5`, required) and `comment` (string, 1-1000 characters, required).
+
+```json
+{ "rating": 5, "comment": "Great sound quality." }
+```
+
+Response `201`:
+
+```json
+{
+  "success": true,
+  "message": "Review added successfully",
+  "data": {
+    "review": {
+      "_id": "67d5e2b3d9a711c43b1d9a50",
+      "rating": 5,
+      "comment": "Great sound quality."
+    },
+    "averageRating": 5,
+    "numReviews": 1
+  }
+}
+```
+
+#### `DELETE /products/:id/reviews/:reviewId`
+
+Authentication: bearer access token or refresh cookie. Path parameters `id` and `reviewId`
+(MongoDB ObjectIds). No body.
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Review deleted successfully",
+  "data": { "averageRating": 4.5, "numReviews": 2 }
+}
+```
+
+### Carts
+
+All cart routes require authentication.
+
+#### `GET /carts`
+
+No inputs.
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Cart retrieved successfully",
+  "data": {
+    "_id": "67d5e2b3d9a711c43b1da00",
+    "user": "67a8a6f4a1b23d441b1dd1d0",
+    "items": [],
+    "discountAmount": 0
+  }
+}
+```
+
+#### `POST /carts/items`
+
+Body: `items` (non-empty array, required). Each item contains `productId` (MongoDB ObjectId,
+required) and `quantity` (integer >= 1, required).
+
+```json
+{ "items": [{ "productId": "67d5e2b3d9a711c43b1d9a4d", "quantity": 2 }] }
+```
+
+Response `201`: `{ "success": true, "message": "Items added to cart successfully", "data": { "_id": "67d5e2b3d9a711c43b1da00", "items": [{ "product": "67d5e2b3d9a711c43b1d9a4d", "quantity": 2, "price": 99.99 }], "discountAmount": 0 } }`.
+
+#### `PATCH /carts/items`
+
+Body has the same `items` shape as `POST /carts/items`; each item replaces the current quantity.
+
+Response `200`: `{ "success": true, "message": "Cart items updated successfully", "data": { "_id": "67d5e2b3d9a711c43b1da00", "items": [{ "product": "67d5e2b3d9a711c43b1d9a4d", "quantity": 2, "price": 99.99 }], "discountAmount": 0 } }`.
+
+#### `DELETE /carts/items/:id`
+
+Path parameter `id` is the product MongoDB ObjectId. No body or query parameters.
+
+Response `200`: `{ "success": true, "message": "Cart item removed successfully", "data": { "_id": "67d5e2b3d9a711c43b1da00", "items": [], "discountAmount": 0 } }`.
+
+#### `DELETE /carts/clear`
+
+No body or query parameters.
+
+Response `200`: `{ "success": true, "message": "Cart cleared successfully", "data": { "_id": "67d5e2b3d9a711c43b1da00", "items": [], "discountAmount": 0 } }`.
+
+#### `POST /carts/coupon`
+
+Body: `code` (required enum: `SAVE10`, `SAVE20`, `SAVE50`, `SAVE80`, or `OFF50`).
+
+```json
+{ "code": "SAVE10" }
+```
+
+Response `200`: `{ "success": true, "message": "Coupon applied successfully", "data": { "_id": "67d5e2b3d9a711c43b1da00", "items": [], "coupon": { "code": "SAVE10", "discountType": "percentage", "discountValue": 10 }, "discountAmount": 0 } }`.
+
+#### `DELETE /carts/coupon`
+
+No body or query parameters.
+
+Response `200`: `{ "success": true, "message": "Coupon removed successfully", "data": { "_id": "67d5e2b3d9a711c43b1da00", "items": [], "discountAmount": 0 } }`.
+
 ### Wishlists
 
-| Method   | Path                    | Description                        | Auth |
-| -------- | ----------------------- | ---------------------------------- | ---- |
-| `GET`    | `/wishlists/my`         | Get the current user's wishlist    | Yes  |
-| `POST`   | `/wishlists/add/:id`    | Add a product to the wishlist      | Yes  |
-| `DELETE` | `/wishlists/remove/:id` | Remove a product from the wishlist | Yes  |
-| `DELETE` | `/wishlists/clear`      | Clear the wishlist                 | Yes  |
+All wishlist routes require authentication.
+
+#### `GET /wishlists/my`
+
+No inputs. Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Wishlist retrieved successfully",
+  "data": {
+    "_id": "67d5e2b3d9a711c43b1da10",
+    "user": "67a8a6f4a1b23d441b1dd1d0",
+    "products": [{ "_id": "67d5e2b3d9a711c43b1d9a4d", "name": "Wireless Headphones" }]
+  }
+}
+```
+
+#### `POST /wishlists/add/:id`
+
+Path parameter `id` is the product MongoDB ObjectId. No body.
+
+Response `200`: `{ "success": true, "message": "Product added to wishlist successfully", "data": { "_id": "67d5e2b3d9a711c43b1da10", "products": [{ "_id": "67d5e2b3d9a711c43b1d9a4d", "name": "Wireless Headphones" }] } }`.
+
+#### `DELETE /wishlists/remove/:id`
+
+Path parameter `id` is the product MongoDB ObjectId. No body.
+
+Response `200`: `{ "success": true, "message": "Product removed from wishlist successfully", "data": { "_id": "67d5e2b3d9a711c43b1da10", "products": [] } }`.
+
+#### `DELETE /wishlists/clear`
+
+No body or query parameters.
+
+Response `200`: `{ "success": true, "message": "Wishlist cleared successfully", "data": { "_id": "67d5e2b3d9a711c43b1da10", "products": [] } }`.
 
 ### Orders
 
-| Method  | Path                       | Description                        | Auth         |
-| ------- | -------------------------- | ---------------------------------- | ------------ |
-| `POST`  | `/orders`                  | Create an order                    | Yes          |
-| `GET`   | `/orders/my`               | List current user's orders         | Yes          |
-| `GET`   | `/orders/my/:id`           | Get one order for the current user | Yes          |
-| `PATCH` | `/orders/my/:id/cancel`    | Cancel an order                    | Yes          |
-| `GET`   | `/orders/admin`            | List all orders (admin)            | Admin        |
-| `GET`   | `/orders/admin/:id`        | Get order details by ID (admin)    | Admin        |
-| `PATCH` | `/orders/admin/:id/status` | Update order status (admin)        | Admin        |
-| `GET`   | `/orders/admin/dashboard`  | Get admin order dashboard summary  | Admin        |
-| `GET`   | `/orders/admin/carts`      | Get active carts (admin)           | Admin        |
-| `POST`  | `/orders/webhook/stripe`   | Stripe webhook endpoint            | No / webhook |
-| `POST`  | `/orders/webhook/paypal`   | PayPal webhook endpoint            | No / webhook |
-| `POST`  | `/orders/webhook/paymob`   | Paymob webhook endpoint            | No / webhook |
+#### `POST /orders`
 
-Create-order request body:
+Authentication: bearer access token or refresh cookie.
+
+Body: required `shippingAddress` object containing `country`, `city`, `address`, and
+`postalCode` strings. Optional `paymentMethod` is `cash`, `stripe`, `paypal`, or `paymob`
+(default `cash`). The optional `customerNote` is also stored by the controller.
 
 ```json
 {
   "shippingAddress": {
-    "country": "United Arab Emirates",
-    "city": "Dubai",
-    "address": "Business Bay, Tower 1",
-    "postalCode": "12345"
+    "country": "Egypt",
+    "city": "Cairo",
+    "address": "10 Example Street",
+    "postalCode": "11511"
   },
-  "paymentMethod": "cash"
+  "paymentMethod": "cash",
+  "customerNote": "Please call on delivery."
 }
 ```
 
-Supported payment methods from validation: `cash`, `stripe`, `paypal`, `paymob`.
+Response `201` for cash:
+
+```json
+{
+  "success": true,
+  "message": "Order created successfully",
+  "data": {
+    "order": {
+      "_id": "67d5e2b3d9a711c43b1da20",
+      "paymentMethod": "cash",
+      "paymentStatus": "pending",
+      "status": "pending",
+      "subtotal": 199.98,
+      "shippingFee": 50,
+      "tax": 28,
+      "discount": 0,
+      "totalPrice": 277.98,
+      "items": []
+    }
+  }
+}
+```
+
+For `stripe`, `paypal`, or `paymob`, the same response also contains one gateway field:
+`clientSecret`, `paypalApprovalUrl`, or `paymobPaymentToken`, and the message is
+`"Payment initialization successful"`.
+
+#### `GET /orders/my`
+
+Authentication: bearer access token or refresh cookie. Query parameters: optional `page`
+(integer, default `1`), `limit` (integer, default `10`, maximum `100`), and `status` (order
+status string).
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Orders fetched successfully",
+  "data": {
+    "orders": [{ "_id": "67d5e2b3d9a711c43b1da20", "status": "pending", "totalPrice": 277.98 }],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "totalOrders": 1,
+      "totalPages": 1
+    }
+  }
+}
+```
+
+#### `GET /orders/my/:id`
+
+Authentication: bearer access token or refresh cookie. Path parameter `id` is an order
+MongoDB ObjectId. No body or query parameters.
+
+Response `200`: `{ "success": true, "message": "Order fetched successfully", "data": { "order": { "_id": "67d5e2b3d9a711c43b1da20", "status": "pending", "paymentMethod": "cash", "totalPrice": 277.98, "items": [] } } }`.
+
+#### `PATCH /orders/my/:id/cancel`
+
+Authentication: bearer access token or refresh cookie. Path parameter `id` is an order
+MongoDB ObjectId. No body.
+
+Response `200`: `{ "success": true, "message": "Order cancelled successfully", "data": { "order": { "_id": "67d5e2b3d9a711c43b1da20", "status": "cancelled", "cancelledAt": "2026-09-16T19:00:00.000Z" } } }`.
+
+#### `GET /orders/admin`
+
+Authentication: admin bearer token. Query parameters: optional `page`, `limit` (both default
+to `1` and `10`, with limit capped at `100`), `status`, and `paymentMethod`.
+
+Response `200`: `{ "success": true, "message": "All orders fetched successfully", "data": { "orders": [{ "_id": "67d5e2b3d9a711c43b1da20", "status": "pending", "totalPrice": 277.98 }], "pagination": { "page": 1, "limit": 10, "totalOrders": 1, "totalPages": 1 } } }`.
+
+#### `GET /orders/admin/:id`
+
+Authentication: admin bearer token. Path parameter `id` is an order MongoDB ObjectId. No body.
+
+Response `200`: `{ "success": true, "message": "Order details fetched successfully", "data": { "order": { "_id": "67d5e2b3d9a711c43b1da20", "status": "pending", "user": { "_id": "67a8a6f4a1b23d441b1dd1d0", "username": "jane doe", "email": "jane@example.com" } } } }`.
+
+#### `PATCH /orders/admin/:id/status`
+
+Authentication: admin bearer token. Path parameter `id` is an order MongoDB ObjectId.
+Body accepts optional `status` and `adminNote`. Valid forward status transitions are
+`pending -> confirmed -> processing -> shipped -> delivered -> returned`; `cancelled` and
+`returned` are terminal.
+
+```json
+{ "status": "confirmed", "adminNote": "Payment verified." }
+```
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Order status updated successfully",
+  "data": { "order": { "_id": "67d5e2b3d9a711c43b1da20", "status": "confirmed" } }
+}
+```
+
+#### `GET /orders/admin/dashboard`
+
+Authentication: admin bearer token. No inputs.
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Dashboard stats fetched successfully",
+  "data": {
+    "totalOrders": 42,
+    "totalRevenue": 12500,
+    "statusCounts": [{ "_id": "pending", "count": 4 }]
+  }
+}
+```
+
+#### `GET /orders/admin/carts`
+
+Authentication: admin bearer token. No inputs.
+
+Response `200`: `{ "success": true, "message": "Carts fetched successfully", "data": { "carts": [{ "_id": "67d5e2b3d9a711c43b1da00", "items": [] }] } }`.
+
+#### `POST /orders/webhook/stripe`
+
+No application authentication. Send the Stripe event JSON as the raw request body. In
+production, include the `stripe-signature` header. Response `200`:
+
+```json
+{ "received": true }
+```
+
+#### `POST /orders/webhook/paypal`
+
+No application authentication. Send the PayPal event JSON as the request body. In production,
+include the PayPal transmission signature headers. Response `200`:
+
+```json
+{ "received": true }
+```
+
+#### `POST /orders/webhook/paymob`
+
+No application authentication. Send the Paymob event JSON as the request body and provide the
+HMAC in the `hmac` query parameter or header when production verification is enabled.
+Response `200`:
+
+```json
+{ "received": true }
+```
 
 ### Users
 
-| Method   | Path         | Description                  | Auth          |
-| -------- | ------------ | ---------------------------- | ------------- |
-| `GET`    | `/users/all` | List all users (admin)       | Admin         |
-| `POST`   | `/users/add` | Create a user record (admin) | Admin         |
-| `GET`    | `/users/:id` | Get a user by ID (admin)     | Admin         |
-| `PATCH`  | `/users/:id` | Update a user                | Authenticated |
-| `DELETE` | `/users/:id` | Delete a user (admin)        | Admin         |
+All user routes require authentication. Admin authorization is noted per route.
 
-Create user payload:
+#### `GET /users/all`
+
+Authentication: admin bearer token. No inputs.
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Users retrieved successfully.",
+  "data": [
+    {
+      "_id": "67a8a6f4a1b23d441b1dd1d0",
+      "username": "jane doe",
+      "email": "jane@example.com",
+      "role": "customer",
+      "isVerified": true
+    }
+  ]
+}
+```
+
+#### `POST /users/add`
+
+Authentication: admin bearer token. Content type may be `multipart/form-data` with one
+`avatar` file or JSON. Body fields: required `username`, `email`, `password`, and `phone`;
+optional `role`, `addresses`, and `isVerified`.
 
 ```json
 {
@@ -323,22 +939,129 @@ Create user payload:
   "phone": "+15551234567",
   "role": "customer",
   "addresses": {
-    "country": "United Arab Emirates",
-    "city": "Dubai",
-    "address": "Downtown Road 7",
-    "postalCode": "00000"
+    "country": "Egypt",
+    "city": "Cairo",
+    "address": "10 Example Street",
+    "postalCode": "11511"
   }
 }
 ```
 
+Response `201`: `{ "success": true, "message": "User created successfully.", "data": { "_id": "67a8a6f4a1b23d441b1dd1d0", "username": "jane doe", "email": "jane@example.com", "role": "customer" } }`.
+
+#### `GET /users/:id`
+
+Authentication: admin bearer token. Path parameter `id` is a user MongoDB ObjectId. No body.
+
+Response `200`: `{ "success": true, "message": "User retrieved successfully.", "data": { "_id": "67a8a6f4a1b23d441b1dd1d0", "username": "jane doe", "email": "jane@example.com", "role": "customer" } }`.
+
+#### `PATCH /users/:id`
+
+Authentication: bearer access token or refresh cookie. The user may update their own record;
+admins may update any user and may also change `role` and `isVerified`. Path parameter `id` is
+a user MongoDB ObjectId. Content type may be `multipart/form-data` with one `avatar` file or
+JSON. All body fields are optional: `username`, `email`, `password`, `phone`, `addresses`,
+`role`, and `isVerified` (password is validated but is not applied by this controller).
+
+Response `200`: `{ "success": true, "message": "User updated successfully.", "data": { "_id": "67a8a6f4a1b23d441b1dd1d0", "username": "jane doe", "email": "jane@example.com", "role": "customer" } }`.
+
+#### `DELETE /users/:id`
+
+Authentication: admin bearer token. Path parameter `id` is a user MongoDB ObjectId. No body.
+
+Response `200`:
+
+```json
+{ "success": true, "message": "User deleted successfully." }
+```
+
 ### Admin summaries
 
-| Method | Path                     | Description                     | Auth  |
-| ------ | ------------------------ | ------------------------------- | ----- |
-| `GET`  | `/admin/dashboard`       | Admin dashboard analytics       | Admin |
-| `GET`  | `/admin/carts`           | List active carts               | Admin |
-| `GET`  | `/admin/wishlists`       | List user wishlists             | Admin |
-| `GET`  | `/admin/wishlists/stats` | Top wishlisted products summary | Admin |
+All admin summary routes require an admin bearer token.
+
+#### `GET /admin/dashboard`
+
+No inputs. Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Dashboard analytics retrieved successfully",
+  "data": {
+    "revenue": {
+      "total": 12500,
+      "currentMonth": 2000,
+      "lastMonth": 1800,
+      "growthPercentage": 11.11
+    },
+    "ordersByStatus": [{ "_id": "delivered", "count": 12 }],
+    "topProducts": [{ "name": "Wireless Headphones", "unitsSold": 10, "revenue": 999.9 }],
+    "last7Days": [{ "_id": "2026-09-16", "dailyRevenue": 200, "dailyOrders": 2 }],
+    "recentOrders": [],
+    "totalCustomers": 25
+  }
+}
+```
+
+#### `GET /admin/carts`
+
+Query parameters: optional `page` (default `1`) and `limit` (default `10`, maximum `100`).
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Active carts retrieved successfully",
+  "data": {
+    "carts": [],
+    "pagination": { "page": 1, "limit": 10, "totalCarts": 0, "totalPages": 0 }
+  }
+}
+```
+
+#### `GET /admin/wishlists`
+
+Query parameters: optional `page` (default `1`) and `limit` (default `10`, maximum `100`).
+
+Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "User wishlists retrieved successfully",
+  "data": {
+    "wishlists": [],
+    "pagination": { "page": 1, "limit": 10, "totalWishlists": 0, "totalPages": 0 }
+  }
+}
+```
+
+#### `GET /admin/wishlists/stats`
+
+No inputs. Response `200`:
+
+```json
+{
+  "success": true,
+  "message": "Top wishlisted products retrieved successfully",
+  "data": {
+    "topWishlisted": [
+      {
+        "wishlistCount": 8,
+        "product": {
+          "_id": "67d5e2b3d9a711c43b1d9a4d",
+          "name": "Wireless Headphones",
+          "price": 129.99,
+          "images": [],
+          "category": "electronics",
+          "isActive": true
+        }
+      }
+    ]
+  }
+}
+```
 
 ## Error format and common status codes
 
@@ -351,7 +1074,7 @@ Success:
   "success": true,
   "message": "Products retrieved successfully.",
   "data": {
-    "data": [],
+    "products": [],
     "pagination": {
       "page": 1,
       "limit": 10,
