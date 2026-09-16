@@ -6,6 +6,7 @@ import { AppError } from '../utils/appError.js'
 import { deleteImages, uploadImages } from '../utils/cloudinary.js'
 
 ////////////////////////////////////////////////////////
+
 const getPublicId = (url) => {
   if (!url || !url.includes('cloudinary.com')) return null
   try {
@@ -19,6 +20,7 @@ const getPublicId = (url) => {
     return null
   }
 }
+
 ////////////////////////////////////////////////////////
 
 export const createUser = asyncHandler(async (req, res) => {
@@ -48,7 +50,9 @@ export const createUser = asyncHandler(async (req, res) => {
 
   res.status(HTTP_STATUS.CREATED).send(ApiResponse('User created successfully.', result))
 })
+
 ////////////////////////////////////////////////////////
+
 export const getUsers = asyncHandler(async (_, res) => {
   const users = await User.find().select('-password').lean().exec()
   if (!users || users.length === 0) {
@@ -56,6 +60,7 @@ export const getUsers = asyncHandler(async (_, res) => {
   }
   res.status(HTTP_STATUS.OK).send(ApiResponse('Users retrieved successfully.', users))
 })
+
 ////////////////////////////////////////////////////////
 
 export const getUserById = asyncHandler(async (req, res) => {

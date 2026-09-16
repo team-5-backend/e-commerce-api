@@ -66,8 +66,7 @@ curl -X POST http://localhost:3000/api/v1/auth/register/send-otp \
     "username": "jane doe",
     "email": "jane@example.com",
     "password": "Password123!",
-    "phone": "+15551234567",
-    "role": "customer"
+    "phone": "+15551234567"
   }'
 ```
 
@@ -210,8 +209,7 @@ optional `addresses` (object), and optional `isVerified` (boolean).
   "username": "jane doe",
   "email": "jane@example.com",
   "password": "Password123!",
-  "phone": "+15551234567",
-  "role": "customer"
+  "phone": "+15551234567"
 }
 ```
 

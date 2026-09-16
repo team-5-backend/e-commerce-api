@@ -15,6 +15,7 @@ const getImageUrl = (product) => {
   const image = product.images?.[0]
   return typeof image === 'string' ? image : image?.url
 }
+
 ///////////////////////////////////////////////////////////////
 
 export const getCart = asyncHandler(async (req, res) => {
@@ -30,6 +31,7 @@ export const getCart = asyncHandler(async (req, res) => {
 
   res.status(HTTP_STATUS.OK).send(ApiResponse('Cart retrieved successfully', cart))
 })
+
 ///////////////////////////////////////////////////////////////
 
 export const addCartItem = asyncHandler(async (req, res) => {
@@ -115,6 +117,7 @@ export const addCartItem = asyncHandler(async (req, res) => {
 
   res.status(HTTP_STATUS.CREATED).send(ApiResponse('Items added to cart successfully', cart))
 })
+
 ///////////////////////////////////////////////////////////////
 
 export const updateCartItem = asyncHandler(async (req, res) => {
@@ -187,6 +190,7 @@ export const updateCartItem = asyncHandler(async (req, res) => {
 
   res.status(HTTP_STATUS.OK).send(ApiResponse('Cart items updated successfully', cart))
 })
+
 ///////////////////////////////////////////////////////////////
 
 export const removeCartItem = asyncHandler(async (req, res) => {
@@ -213,6 +217,7 @@ export const removeCartItem = asyncHandler(async (req, res) => {
 
   res.status(HTTP_STATUS.OK).send(ApiResponse('Cart item removed successfully', cart))
 })
+
 ///////////////////////////////////////////////////////////////
 
 export const applyCoupon = asyncHandler(async (req, res) => {
@@ -240,6 +245,7 @@ export const applyCoupon = asyncHandler(async (req, res) => {
 
   res.status(HTTP_STATUS.OK).send(ApiResponse('Coupon applied successfully', cart))
 })
+
 ///////////////////////////////////////////////////////////////
 
 export const removeCoupon = asyncHandler(async (req, res) => {

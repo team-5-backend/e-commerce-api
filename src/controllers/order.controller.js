@@ -354,13 +354,16 @@ export const getMyOrders = asyncHandler(async (req, res) => {
     }),
   )
 })
+
 ///////////////////////////////////////////////////////////
+
 export const getMyOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findOne({ _id: req.params.id, user: req.user._id })
   if (!order) throw new AppError('Order not found', HTTP_STATUS.NOT_FOUND)
 
   return res.status(HTTP_STATUS.OK).send(ApiResponse('Order fetched successfully', { order }))
 })
+
 ///////////////////////////////////////////////////////////
 
 export const cancelOrder = asyncHandler(async (req, res, next) => {
@@ -450,6 +453,7 @@ export const getAllOrders = asyncHandler(async (req, res, next) => {
 })
 
 ////////////////////////////////////////////////
+
 export const getAdminOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user', 'username email phone')
   if (!order) throw new AppError('Order not found', HTTP_STATUS.NOT_FOUND)
@@ -458,7 +462,9 @@ export const getAdminOrderById = asyncHandler(async (req, res) => {
     .status(HTTP_STATUS.OK)
     .send(ApiResponse('Order details fetched successfully', { order }))
 })
+
 ///////////////////////////////////////////////////
+
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const { status, adminNote } = req.body
   const order = await Order.findById(req.params.id)
@@ -502,7 +508,9 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     .status(HTTP_STATUS.OK)
     .send(ApiResponse('Order status updated successfully', { order }))
 })
+
 ////////////////////////////////////////////////////////
+
 export const AdminOrderDashboard = asyncHandler(async (_, res) => {
   const totalOrders = await Order.countDocuments()
 
@@ -526,7 +534,8 @@ export const AdminOrderDashboard = asyncHandler(async (_, res) => {
   )
 })
 
-//////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
 export const AdminOrderCarts = asyncHandler(async (_, res) => {
   const carts = await Cart.find().populate('user', 'username email')
 
@@ -631,6 +640,7 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
 
   return res.status(HTTP_STATUS.OK).send({ received: true })
 })
+
 //////////////////////////////////////////////////////////
 
 export const handlePaypalWebhook = asyncHandler(async (req, res) => {
@@ -762,6 +772,7 @@ function verifyPaymobHmac(req) {
 
   return calculatedHmac === hmacReceived
 }
+
 //////////////////////////////////////////////////////////
 
 export const handlePaymobWebhook = asyncHandler(async (req, res) => {

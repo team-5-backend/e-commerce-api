@@ -15,8 +15,11 @@ export const createUserSchema = Joi.object({
   password: passwordSchema,
 
   phone: phoneSchema,
+  
   role: Joi.string().trim().valid('admin', 'customer').default('customer'),
+  
   addresses: addressSchema,
+  
   isVerified: Joi.boolean().default('false'),
 })
 
