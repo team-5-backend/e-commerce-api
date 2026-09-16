@@ -19,10 +19,10 @@ import objectIdSchema from './../validations/schemas/id.schema.js'
 const router = express.Router()
 router.use(authenticate)
 ////////////////////////////////////////////
-// http://localhost:5000/api/v1/users/all
+// http://localhost:3000/api/v1/users/all
 router.get('/all', authorize('admin'), getUsers)
 
-// http://localhost:5000/api/v1/users/add
+// http://localhost:3000/api/v1/users/add
 router.post(
   '/add',
   authorize('admin'),
@@ -31,7 +31,7 @@ router.post(
   createUser,
 )
 
-// http://localhost:5000/api/v1/users/6aa73645fc10839d57d4b55a
+// http://localhost:3000/api/v1/users/6aa73645fc10839d57d4b55a
 router.get('/:id', authorize('admin'), validate(objectIdSchema, 'params'), getUserById)
 
 router.patch(

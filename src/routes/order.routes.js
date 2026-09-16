@@ -31,33 +31,33 @@ router.post('/webhook/paymob', express.json(), handlePaymobWebhook)
 
 router.use(authenticate)
 
-//  http://localhost:5000/api/v1/orders/
+//  http://localhost:3000/api/v1/orders/
 router.post('/', validate(createOrderSchema), createOrder)
 
-//  http://localhost:5000/api/v1/orders/my
+//  http://localhost:3000/api/v1/orders/my
 router.get('/my', getMyOrders)
 
-//  http://localhost:5000/api/v1/orders/my/6aa841a0200fdbcdaf808bd
+//  http://localhost:3000/api/v1/orders/my/6aa841a0200fdbcdaf808bd
 router.get('/my/:id', validate(objectIdSchema, 'params'), getMyOrderById)
 
-//  http://localhost:5000/api/v1/orders/my/6aa841a0200fdbcdaf808bd/cancel
+//  http://localhost:3000/api/v1/orders/my/6aa841a0200fdbcdaf808bd/cancel
 router.patch('/my/:id/cancel', validate(objectIdSchema, 'params'), cancelOrder)
 
 ////////////////////////////////////////////////////////////////////////////
 
-//  http://localhost:5000/api/v1/orders/admin/dashboard
+//  http://localhost:3000/api/v1/orders/admin/dashboard
 router.get('/admin/dashboard', authorize('admin'), AdminOrderDashboard)
 
-//  http://localhost:5000/api/v1/orders/admin/carts
+//  http://localhost:3000/api/v1/orders/admin/carts
 router.get('/admin/carts', authorize('admin'), AdminOrderCarts)
 
-//  http://localhost:5000/api/v1/orders/admin
+//  http://localhost:3000/api/v1/orders/admin
 router.get('/admin', authorize('admin'), getAllOrders)
 
-//  http://localhost:5000/api/v1/orders/admin/6aa841a0200fdbcdaf808bd9
+//  http://localhost:3000/api/v1/orders/admin/6aa841a0200fdbcdaf808bd9
 router.get('/admin/:id', validate(objectIdSchema, 'params'), authorize('admin'), getAdminOrderById)
 
-//  http://localhost:5000/api/v1/orders/admin/6aa841a0200fdbcdaf808bd9/status
+//  http://localhost:3000/api/v1/orders/admin/6aa841a0200fdbcdaf808bd9/status
 router.patch(
   '/admin/:id/status',
   validate(objectIdSchema, 'params'),

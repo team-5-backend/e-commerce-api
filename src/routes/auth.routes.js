@@ -29,19 +29,19 @@ import {
 
 const router = express.Router()
 
-// http://localhost:5000/api/v1/auth/login
+// http://localhost:3000/api/v1/auth/login
 router.post('/login', authLimiter, validate(loginSchema), login)
 
-// http://localhost:5000/api/v1/auth/register/send-otp
+// http://localhost:3000/api/v1/auth/register/send-otp
 router.post('/register/send-otp', authLimiter, validate(registerSchema), register)
 
-// http://localhost:5000/api/v1/auth/verify-otp
+// http://localhost:3000/api/v1/auth/verify-otp
 router.post('/verify-otp', authLimiter, validate(verifyRegisterOtpSchema), verifyRegisterOtp)
 
-// http://localhost:5000/api/v1/auth/forgotpassword/send-otp
+// http://localhost:3000/api/v1/auth/forgotpassword/send-otp
 router.post('/forgotpassword/send-otp', authLimiter, validate(forgotPasswordSchema), forgotPassword)
 
-// http://localhost:5000/api/v1/auth/forgotpassword/verify-otp
+// http://localhost:3000/api/v1/auth/forgotpassword/verify-otp
 router.post(
   '/forgotpassword/verify-otp',
   authLimiter,
@@ -49,22 +49,22 @@ router.post(
   verifyForgotPasswordOtp,
 )
 
-// http://localhost:5000/api/v1/auth/logout
+// http://localhost:3000/api/v1/auth/logout
 router.post('/logout', authenticate, logout)
 
-// http://localhost:5000/api/v1/auth/logout-all
+// http://localhost:3000/api/v1/auth/logout-all
 router.post('/logout-all', authenticate, logoutAll)
 
-// http://localhost:5000/api/v1/auth/refresh
+// http://localhost:3000/api/v1/auth/refresh
 router.post('/refresh', refresh)
 
-// http://localhost:5000/api/v1/auth/sessions
+// http://localhost:3000/api/v1/auth/sessions
 router.get('/sessions', authenticate, getSessions)
 
-// http://localhost:5000/api/v1/auth/me
+// http://localhost:3000/api/v1/auth/me
 router.get('/me', authenticate, getMe)
 
-// http://localhost:5000/api/v1/auth/sessions/:sessionId
+// http://localhost:3000/api/v1/auth/sessions/:sessionId
 router.delete(
   '/sessions/:sessionId',
   authenticate,

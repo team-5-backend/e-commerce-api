@@ -23,25 +23,25 @@ const router = Router()
 router.use(authenticate)
 ///////////////////////////////////////////////
 
-// http://localhost:5000/api/v1/carts
+// http://localhost:3000/api/v1/carts
 router.get('/', getCart)
 
-// http://localhost:5000/api/v1/carts/clear
+// http://localhost:3000/api/v1/carts/clear
 router.delete('/clear', clearCart)
 
-// http://localhost:5000/api/v1/carts/items
+// http://localhost:3000/api/v1/carts/items
 router.post('/items', validate(addCartItemSchema), addCartItem)
 
-// http://localhost:5000/api/v1/carts/items
+// http://localhost:3000/api/v1/carts/items
 router.patch('/items', validate(updateCartItemSchema), updateCartItem)
 
-// http://localhost:5000/api/v1/carts/items/6aa78b77194d7f17ab6dc2b9
+// http://localhost:3000/api/v1/carts/items/6aa78b77194d7f17ab6dc2b9
 router.delete('/items/:id', validate(objectIdSchema, 'params'), removeCartItem)
 
-//  http://localhost:5000/api/v1/carts/coupon
+//  http://localhost:3000/api/v1/carts/coupon
 router.post('/coupon', validate(applyCouponSchema), applyCoupon)
 
-//  http://localhost:5000/api/v1/carts/coupon
+//  http://localhost:3000/api/v1/carts/coupon
 router.delete('/coupon', removeCoupon)
 
 ///////////////////////////////////////////////

@@ -6,14 +6,14 @@ REST API for product browsing, account authentication, cart management, wishlist
 
 The server mounts all routes under `/api/v1` in `src/app.js` and `src/routes/index.js`.
 
-- Local default: `http://localhost:5000/api/v1`
+- Local default: `http://localhost:3000/api/v1`
 - Production host: configured by `HOST` and `PORT` in the environment; no separate API version header is used.
 - Versioning is URL-based (`/api/v1/...`), not header-based.
 
 Example:
 
 ```bash
-curl http://localhost:5000/api/v1/health
+curl http://localhost:3000/api/v1/health
 ```
 
 ## Authentication
@@ -28,7 +28,7 @@ Authentication is implemented with JWTs:
 Example authentication flow:
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/auth/login \
+curl -X POST http://localhost:3000/api/v1/auth/login \
   -H 'Content-Type: application/json' \
   -d '{
     "email": "customer@example.com",
@@ -52,7 +52,7 @@ Then use the token on protected routes:
 
 ```bash
 curl -H 'Authorization: Bearer <accessToken>' \
-  http://localhost:5000/api/v1/auth/me
+  http://localhost:3000/api/v1/auth/me
 ```
 
 ## Quick start
@@ -60,7 +60,7 @@ curl -H 'Authorization: Bearer <accessToken>' \
 ### 1) Register a new customer
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/auth/register/send-otp \
+curl -X POST http://localhost:3000/api/v1/auth/register/send-otp \
   -H 'Content-Type: application/json' \
   -d '{
     "username": "jane doe",
@@ -76,7 +76,7 @@ Returns a success message and sends a one-time password to the email address.
 ### 2) Verify the OTP and complete registration
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/auth/verify-otp \
+curl -X POST http://localhost:3000/api/v1/auth/verify-otp \
   -H 'Content-Type: application/json' \
   -d '{
     "email": "jane@example.com",
@@ -103,7 +103,7 @@ Example response:
 
 ```bash
 curl -H 'Authorization: Bearer <accessToken>' \
-  'http://localhost:5000/api/v1/products?page=1&limit=10&sort=newest'
+  'http://localhost:3000/api/v1/products?page=1&limit=10&sort=newest'
 ```
 
 Example response:

@@ -30,17 +30,17 @@ import objectIdSchema from '../validations/schemas/id.schema.js'
 const router = express.Router()
 
 router.get('/search', validate(searchProductSchema, 'query'), cache(300), searchProducts)
-// http://localhost:5000/api/v1/products
-// http://localhost:5000/api/v1/products/?category=electronics&minPrice=50&maxPrice=150
-// http://localhost:5000/api/v1/products/?category=not
+// http://localhost:3000/api/v1/products
+// http://localhost:3000/api/v1/products/?category=electronics&minPrice=50&maxPrice=150
+// http://localhost:3000/api/v1/products/?category=not
 
 router.get('/', validate(productQuerySchema, 'query'), cache(300), getActiveProducts)
 
 router.get('/:id/reviews', validate(objectIdSchema, 'params'), cache(300), getReviews)
-// http://localhost:5000/api/v1/products/
+// http://localhost:3000/api/v1/products/
 router.get('/:id', validate(objectIdSchema, 'params'), cache(300), getProductById)
 
-// http://localhost:5000/api/v1/products/
+// http://localhost:3000/api/v1/products/
 router.post(
   '/',
   authenticate,
@@ -50,7 +50,7 @@ router.post(
   clearCache('products'),
   createProduct,
 )
-// http://localhost:5000/api/v1/products/6aa78ac6194d7f17ab6dc2b7
+// http://localhost:3000/api/v1/products/6aa78ac6194d7f17ab6dc2b7
 router.patch(
   '/:id',
   validate(objectIdSchema, 'params'),
@@ -61,7 +61,7 @@ router.patch(
   clearCache('products'),
   updateProduct,
 )
-// http://localhost:5000/api/v1/products/6aa78ac6194d7f17ab6dc2b7
+// http://localhost:3000/api/v1/products/6aa78ac6194d7f17ab6dc2b7
 
 router.delete(
   '/:id',
@@ -72,7 +72,7 @@ router.delete(
   deleteProduct,
 )
 
-// http://localhost:5000/api/v1/products/6aa78ac6194d7f17ab6dc2b7/reviews
+// http://localhost:3000/api/v1/products/6aa78ac6194d7f17ab6dc2b7/reviews
 router.post(
   '/:id/reviews',
   validate(objectIdSchema, 'params'),
@@ -81,7 +81,7 @@ router.post(
   clearCache('products'),
   addReview,
 )
-// http://localhost:5000/api/v1/products/6aa793ae7f0cdf585bdb228e/reviews/6aa79695dbbd77f53e600042
+// http://localhost:3000/api/v1/products/6aa793ae7f0cdf585bdb228e/reviews/6aa79695dbbd77f53e600042
 router.delete(
   '/:id/reviews/:reviewId',
   validate(reviewParamsSchema, 'params'),

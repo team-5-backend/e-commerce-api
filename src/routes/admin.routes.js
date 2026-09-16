@@ -17,16 +17,16 @@ router.use(authorize('admin'))
 
 /////////////////////////////////////////////////////////////////////
 
-// http://localhost:5000/api/v1/admin/dashboard
+// http://localhost:3000/api/v1/admin/dashboard
 router.get('/dashboard', cache(), getAdminDashboardAnalytics)
 
-// http://localhost:5000/api/v1/admin/carts
+// http://localhost:3000/api/v1/admin/carts
 router.get('/carts', getAllActiveCarts)
 
-// http://localhost:5000/api/v1/admin/wishlists
+// http://localhost:3000/api/v1/admin/wishlists
 router.get('/wishlists', getAllUserWishlists)
 
-// http://localhost:5000/api/v1/admin/wishlists/stats
+// http://localhost:3000/api/v1/admin/wishlists/stats
 router.get('/wishlists/stats', cache(), getTopWishlistedProducts)
 
 export default router
