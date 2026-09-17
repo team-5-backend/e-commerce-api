@@ -64,6 +64,9 @@ PAYPAL_CLIENT_ID=your_paypal_client_id
 PAYPAL_CLIENT_SECRET=your_paypal_client_secret
 PAYMOB_API_KEY=your_paymob_api_key
 PAYMOB_INTEGRATION_ID=your_paymob_integration_id
+FREE_SHIPPING_THRESHOLD=1000
+SHIPPING_FEE=50
+TAX_RATE=0.14
 ```
 
 ### Run the app
