@@ -18,7 +18,7 @@ await connectRedis()
 
 ///////////////////////////////////////////////////////////////////////////
 
-const server = app.listen(environment.port, '0.0.0.0', () => {
+const server = app.listen(environment.port, () => {
   logger.info(`Server running at http://${environment.host}:${environment.port}`)
 })
 
