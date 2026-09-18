@@ -1,0 +1,12 @@
+node_modules
+
+.env
+
+.git
+.gitignore
+
+.oxlintrc.json
+.prettierrc
+.prettierignore
+
+*.md
