@@ -8,7 +8,7 @@ import { generateTokenSchema, refreshTokenSchema } from '../validations/auth.val
 
 import redisClient from './redisClient.js'
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const cleanUpDeadSessions = async (userId) => {
   const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
@@ -24,7 +24,7 @@ export const cleanUpDeadSessions = async (userId) => {
   await multi.exec()
 }
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const generateTokens = async (schemaPayload, existingSessionId = null) => {
   const { value, error: schemaError } = generateTokenSchema.validate(schemaPayload)
@@ -64,7 +64,7 @@ export const generateTokens = async (schemaPayload, existingSessionId = null) =>
   return { accessToken, refreshToken }
 }
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const refreshTokens = async (schemaPayload) => {
   const { value, error: schemaError } = refreshTokenSchema.validate(schemaPayload)
@@ -129,7 +129,7 @@ export const refreshTokens = async (schemaPayload) => {
   return newTokens
 }
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const revokeRefreshToken = async (userId, refreshToken) => {
   const multi = redisClient.multi()
@@ -138,7 +138,7 @@ export const revokeRefreshToken = async (userId, refreshToken) => {
   await multi.exec()
 }
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const revokeUserSessions = async (userId) => {
   const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
@@ -149,7 +149,7 @@ export const revokeUserSessions = async (userId) => {
   multi.del(`user:${userId}:sessions`)
   await multi.exec()
 }
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const revokeSpecificSession = async (userId, sessionId) => {
   const tokens = await redisClient.sMembers(`user:${userId}:sessions`)
@@ -173,7 +173,7 @@ export const revokeSpecificSession = async (userId, sessionId) => {
   return false
 }
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getAllSessions = async (userId) => {
   const tokens = await redisClient.sMembers(`user:${userId}:sessions`)

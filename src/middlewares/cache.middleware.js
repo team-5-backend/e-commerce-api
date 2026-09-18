@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import redisClient from '../redis/redisClient.js'
 import logger from '../utils/logger.js'
 
-/////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const cache =
   (durationInSeconds = 3600) =>

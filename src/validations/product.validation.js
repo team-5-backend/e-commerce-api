@@ -56,7 +56,7 @@ export const createProductSchema = Joi.object({
     .required(),
 }).unknown(false)
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const updateProductSchema = createProductSchema
   .fork(Object.keys(createProductSchema.describe().keys), (schema) =>
@@ -71,7 +71,7 @@ export const updateProductSchema = createProductSchema
   .min(1)
   .unknown(false)
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const productQuerySchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
@@ -104,7 +104,7 @@ export const productQuerySchema = Joi.object({
     'any.invalid': 'minPrice cannot be greater than maxPrice',
   })
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const reviewSchema = Joi.object({
   rating: Joi.number().integer().min(1).max(5).required(),
@@ -112,7 +112,7 @@ export const reviewSchema = Joi.object({
   comment: Joi.string().trim().min(1).max(1000).required(),
 }).unknown(false)
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const reviewParamsSchema = Joi.object({
   id: Joi.string().trim().hex().length(24).required(),

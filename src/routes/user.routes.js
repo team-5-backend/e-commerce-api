@@ -14,11 +14,13 @@ import { createUserSchema, updateUserSchema } from '../validations/user.validati
 
 import objectIdSchema from './../validations/schemas/id.schema.js'
 
-////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const router = express.Router()
 router.use(authenticate)
-////////////////////////////////////////////
+
+//////////////////////////////////////////////////////
+
 // http://localhost:3000/api/v1/users/all
 router.get('/all', authorize('admin'), getUsers)
 
@@ -44,5 +46,6 @@ router.patch(
 
 router.delete('/:id', authorize('admin'), validate(objectIdSchema, 'params'), deleteUser)
 
-//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
 export default router

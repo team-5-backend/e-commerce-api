@@ -10,12 +10,12 @@ import { authenticate } from '../middlewares/auth.middleware.js'
 import validate from '../middlewares/validate.js'
 import objectIdSchema from '../validations/schemas/id.schema.js'
 
-/////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const router = Router()
 router.use(authenticate)
 
-/////////////////////////////////////
+//////////////////////////////////////////////////////
 
 // http://localhost:3000/api/v1/wishlists/my
 router.get('/my', getMyWishlist)
@@ -29,5 +29,6 @@ router.delete('/remove/:id', validate(objectIdSchema, 'params'), removeFromWishl
 // http://localhost:3000/api/v1/wishlists/clear
 router.delete('/clear', clearWishlist)
 
-//////////////////////////////////////////
+//////////////////////////////////////////////////////
+
 export default router

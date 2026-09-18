@@ -20,14 +20,14 @@ import objectIdSchema from '../validations/schemas/id.schema.js'
 
 import { createOrderSchema } from './../validations/order.validation.js'
 
-/////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const router = express.Router()
 router.post('/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook)
 router.post('/webhook/paypal', express.json(), handlePaypalWebhook)
 router.post('/webhook/paymob', express.json(), handlePaymobWebhook)
 
-////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 router.use(authenticate)
 
@@ -43,7 +43,7 @@ router.get('/my/:id', validate(objectIdSchema, 'params'), getMyOrderById)
 //  http://localhost:3000/api/v1/orders/my/6aa841a0200fdbcdaf808bd/cancel
 router.patch('/my/:id/cancel', validate(objectIdSchema, 'params'), cancelOrder)
 
-////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 //  http://localhost:3000/api/v1/orders/admin/dashboard
 router.get('/admin/dashboard', authorize('admin'), AdminOrderDashboard)
@@ -65,6 +65,6 @@ router.patch(
   updateOrderStatus,
 )
 
-////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export default router

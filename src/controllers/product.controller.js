@@ -8,7 +8,7 @@ import { AppError } from '../utils/appError.js'
 import { deleteImages, uploadImages } from '../utils/cloudinary.js'
 import logger from '../utils/logger.js'
 
-///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const PUBLIC_PRODUCT_FIELDS =
   'name slug shortDescription description price discountPrice stock sku images category subcategory brand tags averageRating numReviews featured isActive createdAt updatedAt'
@@ -37,7 +37,7 @@ const normalizeDeleteImageIds = (value) => {
     .filter(Boolean)
 }
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getProducts = asyncHandler(async (req, res) => {
   const {
@@ -67,7 +67,7 @@ export const getProducts = asyncHandler(async (req, res) => {
   }
 
   if (tags) {
-    query.tags = {
+    q.tags = {
       $in: tags
         .split(',')
         .map((tag) => tag.trim().toLowerCase())
@@ -87,7 +87,7 @@ export const getProducts = asyncHandler(async (req, res) => {
     'rating-desc': { averageRating: -1, _id: -1 },
   }
 
-  sortOptions.default = searchQuery ? { score: { $meta: 'textScore' }, _id: 1 } : sortOptions.newest
+  sortOptions.default = query ? { score: { $meta: 'textScore' }, _id: 1 } : sortOptions.newest
 
   const [products, total] = await Promise.all([
     Product.find(q)
@@ -118,7 +118,7 @@ export const getProducts = asyncHandler(async (req, res) => {
   )
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getProductById = asyncHandler(async (req, res) => {
   const { id } = req.params
@@ -136,7 +136,7 @@ export const getProductById = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Product retrieved successfully.', product))
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const createProduct = asyncHandler(async (req, res) => {
   const userId = getUserId(req)
@@ -190,7 +190,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   }
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params
@@ -273,7 +273,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
   }
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = req.params
@@ -301,7 +301,7 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Product deleted successfully'))
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const addReview = asyncHandler(async (req, res) => {
   const { id } = req.params
@@ -345,7 +345,7 @@ export const addReview = asyncHandler(async (req, res) => {
   )
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const deleteReview = asyncHandler(async (req, res) => {
   const { id, reviewId } = req.params
@@ -387,7 +387,7 @@ export const deleteReview = asyncHandler(async (req, res) => {
   )
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getReviews = asyncHandler(async (req, res) => {
   const { id } = req.params

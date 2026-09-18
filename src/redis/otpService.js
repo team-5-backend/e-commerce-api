@@ -7,7 +7,7 @@ import { createOtpSchema, verifyOtpSchema } from '../validations/auth.validation
 
 import redisClient from './redisClient.js'
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const hashOtp = (otp) => crypto.createHash('sha256').update(otp).digest('hex')
 
@@ -15,7 +15,7 @@ export const generateSecureOtp = () => {
   return crypto.randomInt(100000, 1000000).toString()
 }
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const saveOtp = async (schemaPayload) => {
   const { value, error: schemaError } = createOtpSchema.validate(schemaPayload)
@@ -38,7 +38,7 @@ export const saveOtp = async (schemaPayload) => {
   await redisClient.setEx(`otp:${email}`, environment.OTP_TTL, data)
 }
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const verifyOtp = async (schemaPayload) => {
   const { value, error: schemaError } = verifyOtpSchema.validate(schemaPayload)

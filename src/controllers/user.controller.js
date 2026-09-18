@@ -5,7 +5,7 @@ import { ApiResponse } from '../utils/ApiResponse.js'
 import { AppError } from '../utils/appError.js'
 import { deleteImages, uploadImages } from '../utils/cloudinary.js'
 
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const getPublicId = (url) => {
   if (!url || !url.includes('cloudinary.com')) return null
@@ -21,7 +21,7 @@ const getPublicId = (url) => {
   }
 }
 
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const createUser = asyncHandler(async (req, res) => {
   const { username, email, password, phone, role, addresses, isVerified } = req.body
@@ -51,7 +51,7 @@ export const createUser = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.CREATED).send(ApiResponse('User created successfully.', result))
 })
 
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getUsers = asyncHandler(async (_, res) => {
   const users = await User.find().select('-password').lean().exec()
@@ -61,7 +61,7 @@ export const getUsers = asyncHandler(async (_, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Users retrieved successfully.', users))
 })
 
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getUserById = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).select('-password').lean().exec()
@@ -70,7 +70,7 @@ export const getUserById = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('User retrieved successfully.', user))
 })
 
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params
@@ -111,7 +111,7 @@ export const updateUser = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('User updated successfully.', result))
 })
 
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).lean().exec()

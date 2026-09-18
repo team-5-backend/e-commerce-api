@@ -6,7 +6,7 @@ import { refreshTokens } from '../redis/jwtService.js'
 import redisClient from '../redis/redisClient.js'
 import { AppError } from '../utils/appError.js'
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization
@@ -79,7 +79,7 @@ export const authenticate = async (req, res, next) => {
   }
 }
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const authorize = (...allowedRoles) => {
   return (req, _res, next) => {

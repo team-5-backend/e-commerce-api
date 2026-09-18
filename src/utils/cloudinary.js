@@ -6,7 +6,7 @@ import logger from '../utils/logger.js'
 
 import { AppError } from './appError.js'
 
-/////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 cloudinary.config({
   cloud_name: environment.cloudinary.cloudinaryCloudName,
@@ -15,7 +15,7 @@ cloudinary.config({
   secure: true,
 })
 
-/////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const uploadImages = async (fileBuffers, folderName = 'my_app_uploads') => {
   if (!fileBuffers || !Array.isArray(fileBuffers) || fileBuffers.length === 0) return null
@@ -52,7 +52,9 @@ export const uploadImages = async (fileBuffers, folderName = 'my_app_uploads') =
     })
   }
 }
-/////////////////////////////////////////////
+
+//////////////////////////////////////////////////////
+
 export const deleteImages = async (publicIds) => {
   if (!publicIds || !Array.isArray(publicIds) || publicIds.length === 0) return null
 

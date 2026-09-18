@@ -3,7 +3,7 @@ import { asyncHandler } from '../middlewares/asyncHandler.js'
 import { Cart, Order, User, Wishlist } from '../models/index.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 
-/////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const REVENUE_MATCH = {
   paymentStatus: 'paid',
@@ -17,7 +17,7 @@ const getPagination = (page, limit) => {
   return { currentPage, currentLimit, skip }
 }
 
-/////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getAdminDashboardAnalytics = asyncHandler(async (_, res) => {
   const now = new Date()
@@ -180,7 +180,7 @@ export const getAdminDashboardAnalytics = asyncHandler(async (_, res) => {
     .send(ApiResponse('Dashboard analytics retrieved successfully', responseData))
 })
 
-/////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getAllActiveCarts = asyncHandler(async (req, res) => {
   const { currentPage, currentLimit, skip } = getPagination(req.query.page, req.query.limit)
@@ -223,7 +223,7 @@ export const getAllActiveCarts = asyncHandler(async (req, res) => {
   )
 })
 
-/////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getAllUserWishlists = asyncHandler(async (req, res) => {
   const { currentPage, currentLimit, skip } = getPagination(req.query.page, req.query.limit)
@@ -260,7 +260,7 @@ export const getAllUserWishlists = asyncHandler(async (req, res) => {
   )
 })
 
-/////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getTopWishlistedProducts = asyncHandler(async (_, res) => {
   const topWishlisted = await Wishlist.aggregate([

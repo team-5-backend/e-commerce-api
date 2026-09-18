@@ -10,7 +10,8 @@ export const otpHtml = (otp) => {
     </div>
   `
 }
-//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////
 
 export const passwordOtpHtml = (otp) => `
 <!DOCTYPE html>
@@ -43,7 +44,7 @@ export const passwordOtpHtml = (otp) => `
 </body>
 </html>
 `
-//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const genericMessageHtml = (title, message) => `
 <!DOCTYPE html>
@@ -73,7 +74,8 @@ export const genericMessageHtml = (title, message) => `
 </body>
 </html>
 `
-//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////
 
 export const getOrderConfirmationTemplate = (order, userName) => {
   const itemsHtml = order.items
@@ -116,7 +118,8 @@ export const getOrderConfirmationTemplate = (order, userName) => {
     </div>
   `
 }
-//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////
 
 export const getStatusEmailTemplate = (orderId, status, userName) => {
   return `

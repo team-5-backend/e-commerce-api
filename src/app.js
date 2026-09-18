@@ -35,16 +35,22 @@ app.use(cookieParser())
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
 
-// View Engine
-app.set('view engine', 'ejs')
-app.set('views', path.join(process.cwd(), 'src', 'views'))
-
 // Routes
 app.use('/api/v1', router)
 
 // ErrorHandling
 app.use(notFoundHandler)
 app.use(errorHandler)
+
+// View Engine
+app.set('view engine', 'ejs')
+app.set('views', path.join(process.cwd(), 'src', 'views'))
+
+// Static Files
+app.use(express.static(path.join(process.cwd(), 'public')))
+
+// Trust Proxy
+app.set('trust proxy', 1)
 
 //////////////////////////////////////////////////////
 

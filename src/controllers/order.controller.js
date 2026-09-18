@@ -14,7 +14,7 @@ import { getOrderConfirmationTemplate, getStatusEmailTemplate } from '../utils/h
 import logger from '../utils/logger.js'
 import { sendEmail } from '../utils/sendEmail.js'
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const stripe = environment?.stripe?.secretKey ? new Stripe(environment.stripe.secretKey) : null
 
@@ -65,7 +65,7 @@ const isValidStatusTransition = (currentStatus, nextStatus) => {
   return allowedStatuses.includes(nextStatus)
 }
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const createOrder = asyncHandler(async (req, res) => {
   const paymentMethod = req.body.paymentMethod || 'cash'
@@ -321,7 +321,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   }
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getMyOrders = asyncHandler(async (req, res) => {
   const { currentPage, currentLimit, skip } = await getPagination(
@@ -355,7 +355,7 @@ export const getMyOrders = asyncHandler(async (req, res) => {
   )
 })
 
-///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getMyOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findOne({ _id: req.params.id, user: req.user._id })
@@ -364,7 +364,7 @@ export const getMyOrderById = asyncHandler(async (req, res) => {
   return res.status(HTTP_STATUS.OK).send(ApiResponse('Order fetched successfully', { order }))
 })
 
-///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const cancelOrder = asyncHandler(async (req, res, next) => {
   const session = await mongoose.startSession()
@@ -414,7 +414,7 @@ export const cancelOrder = asyncHandler(async (req, res, next) => {
   }
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getAllOrders = asyncHandler(async (req, res, next) => {
   const { currentPage, currentLimit, skip } = await getPagination(
@@ -452,7 +452,7 @@ export const getAllOrders = asyncHandler(async (req, res, next) => {
   )
 })
 
-////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getAdminOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user', 'username email phone')
@@ -463,7 +463,7 @@ export const getAdminOrderById = asyncHandler(async (req, res) => {
     .send(ApiResponse('Order details fetched successfully', { order }))
 })
 
-///////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const { status, adminNote } = req.body
@@ -509,7 +509,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     .send(ApiResponse('Order status updated successfully', { order }))
 })
 
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const AdminOrderDashboard = asyncHandler(async (_, res) => {
   const totalOrders = await Order.countDocuments()
@@ -534,7 +534,7 @@ export const AdminOrderDashboard = asyncHandler(async (_, res) => {
   )
 })
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const AdminOrderCarts = asyncHandler(async (_, res) => {
   const carts = await Cart.find().populate('user', 'username email')
@@ -546,7 +546,7 @@ export const AdminOrderCarts = asyncHandler(async (_, res) => {
   return res.status(HTTP_STATUS.OK).send(ApiResponse('Carts fetched successfully', { carts }))
 })
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 async function handleOrderSuccess(orderQuery) {
   const session = await mongoose.startSession()
@@ -592,7 +592,7 @@ async function handleOrderSuccess(orderQuery) {
   }
 }
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const handleStripeWebhook = asyncHandler(async (req, res) => {
   let event
@@ -641,7 +641,7 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
   return res.status(HTTP_STATUS.OK).send({ received: true })
 })
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const handlePaypalWebhook = asyncHandler(async (req, res) => {
   let event = req.body
@@ -731,7 +731,7 @@ export const handlePaypalWebhook = asyncHandler(async (req, res) => {
   return res.status(HTTP_STATUS.OK).send({ received: true })
 })
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 function verifyPaymobHmac(req) {
   const hmacReceived = req.query.hmac || req.headers['hmac']
@@ -773,7 +773,7 @@ function verifyPaymobHmac(req) {
   return calculatedHmac === hmacReceived
 }
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const handlePaymobWebhook = asyncHandler(async (req, res) => {
   let eventData = req.body
