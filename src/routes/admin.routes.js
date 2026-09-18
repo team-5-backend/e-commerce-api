@@ -9,13 +9,13 @@ import {
 import { authenticate, authorize } from '../middlewares/auth.middleware.js'
 import { cache } from '../middlewares/cache.middleware.js'
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const router = express.Router()
 router.use(authenticate)
 router.use(authorize('admin'))
 
-/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 // http://localhost:3000/api/v1/admin/dashboard
 router.get('/dashboard', cache(), getAdminDashboardAnalytics)

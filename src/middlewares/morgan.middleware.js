@@ -3,7 +3,7 @@ import morgan from 'morgan'
 import environment from '../config/environment.js'
 import logger from '../utils/logger.js'
 
-////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const stream = {
   write: (message) => logger.info(message.trim()),

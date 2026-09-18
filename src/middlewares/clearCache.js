@@ -1,7 +1,7 @@
 import redisClient from '../redis/redisClient.js'
 import logger from '../utils/logger.js'
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const clearCache = (pattern) => {
   return async (_, res, next) => {

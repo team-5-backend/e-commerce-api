@@ -18,7 +18,7 @@ import { sendEmail } from '../utils/sendEmail.js'
 
 import { asyncHandler } from './../middlewares/asyncHandler.js'
 
-/////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body
@@ -51,7 +51,7 @@ export const login = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Logged in successfully.', { accessToken }))
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const register = asyncHandler(async (req, res) => {
   const { username, phone, email, password } = req.body
@@ -89,7 +89,7 @@ export const register = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('otp sent successfully.'))
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const verifyRegisterOtp = asyncHandler(async (req, res) => {
   const { email, otp } = req.body
@@ -122,7 +122,7 @@ export const verifyRegisterOtp = asyncHandler(async (req, res) => {
   )
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body
@@ -150,7 +150,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(successResponse)
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const verifyForgotPasswordOtp = asyncHandler(async (req, res) => {
   const { email, otp, newPassword } = req.body
@@ -191,7 +191,7 @@ export const verifyForgotPasswordOtp = asyncHandler(async (req, res) => {
   )
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const logout = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken
@@ -204,7 +204,7 @@ export const logout = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Logged out successfully.'))
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const logoutAll = asyncHandler(async (req, res) => {
   const userId = req.user._id
@@ -216,7 +216,7 @@ export const logoutAll = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('Logged out from all devices successfully.'))
 })
 
-////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const refresh = asyncHandler(async (req, res) => {
   const { refreshToken } = req.cookies || {}
@@ -242,7 +242,7 @@ export const refresh = asyncHandler(async (req, res) => {
     .send(ApiResponse('Token refreshed successfully.', { accessToken: newAccessToken }))
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getSessions = asyncHandler(async (req, res) => {
   const userId = req.user._id
@@ -257,7 +257,7 @@ export const getSessions = asyncHandler(async (req, res) => {
     .send(ApiResponse('Active sessions retrieved successfully.', sessions))
 })
 
-//////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getMe = asyncHandler(async (req, res) => {
   const userId = req.user._id
@@ -269,7 +269,7 @@ export const getMe = asyncHandler(async (req, res) => {
   res.status(HTTP_STATUS.OK).send(ApiResponse('User profile retrieved successfully.', user))
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const deleteSession = asyncHandler(async (req, res) => {
   const userId = req.user._id
@@ -292,7 +292,7 @@ export const deleteSession = asyncHandler(async (req, res) => {
   return res.status(HTTP_STATUS.OK).send(ApiResponse('Session revoked successfully.'))
 })
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

@@ -24,7 +24,7 @@ import {
 } from '../validations/product.validation.js'
 import objectIdSchema from '../validations/schemas/id.schema.js'
 
-////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 const router = express.Router()
 
 router.get('/search', validate(productQuerySchema, 'query'), cache(300), getProducts)
@@ -91,6 +91,6 @@ router.delete(
   deleteReview,
 )
 
-////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export default router

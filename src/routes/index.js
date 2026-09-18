@@ -10,7 +10,7 @@ import productRoutes from './product.routes.js'
 import userRoutes from './user.routes.js'
 import wishlistRoutes from './wishlist.routes.js'
 
-////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 const router = express.Router()
 
@@ -22,10 +22,11 @@ router.get('/health', (_req, res) =>
 )
 
 router.get('/docs', (_req, res) => {
+  res.setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline';")
   res.render('docs')
 })
 
-////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 router.use('/auth', authRoutes)
 router.use('/admin', adminRoutes)
@@ -35,6 +36,6 @@ router.use('/orders', orderRoutes)
 router.use('/products', productRoutes)
 router.use('/wishlists', wishlistRoutes)
 
-////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export default router

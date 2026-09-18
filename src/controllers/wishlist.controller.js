@@ -4,7 +4,7 @@ import { Product, Wishlist } from '../models/index.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { AppError } from '../utils/appError.js'
 
-//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const getMyWishlist = asyncHandler(async (req, res) => {
   const wishlist = await Wishlist.findOne({ user: req.user._id }).populate('products').lean()
@@ -16,7 +16,7 @@ export const getMyWishlist = asyncHandler(async (req, res) => {
   return res.status(HTTP_STATUS.OK).send(ApiResponse('Wishlist retrieved successfully', wishlist))
 })
 
-//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const addToWishlist = asyncHandler(async (req, res) => {
   const { id: productId } = req.params
@@ -46,7 +46,7 @@ export const addToWishlist = asyncHandler(async (req, res) => {
     .send(ApiResponse('Product added to wishlist successfully', wishlist))
 })
 
-//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const removeFromWishlist = asyncHandler(async (req, res) => {
   const { id: productId } = req.params
@@ -75,7 +75,7 @@ export const removeFromWishlist = asyncHandler(async (req, res) => {
     .send(ApiResponse('Product removed from wishlist successfully', wishlist))
 })
 
-//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 export const clearWishlist = asyncHandler(async (req, res) => {
   const wishlist = await Wishlist.findOne({ user: req.user._id })

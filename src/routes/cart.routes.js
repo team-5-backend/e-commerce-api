@@ -18,10 +18,10 @@ import {
 } from '../validations/cart.validation.js'
 import objectIdSchema from '../validations/schemas/id.schema.js'
 
-///////////////////////////////////////////////
+//////////////////////////////////////////////////////
 const router = Router()
 router.use(authenticate)
-///////////////////////////////////////////////
+//////////////////////////////////////////////////////
 
 // http://localhost:3000/api/v1/carts
 router.get('/', getCart)
@@ -44,5 +44,6 @@ router.post('/coupon', validate(applyCouponSchema), applyCoupon)
 //  http://localhost:3000/api/v1/carts/coupon
 router.delete('/coupon', removeCoupon)
 
-///////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
 export default router
