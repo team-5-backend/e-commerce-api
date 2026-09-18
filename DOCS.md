@@ -218,7 +218,7 @@ Response `200`:
 ```json
 {
   "success": true,
-  "message": "otp sent successfully."
+  "message": "If an account exists, a password reset code has been sent to the email address provided."
 }
 ```
 

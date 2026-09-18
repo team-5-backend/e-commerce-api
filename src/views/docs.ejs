@@ -1033,7 +1033,11 @@
           message: 'Logged in successfully.',
           data: { accessToken: '<JWT_ACCESS_TOKEN>' },
         },
-        registerSendOtp: { success: true, message: 'otp sent successfully.' },
+        registerSendOtp: {
+          success: true,
+          message:
+            'If an account exists, a password reset code has been sent to the email address provided.',
+        },
         registerVerify: {
           success: true,
           message: 'Account created successfully.',

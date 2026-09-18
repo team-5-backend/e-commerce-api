@@ -86,7 +86,7 @@ export const register = asyncHandler(async (req, res) => {
     html: otpHtml(otp),
   })
 
-  res.status(HTTP_STATUS.OK).send(ApiResponse('otp sent successfully.'))
+  res.status(HTTP_STATUS.OK).send(successResponse)
 })
 
 //////////////////////////////////////////////////////
