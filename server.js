@@ -4,40 +4,55 @@ import { connectDatabase, disconnectDatabase } from './src/db/db.js'
 import { connectRedis, disconnectRedis } from './src/redis/redisClient.js'
 import logger from './src/utils/logger.js'
 
+//////////////////////////////////////////////////////
+
 process.on('uncaughtException', (error) => {
   logger.error({ message: 'UNCAUGHT EXCEPTION! Shutting down...', error })
   process.exit(1)
 })
 
-try {
-  await connectDatabase()
-  await connectRedis()
-} catch (error) {
-  logger.error({ message: 'Failed to connect to database or redis', error })
-  process.exit(1)
-}
+//////////////////////////////////////////////////////
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+await connectDatabase()
+await connectRedis()
+
+//////////////////////////////////////////////////////
+
+let port = environment.port || process.env.PORT || 3000
+
+const server = app.listen(port)
+
+server.on('listening', () => {
+  const currentPort = server.address().port
+  logger.info(`Server running at http://${environment.host}:${currentPort}`)
+})
 
 server.on('error', (error) => {
   if (error.code === 'EADDRINUSE') {
-    logger.error(`Port ${PORT} is already in use.`)
-    process.exit(1)
+    logger.warn(`Port ${port} is already in use. Trying port ${port + 1}...`)
+    port++
+    server.listen(port)
   } else {
     throw error
   }
 })
 
+//////////////////////////////////////////////////////
+
 const shutdown = (signal) => {
   logger.info(`${signal} received. Shutting down gracefully...`)
+
+  const forceShutdown = setTimeout(() => {
+    logger.error('Could not close connections in time, forcing shutdown')
+    process.exit(1)
+  }, 3000)
+
   server.close(async () => {
     try {
+      clearTimeout(forceShutdown)
       await disconnectDatabase()
       await disconnectRedis()
-      logger.info('Connections closed successfully.')
+      logger.info('Server, Redis and database connections closed successfully.')
       process.exit(0)
     } catch (error) {
       logger.error({ message: 'Error during shutdown', error })
@@ -48,3 +63,11 @@ const shutdown = (signal) => {
 
 process.on('SIGINT', () => shutdown('SIGINT'))
 process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGUSR2', () => shutdown('SIGUSR2'))
+
+//////////////////////////////////////////////////////
+
+process.on('unhandledRejection', (error) => {
+  logger.error({ message: 'UNHANDLED REJECTION! Shutting down...', error })
+  shutdown('unhandledRejection')
+})
