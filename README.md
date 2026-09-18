@@ -104,8 +104,8 @@ Example response:
 
 ```text
 .
+├── public/
 ├── src/
-│   ├── app.js
 │   ├── config/
 │   ├── controllers/
 │   ├── db/
@@ -114,13 +114,17 @@ Example response:
 │   ├── redis/
 │   ├── routes/
 │   ├── utils/
-│   └── validations/
+│   ├── validations/
+│   ├── views/
+│   └── app.js
 ├── server.js
 ├── package.json
 ├── package-lock.json
 ├── DOCS.md
 ├── .env
-└── docker-compose.yml
+├── docker-compose.yml
+├── Dockerfile.yml
+└── .dockerignore.yml
 ```
 
 ## API documentation
