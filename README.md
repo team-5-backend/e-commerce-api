@@ -125,7 +125,7 @@ Example response:
 
 ## API documentation
 
-The repository includes a detailed API reference in [`DOCS.md`](DOCS.md).
+The repository includes a detailed API reference in [`DOCS.md`](DOCS.md). You can also access the interactive developer portal while the server is running by navigating to /api/v1/docs in your browser.
 
 ## Where to get help
 
