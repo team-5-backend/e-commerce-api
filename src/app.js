@@ -17,7 +17,10 @@ import router from './routes/index.js'
 
 const app = express()
 
+<<<<<<< HEAD
 app.set('trust proxy',1);
+=======
+>>>>>>> 781d2786b99b8b1a327cb3eadeb4b649b8aac6ab
 // Logging
 app.use(morganMiddleware)
 
