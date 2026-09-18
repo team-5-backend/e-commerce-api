@@ -26,7 +26,6 @@
         margin: 0;
         padding: 0;
         scroll-behavior: smooth;
-        text-wrap: pretty;
       }
 
       body {
@@ -67,7 +66,12 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
-        font-size: 1.2rem;
+        color: var(--neon-purple);
+      }
+
+      .brand-icon .icon {
+        width: 20px;
+        height: 20px;
       }
 
       .brand-title h2 {
@@ -112,6 +116,12 @@
         align-items: center;
         gap: 10px;
         transition: transform 0.3s ease;
+      }
+
+      .nav-link .icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
       }
 
       .nav-link .count {
@@ -258,7 +268,6 @@
         color: var(--text-main);
         margin-bottom: 12px;
         background: linear-gradient(90deg, #1e1b4b, #7c3aed);
-        text-wrap: balance;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
@@ -316,7 +325,13 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
-        font-size: 1.4rem;
+        color: #fff;
+      }
+
+      .globe-core .icon {
+        width: 26px;
+        height: 26px;
+        stroke-width: 1.75;
       }
 
       @keyframes spin {
@@ -363,6 +378,11 @@
         font-size: 0.8rem;
       }
 
+      .metric-card .top .icon {
+        width: 15px;
+        height: 15px;
+      }
+
       .metric-card .value {
         font-size: 1.5rem;
         font-weight: 700;
@@ -391,6 +411,7 @@
         gap: 8px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+        align-items: center;
       }
 
       .filter-btn {
@@ -410,6 +431,24 @@
         background: rgba(124, 58, 237, 0.12);
         color: #6d28d9;
         border-color: var(--neon-purple);
+      }
+
+      .token-input {
+        flex: 1;
+        min-width: 240px;
+        background: rgba(15, 23, 42, 0.03);
+        border: 1px solid var(--border-color);
+        padding: 6px 14px;
+        border-radius: 8px;
+        color: var(--text-main);
+        font-size: 0.75rem;
+        outline: none;
+        transition: all 0.3s;
+      }
+
+      .token-input:focus {
+        border-color: var(--neon-purple);
+        background: white;
       }
 
       .module-group {
@@ -501,6 +540,11 @@
         color: #b91c1c;
         border: 1px solid rgba(239, 68, 68, 0.35);
       }
+      .method-all {
+        background: rgba(100, 116, 139, 0.14);
+        color: #334155;
+        border: 1px solid rgba(100, 116, 139, 0.35);
+      }
 
       .route-path {
         font-size: 0.85rem;
@@ -564,6 +608,147 @@
         color: #7e22ce;
       }
 
+      .try-btn {
+        margin-top: 12px;
+        background: var(--neon-purple);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.75rem;
+        transition: background 0.2s;
+      }
+
+      .try-btn:hover {
+        background: #6d28d9;
+      }
+
+      /* Dialog styling adapted for clean theme */
+      dialog {
+        width: min(760px, calc(100vw - 40px));
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35);
+        padding: 0;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: var(--card-bg);
+        margin: auto;
+      }
+
+      dialog::backdrop {
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(4px);
+      }
+
+      .dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .dialog-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+
+      .close-btn {
+        border: 1px solid var(--border-color);
+        background: white;
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+
+      .close-btn:hover {
+        background: rgba(15, 23, 42, 0.05);
+      }
+
+      .dialog-body {
+        padding: 20px;
+      }
+
+      .field {
+        margin-bottom: 16px;
+      }
+
+      .field label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+      }
+
+      .field input,
+      .field textarea {
+        width: 100%;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        font-family: monospace;
+        background: rgba(15, 23, 42, 0.02);
+        color: var(--text-main);
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .field input:focus,
+      .field textarea:focus {
+        border-color: var(--neon-purple);
+      }
+
+      .field textarea {
+        min-height: 150px;
+        resize: vertical;
+      }
+
+      .action-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+      }
+
+      .send-btn {
+        background: linear-gradient(135deg, var(--neon-purple), #5b21b6);
+        color: white;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .send-btn:hover {
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+      }
+
+      .result-box {
+        display: none;
+        margin-top: 16px;
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        max-height: 300px;
+        overflow: auto;
+        font-size: 0.75rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        font-family: monospace;
+      }
+
       @media (max-width: 900px) {
         .metrics-grid {
           grid-template-columns: repeat(2, 1fr);
@@ -571,36 +756,6 @@
         .route-body {
           grid-template-columns: 1fr;
         }
-      }
-
-      .icon {
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
-      }
-
-      .brand-icon {
-        color: var(--neon-purple);
-      }
-
-      .brand-icon .icon {
-        width: 20px;
-        height: 20px;
-      }
-
-      .globe-core {
-        color: #fff;
-      }
-
-      .globe-core .icon {
-        width: 26px;
-        height: 26px;
-        stroke-width: 1.75;
-      }
-
-      .metric-card .top .icon {
-        width: 15px;
-        height: 15px;
       }
     </style>
   </head>
@@ -634,180 +789,7 @@
       </div>
 
       <div class="nav-container" id="sidebarNav">
-        <div class="nav-section-title">Overview</div>
-        <a
-          href="#overview"
-          class="nav-link active"
-          onclick="scrollToSection(event, '#overview', this)"
-          ><span
-            ><svg
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
-              /></svg
-            >Overview</span
-          ><span>01</span></a
-        >
-
-        <div class="nav-section-title">API Modules</div>
-        <a href="#auth" class="nav-link" onclick="scrollToSection(event, '#auth', this)"
-          ><span
-            ><svg
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="m2 21 9.6-9.6" />
-              <path d="m7.5 15.5 2.3 2.3a1 1 0 0 1 0 1.4l-2.1 2.1a1 1 0 0 1-1.4 0L4 19" />
-              <circle cx="15.5" cy="7.5" r="5.5" /></svg
-            >Authentication</span
-          ><span class="count">11</span></a
-        >
-        <a href="#users" class="nav-link" onclick="scrollToSection(event, '#users', this)"
-          ><span
-            ><svg
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" /></svg
-            >Users</span
-          ><span class="count">05</span></a
-        >
-        <a href="#products" class="nav-link" onclick="scrollToSection(event, '#products', this)"
-          ><span
-            ><svg
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"
-              />
-              <path d="M12 22V12" />
-              <polyline points="3.29 7 12 12 20.71 7" />
-              <path d="m7.5 4.27 9 5.15" /></svg
-            >Products</span
-          ><span class="count">09</span></a
-        >
-        <a href="#cart" class="nav-link" onclick="scrollToSection(event, '#cart', this)"
-          ><span
-            ><svg
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"
-              />
-              <path
-                d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"
-              />
-              <circle cx="18" cy="20" r="2" />
-              <circle cx="8" cy="20" r="2" /></svg
-            >Cart</span
-          ><span class="count">07</span></a
-        >
-        <a href="#orders" class="nav-link" onclick="scrollToSection(event, '#orders', this)"
-          ><span
-            ><svg
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect width="20" height="14" x="2" y="5" rx="2" />
-              <line x1="2" x2="22" y1="10" y2="10" />
-              <path d="M6 14h2" /></svg
-            >Orders</span
-          ><span class="count">12</span></a
-        >
-        <a href="#wishlist" class="nav-link" onclick="scrollToSection(event, '#wishlist', this)"
-          ><span
-            ><svg
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"
-              /></svg
-            >Wishlist</span
-          ><span class="count">04</span></a
-        >
-        <a href="#admin" class="nav-link" onclick="scrollToSection(event, '#admin', this)"
-          ><span
-            ><svg
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"
-              />
-              <circle cx="12" cy="12" r="3" /></svg
-            >Admin</span
-          ><span class="count">04</span></a
-        >
+        <!-- Dynamically generated navigation -->
       </div>
 
       <div class="sidebar-footer">
@@ -829,28 +811,24 @@
               d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
             />
           </svg>
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search routes..."
-            oninput="filterRoutes()"
-            onkeydown="handleSearchKey(event)"
-          />
+          <input type="text" id="searchInput" placeholder="Search routes..." />
         </div>
       </header>
 
-      <div class="content-wrapper" id="overview">
+      <div class="content-wrapper">
         <!-- Hero Banner -->
-        <div class="hero-banner">
+        <div class="hero-banner" id="overview">
           <div class="hero-text">
             <h2>Build with the Store API.</h2>
             <p>
               Complete interactive reference for authentication, products, carts, orders, wishlists,
-              users and administrative operations.
+              users and administrative operations. Test endpoints below aligned with public
+              contracts.
             </p>
             <div class="hero-tags">
               <span class="hero-tag">/api/v1</span>
               <span class="hero-tag">Authorization: Bearer &lt;token&gt;</span>
+              <span class="hero-tag">Refresh Token Cookie</span>
               <span class="hero-tag">JSON</span>
             </div>
           </div>
@@ -901,7 +879,7 @@
                 />
               </svg>
             </div>
-            <div class="value">52</div>
+            <div class="value" id="endpointCount">0</div>
           </div>
           <div class="metric-card">
             <div class="top">
@@ -926,7 +904,7 @@
                 <path d="m7.5 4.27 9 5.15" />
               </svg>
             </div>
-            <div class="value">7</div>
+            <div class="value" id="moduleCount">0</div>
           </div>
           <div class="metric-card">
             <div class="top">
@@ -947,7 +925,7 @@
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
             </div>
-            <div class="value">3</div>
+            <div class="value">4</div>
           </div>
           <div class="metric-card">
             <div class="value" style="font-size: 1.2rem; margin-top: 5px">Live Sync</div>
@@ -976,2675 +954,1062 @@
         <!-- API Explorer Header -->
         <div class="explorer-header">
           <h3>API Explorer</h3>
-          <p>Select any endpoint to inspect its request and response.</p>
+          <p>Select any endpoint to inspect its request and response or try it live.</p>
         </div>
 
         <div class="filter-buttons">
-          <button class="filter-btn active" onclick="filterByMethod('ALL', this)">ALL</button>
-          <button class="filter-btn" onclick="filterByMethod('GET', this)">GET</button>
-          <button class="filter-btn" onclick="filterByMethod('POST', this)">POST</button>
-          <button class="filter-btn" onclick="filterByMethod('PUT', this)">PUT</button>
-          <button class="filter-btn" onclick="filterByMethod('PATCH', this)">PATCH</button>
-          <button class="filter-btn" onclick="filterByMethod('DELETE', this)">DELETE</button>
+          <button class="filter-btn active" data-method="ALL">ALL</button>
+          <button class="filter-btn" data-method="GET">GET</button>
+          <button class="filter-btn" data-method="POST">POST</button>
+          <button class="filter-btn" data-method="PATCH">PATCH</button>
+          <button class="filter-btn" data-method="DELETE">DELETE</button>
+          <input
+            id="tokenInput"
+            class="token-input"
+            placeholder="Optional access token (without Bearer prefix)"
+          />
         </div>
 
-        <!-- 1. Authentication -->
-        <div id="auth" class="module-group" data-module="Authentication">
-          <div class="module-title">Authentication</div>
-
-          <details class="route-card" data-route="/auth/login" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/login</div>
-                  <div class="route-desc">Authenticate user and return token</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "email": "user@example.com",
-  "password": "Password123!"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": "65f1a2b3c4d5e6f7a8b9c0d1",
-    "name": "Ahmed Mohamed",
-    "email": "user@example.com",
-    "role": "user"
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/auth/register/send-otp" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/register/send-otp</div>
-                  <div class="route-desc">Register a new user and dispatch verification OTP</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "name": "Ahmed Mohamed",
-  "email": "email@ex.com",
-  "password": "Pass123!",
-  "phone": "+201012345678"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "OTP sent successfully to email@ex.com"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/auth/verify-otp" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/verify-otp</div>
-                  <div class="route-desc">Verify registration OTP and activate account</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "email": "email@ex.com",
-  "otp": "123456"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Account verified successfully",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/auth/forgotpassword/send-otp" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/forgotpassword/send-otp</div>
-                  <div class="route-desc">Send OTP for forgot password request</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "email": "email@ex.com"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Password reset OTP sent to email"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details
-            class="route-card"
-            data-route="/auth/forgotpassword/verify-otp"
-            data-method="POST"
-          >
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/forgotpassword/verify-otp</div>
-                  <div class="route-desc">Verify forgot password OTP and reset password</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "email": "email@ex.com",
-  "otp": "123456",
-  "newPassword": "NewPassword123!"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Password has been reset successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/auth/logout" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/logout</div>
-                  <div class="route-desc">Logout authenticated user session</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Logged out successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/auth/logout-all" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/logout-all</div>
-                  <div class="route-desc">Logout from all active sessions across devices</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Logged out from all sessions successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/auth/refresh" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/refresh</div>
-                  <div class="route-desc">Refresh authentication token</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >BODY</span
-                >
-                <pre>
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/auth/sessions" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/sessions</div>
-                  <div class="route-desc">Get all active sessions for current user</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "sessions": [
-    {
-      "sessionId": "ses_9f87e6d5c4",
-      "device": "Chrome on Windows",
-      "ipAddress": "192.168.1.50",
-      "lastActive": "2026-09-18T10:30:00.000Z"
-    }
-  ]
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/auth/me" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/me</div>
-                  <div class="route-desc">Get current authenticated user account info</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "user": {
-    "_id": "65f1a2b3c4d5e6f7a8b9c0d1",
-    "name": "Ahmed Mohamed",
-    "email": "user@example.com",
-    "phone": "+201012345678",
-    "role": "user",
-    "isVerified": true,
-    "createdAt": "2026-09-01T08:00:00.000Z"
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/auth/sessions/:sessionId" data-method="DELETE">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-delete">DELETE</span>
-                <div>
-                  <div class="route-path">/api/v1/auth/sessions/:sessionId</div>
-                  <div class="route-desc">Delete a specific active user session</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS & HEADERS</span
-                >
-                <pre>
-sessionId: string (URL Param)
-Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Session terminated successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-        </div>
-
-        <!-- 2. Users -->
-        <div id="users" class="module-group" data-module="Users">
-          <div class="module-title">Users</div>
-
-          <details class="route-card" data-route="/users/profile" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/users/profile</div>
-                  <div class="route-desc">Get user profile details</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "profile": {
-    "name": "Ahmed Mohamed",
-    "email": "user@example.com",
-    "phone": "+201012345678",
-    "avatar": "https://example.com/avatars/user.jpg"
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/users/profile" data-method="PUT">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-put">PUT</span>
-                <div>
-                  <div class="route-path">/api/v1/users/profile</div>
-                  <div class="route-desc">Update complete user profile information</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "name": "Ahmed Mohamed Ali",
-  "phone": "+201098765432"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Profile updated successfully",
-  "user": {
-    "name": "Ahmed Mohamed Ali",
-    "phone": "+201098765432"
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/users/change-password" data-method="PUT">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-put">PUT</span>
-                <div>
-                  <div class="route-path">/api/v1/users/change-password</div>
-                  <div class="route-desc">Change password for logged-in user</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "currentPassword": "Password123!",
-  "newPassword": "NewSecurePassword456!"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Password changed successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/users/addresses" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/users/addresses</div>
-                  <div class="route-desc">Add a new delivery shipping address</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "street": "123 Tahrir Street",
-  "city": "Cairo",
-  "state": "Cairo Governorate",
-  "postalCode": "11511",
-  "country": "Egypt",
-  "phone": "+201012345678"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (201 CREATED)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Address added successfully",
-  "addressId": "65f2b3c4d5e6f7a8b9c0d1e2"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/users/addresses/:id" data-method="DELETE">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-delete">DELETE</span>
-                <div>
-                  <div class="route-path">/api/v1/users/addresses/:id</div>
-                  <div class="route-desc">Delete a saved shipping address</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS & HEADERS</span
-                >
-                <pre>
-id: ObjectId (URL Param)
-Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Address removed successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-        </div>
-
-        <!-- 3. Products -->
-        <div id="products" class="module-group" data-module="Products">
-          <div class="module-title">Products</div>
-
-          <details class="route-card" data-route="/products" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/products</div>
-                  <div class="route-desc">Get all products with filters, pagination & search</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >QUERY PARAMS</span
-                >
-                <pre>page=1&limit=10&sort=-price&category=electronics</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "count": 1,
-  "pagination": { "page": 1, "pages": 5 },
-  "products": [
-    {
-      "_id": "65f3c4d5e6f7a8b9c0d1e2f3",
-      "title": "Wireless Gaming Mouse",
-      "price": 49.99,
-      "category": "electronics",
-      "stock": 25
-    }
-  ]
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/products/:id" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/products/:id</div>
-                  <div class="route-desc">Get single product details by ID</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: ObjectId (URL Param)</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "product": {
-    "_id": "65f3c4d5e6f7a8b9c0d1e2f3",
-    "title": "Wireless Gaming Mouse",
-    "description": "Ergonomic RGB wireless gaming mouse with high DPI.",
-    "price": 49.99,
-    "category": "electronics",
-    "stock": 25,
-    "ratingsAverage": 4.5,
-    "images": ["img1.jpg", "img2.jpg"]
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/products" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/products</div>
-                  <div class="route-desc">Create a new product (Admin Only)</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "title": "Mechanical Keyboard",
-  "description": "RGB Backlit mechanical keyboard with blue switches.",
-  "price": 89.99,
-  "category": "electronics",
-  "stock": 15
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (201 CREATED)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Product created successfully",
-  "product": {
-    "_id": "65f4d5e6f7a8b9c0d1e2f3a4",
-    "title": "Mechanical Keyboard",
-    "price": 89.99
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/products/:id" data-method="PUT">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-put">PUT</span>
-                <div>
-                  <div class="route-path">/api/v1/products/:id</div>
-                  <div class="route-desc">Update product details completely (Admin)</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "title": "Mechanical Keyboard Updated",
-  "price": 79.99,
-  "stock": 20
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Product updated successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/products/:id" data-method="PATCH">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-patch">PATCH</span>
-                <div>
-                  <div class="route-path">/api/v1/products/:id</div>
-                  <div class="route-desc">Partially update a product (Admin)</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "price": 74.99
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Product patched successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/products/:id" data-method="DELETE">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-delete">DELETE</span>
-                <div>
-                  <div class="route-path">/api/v1/products/:id</div>
-                  <div class="route-desc">Delete a product from store (Admin)</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: ObjectId (URL Param)</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Product deleted successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/products/:id/reviews" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/products/:id/reviews</div>
-                  <div class="route-desc">Add a review and rating to a product</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "rating": 5,
-  "comment": "Amazing product, highly recommended!"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (201 CREATED)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Review added successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/products/:id/reviews" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/products/:id/reviews</div>
-                  <div class="route-desc">Get all reviews for a specific product</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: ObjectId (URL Param)</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "count": 1,
-  "reviews": [
-    {
-      "user": "Ahmed Mohamed",
-      "rating": 5,
-      "comment": "Amazing product, highly recommended!"
-    }
-  ]
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/products/category/:category" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/products/category/:category</div>
-                  <div class="route-desc">Get products filtered by category name</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>category: string (e.g., electronics)</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "count": 2,
-  "products": []
-}</pre>
-              </div>
-            </div>
-          </details>
-        </div>
-
-        <!-- 4. Cart -->
-        <div id="cart" class="module-group" data-module="Cart">
-          <div class="module-title">Cart</div>
-
-          <details class="route-card" data-route="/cart" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/cart</div>
-                  <div class="route-desc">Get user shopping cart items and totals</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "cart": {
-    "items": [
-      {
-        "product": "65f3c4d5e6f7a8b9c0d1e2f3",
-        "title": "Wireless Gaming Mouse",
-        "price": 49.99,
-        "quantity": 2
-      }
-    ],
-    "totalPrice": 99.98
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/cart" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/cart</div>
-                  <div class="route-desc">Add product item to cart</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "productId": "65f3c4d5e6f7a8b9c0d1e2f3",
-  "quantity": 1
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Product added to cart successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/cart/:id" data-method="PUT">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-put">PUT</span>
-                <div>
-                  <div class="route-path">/api/v1/cart/:id</div>
-                  <div class="route-desc">Update item quantity in cart</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "quantity": 3
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Cart item quantity updated"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/cart/:id" data-method="DELETE">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-delete">DELETE</span>
-                <div>
-                  <div class="route-path">/api/v1/cart/:id</div>
-                  <div class="route-desc">Remove specific item from cart</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: Product/Item ObjectId</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Item removed from cart"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/cart/clear" data-method="DELETE">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-delete">DELETE</span>
-                <div>
-                  <div class="route-path">/api/v1/cart/clear</div>
-                  <div class="route-desc">Clear all items from shopping cart</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Cart cleared successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/cart/apply-coupon" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/cart/apply-coupon</div>
-                  <div class="route-desc">Apply discount coupon code to cart</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "couponCode": "SAVE20"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Coupon applied successfully",
-  "discount": "20%"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/cart/remove-coupon" data-method="DELETE">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-delete">DELETE</span>
-                <div>
-                  <div class="route-path">/api/v1/cart/remove-coupon</div>
-                  <div class="route-desc">Remove active discount coupon from cart</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Coupon removed successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-        </div>
-
-        <!-- 5. Orders -->
-        <div id="orders" class="module-group" data-module="Orders">
-          <div class="module-title">Orders</div>
-
-          <details class="route-card" data-route="/orders" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/orders</div>
-                  <div class="route-desc">Create cash order from current cart</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "shippingAddress": {
-    "street": "123 Tahrir Street",
-    "city": "Cairo",
-    "phone": "+201012345678"
-  }
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (201 CREATED)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Order created successfully",
-  "orderId": "65f5e6f7a8b9c0d1e2f3a4b5"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/orders</div>
-                  <div class="route-desc">Get all orders for logged-in user</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "count": 1,
-  "orders": [
-    {
-      "_id": "65f5e6f7a8b9c0d1e2f3a4b5",
-      "totalOrderPrice": 99.98,
-      "paymentMethodType": "cash",
-      "isPaid": false,
-      "isDelivered": false
-    }
-  ]
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/:id" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/:id</div>
-                  <div class="route-desc">Get specific order details by ID</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: Order ObjectId</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "order": {
-    "_id": "65f5e6f7a8b9c0d1e2f3a4b5",
-    "totalOrderPrice": 99.98,
-    "paymentMethodType": "cash",
-    "status": "pending"
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/:id/cancel" data-method="PUT">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-put">PUT</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/:id/cancel</div>
-                  <div class="route-desc">Cancel pending user order</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: Order ObjectId</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Order cancelled successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/:id/pay" data-method="PUT">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-put">PUT</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/:id/pay</div>
-                  <div class="route-desc">Mark order as paid (Webhook / Admin)</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: Order ObjectId</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Order marked as paid"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/:id/deliver" data-method="PUT">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-put">PUT</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/:id/deliver</div>
-                  <div class="route-desc">Mark order as delivered (Admin)</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: Order ObjectId</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Order marked as delivered"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/checkout-session/:id" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/checkout-session/:id</div>
-                  <div class="route-desc">Get Stripe checkout session URL for online payment</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: Cart/Order ObjectId</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "session": {
-    "url": "https://checkout.stripe.com/pay/cs_test_..."
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/stats" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/stats</div>
-                  <div class="route-desc">Get order statistics and analytics (Admin)</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;admin_token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "stats": {
-    "totalRevenue": 12500.50,
-    "totalOrders": 142
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/history" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/history</div>
-                  <div class="route-desc">Get complete order history archive</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "history": []
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/invoice/:id" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/invoice/:id</div>
-                  <div class="route-desc">Download or view order PDF invoice</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: Order ObjectId</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "invoiceUrl": "https://api.store.com/invoices/inv_12345.pdf"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/track/:trackingNumber" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/track/:trackingNumber</div>
-                  <div class="route-desc">Track shipment and delivery status</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">PUBLIC</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>trackingNumber: string</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "status": "In Transit",
-  "estimatedDelivery": "2026-09-22"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/orders/refund/:id" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/orders/refund/:id</div>
-                  <div class="route-desc">Request order refund or return</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "reason": "Product damaged upon arrival"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Refund request submitted successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-        </div>
-
-        <!-- 6. Wishlist -->
-        <div id="wishlist" class="module-group" data-module="Wishlist">
-          <div class="module-title">Wishlist</div>
-
-          <details class="route-card" data-route="/wishlists" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/wishlists</div>
-                  <div class="route-desc">Get user wishlist products</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "count": 1,
-  "wishlist": [
-    {
-      "_id": "65f3c4d5e6f7a8b9c0d1e2f3",
-      "title": "Wireless Gaming Mouse",
-      "price": 49.99
-    }
-  ]
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/wishlists" data-method="POST">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-post">POST</span>
-                <div>
-                  <div class="route-path">/api/v1/wishlists</div>
-                  <div class="route-desc">Add product to wishlist</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "productId": "65f3c4d5e6f7a8b9c0d1e2f3"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Product added to wishlist successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/wishlists/remove/:id" data-method="DELETE">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-delete">DELETE</span>
-                <div>
-                  <div class="route-path">/api/v1/wishlists/remove/:id</div>
-                  <div class="route-desc">Remove product from wishlist</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >PARAMS</span
-                >
-                <pre>id: Product ObjectId</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Product removed from wishlist"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/wishlists/clear" data-method="DELETE">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-delete">DELETE</span>
-                <div>
-                  <div class="route-path">/api/v1/wishlists/clear</div>
-                  <div class="route-desc">Clear entire wishlist</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">BEARER</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "Wishlist cleared successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-        </div>
-
-        <!-- 7. Admin -->
-        <div id="admin" class="module-group" data-module="Admin">
-          <div class="module-title">Admin</div>
-
-          <details class="route-card" data-route="/admin/dashboard" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/admin/dashboard</div>
-                  <div class="route-desc">Get general admin analytics dashboard</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;admin_token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "analytics": {
-    "totalUsers": 1250,
-    "totalProducts": 320,
-    "totalOrders": 142,
-    "revenue": 12500.50
-  }
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/admin/users" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/admin/users</div>
-                  <div class="route-desc">Get all system users list (Admin)</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;admin_token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "count": 2,
-  "users": [
-    {
-      "_id": "65f1a2b3c4d5e6f7a8b9c0d1",
-      "name": "Ahmed Mohamed",
-      "email": "user@example.com",
-      "role": "user"
-    }
-  ]
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/admin/users/:id/role" data-method="PATCH">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-patch">PATCH</span>
-                <div>
-                  <div class="route-path">/api/v1/admin/users/:id/role</div>
-                  <div class="route-desc">Update user role (Admin/SuperAdmin)</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >REQUEST BODY</span
-                >
-                <pre>
-{
-  "role": "admin"
-}</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "message": "User role updated successfully"
-}</pre>
-              </div>
-            </div>
-          </details>
-
-          <details class="route-card" data-route="/admin/logs" data-method="GET">
-            <summary class="route-summary">
-              <div class="route-info">
-                <span class="method-badge method-get">GET</span>
-                <div>
-                  <div class="route-path">/api/v1/admin/logs</div>
-                  <div class="route-desc">Get system activity logs and audit trail</div>
-                </div>
-              </div>
-              <div class="route-right">
-                <span class="public-badge">ADMIN</span><span class="arrow-icon">▼</span>
-              </div>
-            </summary>
-            <div class="route-body">
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >HEADERS</span
-                >
-                <pre>Authorization: Bearer &lt;admin_token&gt;</pre>
-              </div>
-              <div>
-                <span
-                  style="
-                    font-size: 0.7rem;
-                    color: var(--text-muted);
-                    display: block;
-                    margin-bottom: 6px;
-                  "
-                  >RESPONSE (200 OK)</span
-                >
-                <pre class="response-pre">
-{
-  "success": true,
-  "logs": [
-    {
-      "action": "USER_LOGIN",
-      "ip": "192.168.1.50",
-      "timestamp": "2026-09-18T10:30:00.000Z"
-    }
-  ]
-}</pre>
-              </div>
-            </div>
-          </details>
-        </div>
+        <div id="modules"></div>
       </div>
     </main>
 
+    <!-- Try Endpoint Dialog -->
+    <dialog id="requestDialog">
+      <div class="dialog-header">
+        <h3 id="dialogTitle">Try endpoint</h3>
+        <button class="close-btn" type="button" id="closeDialog">✕</button>
+      </div>
+      <div class="dialog-body">
+        <div class="field">
+          <label for="requestUrl">URL</label>
+          <input id="requestUrl" />
+        </div>
+        <div class="field">
+          <label for="requestQuery">Query string</label>
+          <input id="requestQuery" placeholder="page=1&limit=10" />
+        </div>
+        <div class="field" id="bodyFieldContainer">
+          <label for="requestBody">JSON body</label>
+          <textarea id="requestBody" spellcheck="false"></textarea>
+        </div>
+        <div class="action-row">
+          <button class="send-btn" type="button" id="sendRequest">Send request</button>
+        </div>
+        <pre id="resultBox" class="result-box"></pre>
+      </div>
+    </dialog>
+
     <script>
-      // Sidebar Navigation Scroll handling
-      function scrollToSection(event, targetId, element) {
-        event.preventDefault()
-        const target = document.querySelector(targetId)
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth' })
-        }
-        document.querySelectorAll('.nav-link').forEach((link) => link.classList.remove('active'))
-        element.classList.add('active')
+      const API_BASE = '/api/v1'
+
+      // Icon mappings for the dynamically generated nav sidebar
+      const iconMap = {
+        Health:
+          '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scan-heart preview-icon"><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7.828 13.07A3 3 0 0 1 12 8.764a3 3 0 0 1 4.172 4.306l-3.447 3.62a1 1 0 0 1-1.449 0z"/></svg>',
+        Authentication:
+          '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 21 9.6-9.6" /><path d="m7.5 15.5 2.3 2.3a1 1 0 0 1 0 1.4l-2.1 2.1a1 1 0 0 1-1.4 0L4 19" /><circle cx="15.5" cy="7.5" r="5.5" /></svg>',
+        Users:
+          '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>',
+        Products:
+          '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><polyline points="3.29 7 12 12 20.71 7" /><path d="m7.5 4.27 9 5.15" /></svg>',
+        Carts:
+          '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18" /><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25" /><circle cx="18" cy="20" r="2" /><circle cx="8" cy="20" r="2" /></svg>',
+        Wishlists:
+          '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>',
+        Orders:
+          '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M6 14h2"/></svg>',
+        'Admin summaries':
+          '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
+        default:
+          '<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>',
       }
 
-      // Method Filter handling
-      let currentMethod = 'ALL'
-      function filterByMethod(method, btn) {
-        currentMethod = method
-        document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'))
-        btn.classList.add('active')
-        applyFilters()
+      const samples = {
+        ok: { success: true, message: 'Operation completed successfully.' },
+        health: { status: 'OK', timestamp: '2026-09-16T19:00:00.000Z' },
+        login: {
+          success: true,
+          message: 'Logged in successfully.',
+          data: { accessToken: '<JWT_ACCESS_TOKEN>' },
+        },
+        registerSendOtp: { success: true, message: 'otp sent successfully.' },
+        registerVerify: {
+          success: true,
+          message: 'Account created successfully.',
+          data: {
+            accessToken: '<JWT_ACCESS_TOKEN>',
+            _id: '<USER_ID>',
+            username: 'jane doe',
+            email: 'jane@example.com',
+          },
+        },
+        forgotSendOtp: {
+          success: true,
+          message:
+            'If an account exists, a password reset code has been sent to the email address provided.',
+        },
+        forgotVerify: {
+          success: true,
+          message: 'Password reset successfully.',
+          data: {
+            _id: '<USER_ID>',
+            username: 'jane doe',
+            email: 'jane@example.com',
+            accessToken: '<JWT_ACCESS_TOKEN>',
+          },
+        },
+        logout: { success: true, message: 'Logged out successfully.' },
+        refresh: {
+          success: true,
+          message: 'Token refreshed successfully.',
+          data: { accessToken: '<NEW_JWT_ACCESS_TOKEN>' },
+        },
+        sessions: {
+          success: true,
+          message: 'Active sessions retrieved successfully.',
+          data: [
+            {
+              sessionId: '<SESSION_ID>',
+              ip: '127.0.0.1',
+              userAgent: 'Mozilla/5.0',
+              createdAt: '2026-09-16T19:00:00.000Z',
+            },
+          ],
+        },
+        me: {
+          success: true,
+          message: 'User profile retrieved successfully.',
+          data: {
+            _id: '<USER_ID>',
+            username: 'jane doe',
+            email: 'jane@example.com',
+            role: 'customer',
+            isVerified: true,
+          },
+        },
+        products: {
+          success: true,
+          message: 'Products retrieved successfully.',
+          data: {
+            products: [
+              {
+                _id: '<PRODUCT_ID>',
+                name: 'Wireless Headphones',
+                slug: 'wireless-headphones',
+                shortDescription: 'Noise cancelling bluetooth headphones',
+                description: 'Premium wireless headphones.',
+                price: 129.99,
+                discountPrice: 99.99,
+                stock: 25,
+                sku: 'WH-2201',
+                images: [{ public_id: 'products/abc123', url: 'https://example.com/image.jpg' }],
+                category: 'electronics',
+                subcategory: 'audio',
+                brand: 'AudioMax',
+                tags: ['bluetooth', 'audio'],
+                averageRating: 4.8,
+                numReviews: 21,
+                featured: true,
+                isActive: true,
+              },
+            ],
+            pagination: { page: 1, limit: 10, total: 1, pages: 1 },
+          },
+        },
+        productById: {
+          success: true,
+          message: 'Product retrieved successfully.',
+          data: {
+            _id: '<PRODUCT_ID>',
+            name: 'Wireless Headphones',
+            price: 129.99,
+            discountPrice: 99.99,
+            stock: 25,
+            category: 'electronics',
+            images: [{ public_id: 'products/abc123', url: 'https://example.com/image.jpg' }],
+            averageRating: 4.8,
+            numReviews: 21,
+            isActive: true,
+          },
+        },
+        reviews: {
+          success: true,
+          message: 'Reviews retrieved successfully',
+          data: {
+            reviews: [
+              {
+                _id: '<REVIEW_ID>',
+                user: { _id: '<USER_ID>', username: 'jane doe' },
+                rating: 5,
+                comment: 'Great sound quality.',
+              },
+            ],
+            pagination: { page: 1, limit: 10, total: 1, pages: 1 },
+          },
+        },
+        productCreate: {
+          success: true,
+          message: 'Product created successfully',
+          data: {
+            _id: '<PRODUCT_ID>',
+            name: 'Wireless Headphones',
+            price: 129.99,
+            stock: 25,
+            category: 'electronics',
+            images: [{ public_id: 'products/abc123', url: 'https://example.com/image.jpg' }],
+          },
+        },
+        productUpdate: {
+          success: true,
+          message: 'Product updated successfully',
+          data: {
+            _id: '<PRODUCT_ID>',
+            name: 'Wireless Headphones - Updated',
+            price: 119.99,
+            images: [{ public_id: 'products/abc123', url: 'https://example.com/image.jpg' }],
+          },
+        },
+        cart: {
+          success: true,
+          message: 'Cart retrieved successfully',
+          data: { _id: '67d5e2b3d9a711c43b1da00', user: '<USER_ID>', items: [], discountAmount: 0 },
+        },
+        cartItems: {
+          success: true,
+          message: 'Items added to cart successfully',
+          data: {
+            _id: '67d5e2b3d9a711c43b1da00',
+            items: [{ product: '<PRODUCT_ID>', quantity: 2, price: 99.99 }],
+            discountAmount: 0,
+          },
+        },
+        wishlist: {
+          success: true,
+          message: 'Wishlist retrieved successfully',
+          data: {
+            _id: '67d5e2b3d9a711c43b1da10',
+            user: '<USER_ID>',
+            products: [{ _id: '<PRODUCT_ID>', name: 'Wireless Headphones' }],
+          },
+        },
+        order: {
+          success: true,
+          message: 'Order created successfully',
+          data: {
+            order: {
+              _id: '67d5e2b3d9a711c43b1da20',
+              paymentMethod: 'cash',
+              paymentStatus: 'pending',
+              status: 'pending',
+              subtotal: 199.98,
+              shippingFee: 50,
+              tax: 28,
+              discount: 0,
+              totalPrice: 277.98,
+              items: [],
+            },
+          },
+        },
+        myOrders: {
+          success: true,
+          message: 'Orders fetched successfully',
+          data: {
+            orders: [{ _id: '67d5e2b3d9a711c43b1da20', status: 'pending', totalPrice: 277.98 }],
+            pagination: { page: 1, limit: 10, totalOrders: 1, totalPages: 1 },
+          },
+        },
+        users: {
+          success: true,
+          message: 'Users retrieved successfully.',
+          data: [
+            {
+              _id: '<USER_ID>',
+              username: 'jane doe',
+              email: 'jane@example.com',
+              role: 'customer',
+              isVerified: true,
+            },
+          ],
+        },
+        dashboard: {
+          success: true,
+          message: 'Dashboard analytics retrieved successfully',
+          data: {
+            revenue: { total: 12500, currentMonth: 2000, lastMonth: 1800, growthPercentage: 11.11 },
+            ordersByStatus: [{ _id: 'delivered', count: 12 }],
+            topProducts: [{ name: 'Wireless Headphones', unitsSold: 10, revenue: 999.9 }],
+            last7Days: [{ _id: '2026-09-16', dailyRevenue: 200, dailyOrders: 2 }],
+            recentOrders: [],
+            totalCustomers: 25,
+          },
+        },
+        webhookReceived: { received: true },
       }
 
-      // Search & Filter Combination
-      function filterRoutes() {
-        applyFilters()
+      const examples = {
+        login: { email: 'customer@example.com', password: 'Password123!' },
+        register: {
+          username: 'jane doe',
+          email: 'jane@example.com',
+          password: 'Password123!',
+          phone: '+15551234567',
+        },
+        otp: { email: 'jane@example.com', otp: '123456' },
+        reset: { email: 'jane@example.com', otp: '123456', newPassword: 'NewPassword123!' },
+        review: { rating: 5, comment: 'Great sound quality.' },
+        addItems: { items: [{ productId: '<PRODUCT_ID>', quantity: 2 }] },
+        coupon: { code: 'SAVE10' },
+        orderRequest: {
+          shippingAddress: {
+            country: 'Egypt',
+            city: 'Cairo',
+            address: '10 Example Street',
+            postalCode: '11511',
+          },
+          paymentMethod: 'cash',
+          customerNote: 'Please call on delivery.',
+        },
+        userCreate: {
+          username: 'jane doe',
+          email: 'jane@example.com',
+          password: 'Password123!',
+          phone: '+15551234567',
+          role: 'customer',
+          addresses: {
+            country: 'Egypt',
+            city: 'Cairo',
+            address: '10 Example Street',
+            postalCode: '11511',
+          },
+        },
+        statusUpdate: { status: 'confirmed', adminNote: 'Payment verified.' },
+        webhook: { event: 'checkout.session.completed' },
       }
 
-      function applyFilters() {
-        const query = document.getElementById('searchInput').value.toLowerCase()
-        const routeCards = document.querySelectorAll('.route-card')
+      const endpoints = [
+        {
+          module: 'Health',
+          method: 'GET',
+          path: '/health',
+          auth: 'PUBLIC',
+          description: 'Check the health of the API',
+          request: 'health',
+          response: 'health',
+        },
+        {
+          module: 'Authentication',
+          method: 'POST',
+          path: '/auth/login',
+          auth: 'PUBLIC',
+          description: 'Authenticate user and return an access token',
+          request: 'login',
+          response: 'login',
+        },
+        {
+          module: 'Authentication',
+          method: 'POST',
+          path: '/auth/register/send-otp',
+          auth: 'PUBLIC',
+          description: 'Send registration OTP',
+          request: 'register',
+          response: 'registerSendOtp',
+        },
+        {
+          module: 'Authentication',
+          method: 'POST',
+          path: '/auth/register/verify-otp',
+          auth: 'PUBLIC',
+          description: 'Verify registration OTP and create account',
+          request: 'otp',
+          response: 'registerVerify',
+        },
+        {
+          module: 'Authentication',
+          method: 'POST',
+          path: '/auth/forgotpassword/send-otp',
+          auth: 'PUBLIC',
+          description: 'Send reset-password OTP',
+          request: { email: 'jane@example.com' },
+          response: 'forgotSendOtp',
+        },
+        {
+          module: 'Authentication',
+          method: 'POST',
+          path: '/auth/forgotpassword/verify-otp',
+          auth: 'PUBLIC',
+          description: 'Reset password after OTP verification',
+          request: 'reset',
+          response: 'forgotVerify',
+        },
+        {
+          module: 'Authentication',
+          method: 'POST',
+          path: '/auth/logout',
+          auth: 'BEARER',
+          description: 'Logout current session',
+          request: null,
+          response: 'logout',
+        },
+        {
+          module: 'Authentication',
+          method: 'POST',
+          path: '/auth/logout-all',
+          auth: 'BEARER',
+          description: 'Logout all devices',
+          request: null,
+          response: 'ok',
+        },
+        {
+          module: 'Authentication',
+          method: 'POST',
+          path: '/auth/refresh',
+          auth: 'COOKIE',
+          description: 'Refresh current access token',
+          request: null,
+          response: 'refresh',
+        },
+        {
+          module: 'Authentication',
+          method: 'GET',
+          path: '/auth/sessions',
+          auth: 'BEARER',
+          description: 'List active sessions for current user',
+          request: null,
+          response: 'sessions',
+        },
+        {
+          module: 'Authentication',
+          method: 'GET',
+          path: '/auth/me',
+          auth: 'BEARER',
+          description: 'Get current user profile',
+          request: null,
+          response: 'me',
+        },
+        {
+          module: 'Authentication',
+          method: 'DELETE',
+          path: '/auth/sessions/:sessionId',
+          auth: 'BEARER',
+          description: 'Revoke one session',
+          request: null,
+          response: 'ok',
+        },
 
-        routeCards.forEach((card) => {
-          const routePath = card.getAttribute('data-route').toLowerCase()
-          const routeMethod = card.getAttribute('data-method')
-          const desc = card.querySelector('.route-desc').textContent.toLowerCase()
+        {
+          module: 'Products',
+          method: 'GET',
+          path: '/products',
+          auth: 'PUBLIC',
+          description: 'List products with filters and pagination',
+          request: null,
+          response: 'products',
+          query: 'page=1&limit=10&sort=newest',
+        },
+        {
+          module: 'Products',
+          method: 'GET',
+          path: '/products/search',
+          auth: 'PUBLIC',
+          description: 'Search products with filters',
+          request: null,
+          response: 'products',
+          query:
+            'query=headphones&category=electronics&tags=bluetooth,audio&minPrice=50&sort=price-asc',
+        },
+        {
+          module: 'Products',
+          method: 'GET',
+          path: '/products/:id',
+          auth: 'PUBLIC',
+          description: 'Get one product by MongoDB ID',
+          request: null,
+          response: 'productById',
+        },
+        {
+          module: 'Products',
+          method: 'GET',
+          path: '/products/:id/reviews',
+          auth: 'PUBLIC',
+          description: 'List product reviews',
+          request: null,
+          response: 'reviews',
+          query: 'page=1&limit=10',
+        },
+        {
+          module: 'Products',
+          method: 'POST',
+          path: '/products',
+          auth: 'ADMIN',
+          description: 'Create a new product',
+          request: {
+            name: 'Wireless Headphones',
+            shortDescription: 'Noise cancelling bluetooth headphones',
+            description: 'Premium wireless headphones with 30-hour battery life.',
+            price: 129.99,
+            stock: 25,
+            category: 'electronics',
+            images: [{ public_id: 'products/abc123', url: 'https://example.com/image.jpg' }],
+          },
+          response: 'productCreate',
+        },
+        {
+          module: 'Products',
+          method: 'PATCH',
+          path: '/products/:id',
+          auth: 'ADMIN',
+          description: 'Update an existing product',
+          request: { name: 'Wireless Headphones - Updated', price: 119.99 },
+          response: 'productUpdate',
+        },
+        {
+          module: 'Products',
+          method: 'DELETE',
+          path: '/products/:id',
+          auth: 'ADMIN',
+          description: 'Delete a product',
+          request: null,
+          response: 'ok',
+        },
+        {
+          module: 'Products',
+          method: 'POST',
+          path: '/products/:id/reviews',
+          auth: 'BEARER',
+          description: 'Add a review to a product',
+          request: 'review',
+          response: 'reviews',
+        },
+        {
+          module: 'Products',
+          method: 'DELETE',
+          path: '/products/:id/reviews/:reviewId',
+          auth: 'BEARER',
+          description: 'Delete a product review',
+          request: null,
+          response: 'ok',
+        },
 
-          const matchesMethod = currentMethod === 'ALL' || routeMethod === currentMethod
-          const matchesSearch = routePath.includes(query) || desc.includes(query)
+        {
+          module: 'Carts',
+          method: 'GET',
+          path: '/carts',
+          auth: 'BEARER',
+          description: 'Get current cart',
+          request: null,
+          response: 'cart',
+        },
+        {
+          module: 'Carts',
+          method: 'POST',
+          path: '/carts/items',
+          auth: 'BEARER',
+          description: 'Add items to cart',
+          request: 'addItems',
+          response: 'cartItems',
+        },
+        {
+          module: 'Carts',
+          method: 'PATCH',
+          path: '/carts/items',
+          auth: 'BEARER',
+          description: 'Replace item quantities in cart',
+          request: 'addItems',
+          response: 'cartItems',
+        },
+        {
+          module: 'Carts',
+          method: 'DELETE',
+          path: '/carts/items/:id',
+          auth: 'BEARER',
+          description: 'Remove one cart item',
+          request: null,
+          response: 'cart',
+        },
+        {
+          module: 'Carts',
+          method: 'DELETE',
+          path: '/carts/clear',
+          auth: 'BEARER',
+          description: 'Clear current cart',
+          request: null,
+          response: 'cart',
+        },
+        {
+          module: 'Carts',
+          method: 'POST',
+          path: '/carts/coupon',
+          auth: 'BEARER',
+          description: 'Apply a cart coupon',
+          request: 'coupon',
+          response: 'cart',
+        },
+        {
+          module: 'Carts',
+          method: 'DELETE',
+          path: '/carts/coupon',
+          auth: 'BEARER',
+          description: 'Remove active coupon',
+          request: null,
+          response: 'cart',
+        },
 
-          if (matchesMethod && matchesSearch) {
-            card.style.display = 'block'
-          } else {
-            card.style.display = 'none'
-          }
-        })
+        {
+          module: 'Wishlists',
+          method: 'GET',
+          path: '/wishlists/my',
+          auth: 'BEARER',
+          description: 'Get current wishlist',
+          request: null,
+          response: 'wishlist',
+        },
+        {
+          module: 'Wishlists',
+          method: 'POST',
+          path: '/wishlists/add/:id',
+          auth: 'BEARER',
+          description: 'Add product to wishlist',
+          request: null,
+          response: 'wishlist',
+        },
+        {
+          module: 'Wishlists',
+          method: 'DELETE',
+          path: '/wishlists/remove/:id',
+          auth: 'BEARER',
+          description: 'Remove product from wishlist',
+          request: null,
+          response: 'wishlist',
+        },
+        {
+          module: 'Wishlists',
+          method: 'DELETE',
+          path: '/wishlists/clear',
+          auth: 'BEARER',
+          description: 'Clear wishlist',
+          request: null,
+          response: 'wishlist',
+        },
 
-        // Hide empty modules
-        document.querySelectorAll('.module-group').forEach((group) => {
-          const visibleCards = group.querySelectorAll(
-            '.route-card[style="display: block;"], .route-card:not([style*="display: none"])',
+        {
+          module: 'Orders',
+          method: 'POST',
+          path: '/orders',
+          auth: 'BEARER',
+          description: 'Create a new order from cart',
+          request: 'orderRequest',
+          response: 'order',
+        },
+        {
+          module: 'Orders',
+          method: 'GET',
+          path: '/orders/my',
+          auth: 'BEARER',
+          description: 'List current user orders',
+          request: null,
+          response: 'myOrders',
+          query: 'page=1&limit=10&status=pending',
+        },
+        {
+          module: 'Orders',
+          method: 'GET',
+          path: '/orders/my/:id',
+          auth: 'BEARER',
+          description: 'Get one order for current user',
+          request: null,
+          response: 'myOrders',
+        },
+        {
+          module: 'Orders',
+          method: 'PATCH',
+          path: '/orders/my/:id/cancel',
+          auth: 'BEARER',
+          description: 'Cancel order',
+          request: null,
+          response: 'myOrders',
+        },
+        {
+          module: 'Orders',
+          method: 'GET',
+          path: '/orders/admin',
+          auth: 'ADMIN',
+          description: 'List all orders as admin',
+          request: null,
+          response: 'myOrders',
+          query: 'page=1&limit=10&status=pending&paymentMethod=cash',
+        },
+        {
+          module: 'Orders',
+          method: 'GET',
+          path: '/orders/admin/:id',
+          auth: 'ADMIN',
+          description: 'Get order details for admin',
+          request: null,
+          response: 'myOrders',
+        },
+        {
+          module: 'Orders',
+          method: 'PATCH',
+          path: '/orders/admin/:id/status',
+          auth: 'ADMIN',
+          description: 'Update order status',
+          request: 'statusUpdate',
+          response: 'myOrders',
+        },
+        {
+          module: 'Orders',
+          method: 'GET',
+          path: '/orders/admin/dashboard',
+          auth: 'ADMIN',
+          description: 'Get admin dashboard stats',
+          request: null,
+          response: 'dashboard',
+        },
+        {
+          module: 'Orders',
+          method: 'GET',
+          path: '/orders/admin/carts',
+          auth: 'ADMIN',
+          description: 'Get admin carts list',
+          request: null,
+          response: 'ok',
+        },
+        {
+          module: 'Orders',
+          method: 'POST',
+          path: '/orders/webhook/stripe',
+          auth: 'WEBHOOK',
+          description: 'Receive Stripe webhook',
+          request: 'webhook',
+          response: 'webhookReceived',
+        },
+        {
+          module: 'Orders',
+          method: 'POST',
+          path: '/orders/webhook/paypal',
+          auth: 'WEBHOOK',
+          description: 'Receive PayPal webhook',
+          request: 'webhook',
+          response: 'webhookReceived',
+        },
+        {
+          module: 'Orders',
+          method: 'POST',
+          path: '/orders/webhook/paymob',
+          auth: 'WEBHOOK',
+          description: 'Receive Paymob webhook',
+          request: 'webhook',
+          response: 'webhookReceived',
+        },
+
+        {
+          module: 'Users',
+          method: 'GET',
+          path: '/users/all',
+          auth: 'ADMIN',
+          description: 'List all users',
+          request: null,
+          response: 'users',
+        },
+        {
+          module: 'Users',
+          method: 'POST',
+          path: '/users/add',
+          auth: 'ADMIN',
+          description: 'Create a new user',
+          request: 'userCreate',
+          response: 'users',
+        },
+        {
+          module: 'Users',
+          method: 'GET',
+          path: '/users/:id',
+          auth: 'ADMIN',
+          description: 'Get user by ID',
+          request: null,
+          response: 'users',
+        },
+        {
+          module: 'Users',
+          method: 'PATCH',
+          path: '/users/:id',
+          auth: 'BEARER',
+          description: 'Update own or managed user profile',
+          request: { username: 'jane doe', phone: '+15551234567' },
+          response: 'users',
+        },
+        {
+          module: 'Users',
+          method: 'DELETE',
+          path: '/users/:id',
+          auth: 'ADMIN',
+          description: 'Delete a user',
+          request: null,
+          response: 'ok',
+        },
+
+        {
+          module: 'Admin summaries',
+          method: 'GET',
+          path: '/admin/dashboard',
+          auth: 'ADMIN',
+          description: 'Get dashboard analytics',
+          request: null,
+          response: 'dashboard',
+        },
+        {
+          module: 'Admin summaries',
+          method: 'GET',
+          path: '/admin/carts',
+          auth: 'ADMIN',
+          description: 'List active carts',
+          request: null,
+          response: 'ok',
+          query: 'page=1&limit=10',
+        },
+        {
+          module: 'Admin summaries',
+          method: 'GET',
+          path: '/admin/wishlists',
+          auth: 'ADMIN',
+          description: 'List user wishlists',
+          request: null,
+          response: 'ok',
+          query: 'page=1&limit=10',
+        },
+        {
+          module: 'Admin summaries',
+          method: 'GET',
+          path: '/admin/wishlists/stats',
+          auth: 'ADMIN',
+          description: 'Get top wishlisted products',
+          request: null,
+          response: 'ok',
+        },
+      ]
+
+      // Initial Metric Assignment
+      document.getElementById('endpointCount').innerText = endpoints.length
+      document.getElementById('moduleCount').innerText = [
+        ...new Set(endpoints.map((e) => e.module)),
+      ].length
+
+      function resolveRequestBody(endpoint) {
+        if (endpoint.request === null || endpoint.request === undefined) return null
+        if (typeof endpoint.request === 'string') return examples[endpoint.request] ?? null
+        return endpoint.request
+      }
+
+      function buildModuleNav() {
+        const modules = [...new Set(endpoints.map((e) => e.module))]
+        const nav = document.getElementById('sidebarNav')
+        let html = `
+          <div class="nav-section-title">Overview</div>
+          <a href="#overview" class="nav-link active"><span>${iconMap['default']}Overview</span></a>
+          <div class="nav-section-title">API Modules</div>
+        `
+        html += modules
+          .map(
+            (module) => `
+          <a href="#${slugify(module)}" class="nav-link">
+            <span>${iconMap[module] || iconMap['default']}${module}</span>
+            <span class="count">${endpoints
+              .filter((e) => e.module === module)
+              .length.toString()
+              .padStart(2, '0')}</span>
+          </a>
+        `,
           )
-          // Check if any card is visible inside the group
-          let hasVisible = false
-          group.querySelectorAll('.route-card').forEach((card) => {
-            if (card.style.display !== 'none') hasVisible = true
-          })
-          group.style.display = hasVisible ? 'block' : 'none'
+          .join('')
+        nav.innerHTML = html
+      }
+
+      function slugify(value) {
+        return value
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '')
+      }
+
+      function getVisibleEndpoints() {
+        const q = document.getElementById('searchInput').value.toLowerCase().trim()
+        const method = document.querySelector('.filter-btn.active')?.dataset.method || 'ALL'
+
+        return endpoints.filter((endpoint) => {
+          const matchesMethod = method === 'ALL' || endpoint.method === method
+          const haystack =
+            `${endpoint.module} ${endpoint.method} ${endpoint.path} ${endpoint.description}`.toLowerCase()
+          const matchesSearch = !q || haystack.includes(q)
+          return matchesMethod && matchesSearch
         })
       }
 
-      function handleSearchKey(event) {
-        if (event.key === 'Enter') {
-          event.preventDefault()
-        }
+      function render() {
+        const visible = getVisibleEndpoints()
+        const grouped = visible.reduce((acc, endpoint) => {
+          if (!acc[endpoint.module]) acc[endpoint.module] = []
+          acc[endpoint.module].push(endpoint)
+          return acc
+        }, {})
+
+        const modules = Object.entries(grouped)
+        const root = document.getElementById('modules')
+
+        root.innerHTML = modules
+          .map(
+            ([module, items]) => `
+          <div class="module-group" id="${slugify(module)}">
+            <div class="module-title">${module}</div>
+            ${items
+              .map(
+                (endpoint) => `
+              <details class="route-card" data-method="${endpoint.method}">
+                <summary class="route-summary">
+                  <div class="route-info">
+                    <span class="method-badge method-${endpoint.method.toLowerCase()}">${endpoint.method}</span>
+                    <div>
+                      <div class="route-path">/api/v1${endpoint.path}</div>
+                      <div class="route-desc">${endpoint.description}</div>
+                    </div>
+                  </div>
+                  <div class="route-right">
+                    <span class="public-badge">${endpoint.auth}</span><span class="arrow-icon">▼</span>
+                  </div>
+                </summary>
+                <div class="route-body">
+                  <div>
+                    <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px; letter-spacing: 0.5px;">REQUEST</span>
+                    <pre>${escapeHtml(JSON.stringify(resolveRequestBody(endpoint), null, 2) || 'null')}</pre>
+                    <button class="try-btn" type="button" data-endpoint='${JSON.stringify(endpoint)}'>Try Endpoint</button>
+                  </div>
+                  <div>
+                    <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px; letter-spacing: 0.5px;">RESPONSE EXAMPLE</span>
+                    <pre class="response-pre">${escapeHtml(JSON.stringify(samples[endpoint.response] || samples.ok, null, 2))}</pre>
+                  </div>
+                </div>
+              </details>
+            `,
+              )
+              .join('')}
+          </div>
+        `,
+          )
+          .join('')
+
+        document.querySelectorAll('.try-btn').forEach((btn) => {
+          btn.addEventListener('click', () => openTryModal(JSON.parse(btn.dataset.endpoint)))
+        })
+
+        bindNav()
       }
+
+      function bindNav() {
+        const links = document.querySelectorAll('.nav-link')
+        links.forEach((link) => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault()
+            const href = link.getAttribute('href')
+            const target = document.getElementById(href.slice(1))
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            links.forEach((l) => l.classList.remove('active'))
+            link.classList.add('active')
+          })
+        })
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;')
+      }
+
+      document.getElementById('searchInput').addEventListener('input', render)
+
+      document.querySelectorAll('.filter-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach((btn) => btn.classList.remove('active'))
+          button.classList.add('active')
+          render()
+        })
+      })
+
+      function openTryModal(endpoint) {
+        const dialog = document.getElementById('requestDialog')
+        const title = document.getElementById('dialogTitle')
+        const urlField = document.getElementById('requestUrl')
+        const queryField = document.getElementById('requestQuery')
+        const bodyFieldContainer = document.getElementById('bodyFieldContainer')
+        const bodyField = document.getElementById('requestBody')
+        const resultBox = document.getElementById('resultBox')
+
+        title.textContent = `Try ${endpoint.method} /api/v1${endpoint.path}`
+        urlField.value = `${API_BASE}${endpoint.path}`
+        queryField.value = endpoint.query || ''
+
+        const request = resolveRequestBody(endpoint)
+        if (endpoint.method === 'GET' || endpoint.method === 'DELETE') {
+          bodyFieldContainer.style.display = 'none'
+          bodyField.value = ''
+        } else {
+          bodyFieldContainer.style.display = 'block'
+          bodyField.value = request ? JSON.stringify(request, null, 2) : ''
+        }
+
+        resultBox.style.display = 'none'
+        resultBox.textContent = ''
+
+        document.getElementById('sendRequest').onclick = async () => {
+          const token = document.getElementById('tokenInput').value.trim()
+          const url = `${urlField.value}${queryField.value ? `?${queryField.value}` : ''}`
+          const method = endpoint.method
+          const headers = {}
+          if (token) headers.Authorization = `Bearer ${token}`
+
+          let body = bodyField.value.trim()
+          let bodyContent = undefined
+          if (body && method !== 'GET' && method !== 'DELETE') {
+            headers['Content-Type'] = 'application/json'
+            bodyContent = body
+          }
+
+          resultBox.style.display = 'block'
+          resultBox.textContent = 'Sending request...'
+
+          try {
+            const res = await fetch(url, {
+              method,
+              headers,
+              credentials: 'include',
+              body: bodyContent,
+            })
+
+            const text = await res.text()
+            let parsed
+            try {
+              parsed = JSON.parse(text)
+            } catch {
+              parsed = text
+            }
+
+            resultBox.textContent = `HTTP ${res.status} ${res.statusText}\n\n${typeof parsed === 'string' ? parsed : JSON.stringify(parsed, null, 2)}`
+          } catch (error) {
+            resultBox.textContent = `Request failed: ${error.message}\n\nEnsure the API server is running and CORS is configured for this page.`
+          }
+        }
+
+        dialog.showModal()
+      }
+
+      document.getElementById('closeDialog').addEventListener('click', () => {
+        document.getElementById('requestDialog').close()
+      })
+
+      buildModuleNav()
+      render()
     </script>
   </body>
 </html>

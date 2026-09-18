@@ -9,6 +9,7 @@ const errorHandler = (err, req, res, _next) => {
 
   const isOperational = err.isOperational || false
   const message = environment.isDevelopment || isOperational ? err.message : 'Internal Server Error'
+
   logger.error({
     message: err.message || 'No message provided',
     statusCode,

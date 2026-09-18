@@ -67,7 +67,7 @@ export const getProducts = asyncHandler(async (req, res) => {
   }
 
   if (tags) {
-    query.tags = {
+    q.tags = {
       $in: tags
         .split(',')
         .map((tag) => tag.trim().toLowerCase())
@@ -87,7 +87,7 @@ export const getProducts = asyncHandler(async (req, res) => {
     'rating-desc': { averageRating: -1, _id: -1 },
   }
 
-  sortOptions.default = searchQuery ? { score: { $meta: 'textScore' }, _id: 1 } : sortOptions.newest
+  sortOptions.default = query ? { score: { $meta: 'textScore' }, _id: 1 } : sortOptions.newest
 
   const [products, total] = await Promise.all([
     Product.find(q)
